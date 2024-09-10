@@ -1,0 +1,12 @@
+syntax = "proto3";
+package literary_quotations_catalog;
+
+option go_package = "https://gitlab.com/purposeless-lab/monorepo/literary-quotations-catalog/server/api/proto";
+
+import "google/protobuf/any.proto";
+
+message Status {
+  int32 code = 1;
+  string message = 2;
+  repeated google.protobuf.Any details = 3;
+}
