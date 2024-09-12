@@ -1,7 +1,7 @@
 syntax = "proto3";
 package literary_quotations_catalog;
 
-option go_package = "https://gitlab.com/purposeless-lab/monorepo/literary-quotations-catalog/server/api/proto";
+option go_package = "https://gitlab.com/purposeless-lab/monorepo/fitness-aggregator/server/api/proto";
 
 import "google/protobuf/any.proto";
 

@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/any.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-service LibraryService {
+service PlaceRepository {
   rpc Echo(EchoRequest) returns (EchoResponse) {
     option (google.api.http) = {post: "/v1/echo"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
