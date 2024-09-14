@@ -3,7 +3,9 @@ module gitlab.com/purposeless-lab/monorepo/fitness-aggregator
 go 1.22.5
 
 require (
+	github.com/felixge/httpsnoop v1.0.4
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
+	golang.org/x/sync v0.8.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1
 	google.golang.org/grpc v1.66.1
 	google.golang.org/protobuf v1.34.2
