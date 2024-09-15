@@ -10,7 +10,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 service PlaceRepository {
   rpc Echo(EchoRequest) returns (EchoResponse) {
     option (google.api.http) = {
-      post: "/v1/echo",
+      post: "/api/v1/echo",
       body: "*",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

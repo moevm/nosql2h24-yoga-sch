@@ -13,5 +13,5 @@ type PlaceRepository struct {
 
 func (r *PlaceRepository) Echo(_ context.Context, req *gen.EchoRequest) (*gen.EchoResponse, error) {
 	fmt.Printf("Echo: %s\n", req.Value)
-	return &gen.EchoResponse{Value: "Echo success"}, nil
+	return &gen.EchoResponse{Value: fmt.Sprintf("Echo: %s", req.Value)}, nil
 }
