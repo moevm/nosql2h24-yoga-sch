@@ -1,0 +1,40 @@
+services:
+  nginx:
+    container_name: nginx
+    image: ${CI_REGISTRY_IMAGE}/nginx:${IMAGE_TAG}
+    build:
+      context: ./nginx/
+      dockerfile: Dockerfile
+    networks:
+        - app-net
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+
+  client:
+    container_name: client
+    image: ${CI_REGISTRY_IMAGE}/client:${IMAGE_TAG}
+    build:
+      context: ./client/
+      dockerfile: Dockerfile
+    networks:
+      - app-net
+
+  server:
+    container_name: server
+    image: ${CI_REGISTRY_IMAGE}/server:${IMAGE_TAG}
+    build:
+      context: ./server/
+      dockerfile: Dockerfile
+    #environment:
+    networks:
+      - app-net
+
+volumes:
+  db-data:
+
+networks:
+  app-net:
+

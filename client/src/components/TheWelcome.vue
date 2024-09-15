@@ -6,7 +6,9 @@ import EcosystemIcon from "./icons/IconEcosystem.vue";
 import CommunityIcon from "./icons/IconCommunity.vue";
 import SupportIcon from "./icons/IconSupport.vue";
 
-const resp = fetch('http://localhost:4200/api/v1/echo', {
+const URI = `${window.location.protocol}//${window.location.hostname}`
+
+const promise = fetch(`${URI}/api/v1/echo`, {
   method: 'post',
   headers: {
     'Accept': 'application/json',

@@ -73,7 +73,7 @@ func newHTTP(httpPort, grpcPort int) *http.Server {
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf(":%d", httpPort),
-		Handler: middlewares.EnableCors(middlewares.WithLogger(mux)),
+		Handler: middlewares.WithLogger(mux),
 	}
 
 	return s
