@@ -6,9 +6,10 @@ services:
       context: ./nginx/
       dockerfile: Dockerfile
     networks:
-        - app-net
+      - app-net
     ports:
       - 80:80
+      - 8443:8443
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     restart: always

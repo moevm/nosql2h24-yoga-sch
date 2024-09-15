@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	httpPort = flag.Int("http-port", 4200, "The server port")
-	grpcPort = flag.Int("grpc-port", 4201, "The server port")
+	httpPort = flag.Int("http-port", 8080, "The server port")
+	grpcPort = flag.Int("grpc-port", 8443, "The server port")
 )
 
 func main() {
