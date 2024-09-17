@@ -29,7 +29,6 @@ services:
     build:
       context: ./server/
       dockerfile: Dockerfile
-    #environment:
     networks:
       - app-net
 
