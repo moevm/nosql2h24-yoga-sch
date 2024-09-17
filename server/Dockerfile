@@ -27,12 +27,12 @@ FROM tools AS builder
 
 # Install go packages
 WORKDIR /src
-COPY ./go.mod ./go.sum ./
+COPY ./go.mod ./go.sum .
 
 RUN go mod download && go mod verify
 
 # Build go binary
-COPY ./. ./
+COPY . .
 RUN make gen && go build -v -o /bin/app ./cmd/server/main.go
 
 # ------------------------------------
