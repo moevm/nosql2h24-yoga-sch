@@ -4,3 +4,6 @@
 # ide directories
 .idea/
 .vscode/
+
+# secrets
+.env
