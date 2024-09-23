@@ -1,0 +1,24 @@
+version: v1
+plugins:
+  - plugin: go
+    out: ../internal/gen/proto
+    opt: paths=source_relative
+  - plugin: go-grpc
+    out: ../internal/gen/proto
+    opt: paths=source_relative
+  - plugin: grpc-gateway
+    out: ../internal/gen/proto
+    opt: paths=source_relative
+  - plugin: openapiv2
+    out: ../api
+    opt:
+      # Omit enum UNSPECIFIED zero value
+      - omit_enum_default_value=true
+      # Generate .yaml file instead of .json
+      - output_format=yaml
+      # Disable default '200' response generation
+      - disable_default_responses=true
+      # Enable rpc/handler deprecation
+      - enable_rpc_deprecation=true
+      # DELETE method may have a body
+      - allow_delete_body=true
