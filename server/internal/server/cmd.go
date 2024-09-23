@@ -16,7 +16,7 @@ import (
 func Run(httpPort, grpcPort int) {
 	dbC := db.New()
 
-	l, grpcS := newGRPC(grpcPort)
+	l, grpcS := newGRPC(grpcPort, dbC)
 	httpS := newHTTP(httpPort, grpcPort)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -30,9 +30,9 @@ func Run(httpPort, grpcPort int) {
 		fmt.Println("Shutting down server")
 
 		httpErr := httpS.Shutdown(context.Background())
-		mongoErr := dbC.Disconnect(context.Background())
-
 		grpcS.GracefulStop()
+
+		mongoErr := dbC.Disconnect(context.Background())
 
 		return errors.Join(httpErr, mongoErr)
 	})

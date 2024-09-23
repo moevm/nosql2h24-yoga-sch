@@ -25,7 +25,7 @@ func main() {
 		}
 	}()
 
-	c := v1.NewPlaceRepositoryClient(grpcC)
+	c := v1.NewExampleServiceClient(grpcC)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

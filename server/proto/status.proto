@@ -1,5 +1,5 @@
 syntax = "proto3";
-package literary_quotations_catalog;
+package fitness_aggregator;
 
 option go_package = "https://gitlab.com/purposeless-lab/monorepo/fitness-aggregator/server/api/proto";
 
