@@ -1,0 +1,87 @@
+syntax = "proto3";
+package fitness_aggregator.v1;
+
+option go_package = "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/server/api/proto/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+service ExampleService {
+  rpc Echo(EchoRequest) returns (EchoResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/echo",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.EchoResponse"}
+          }
+        }
+      };
+    };
+  }
+
+  rpc Store(StoreRequest) returns (StoreResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/store",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.StoreResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc Load(LoadRequest) returns (LoadResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/load",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.LoadResponse"}
+          }
+        }
+      }
+    };
+  }
+}
+
+message EchoRequest {
+  string value = 1;
+}
+
+message EchoResponse {
+  string value = 1;
+}
+
+message StoreRequest {
+  string key = 1;
+  string value = 2;
+}
+
+message StoreResponse {
+  string id = 1;
+}
+
+message LoadRequest {
+  string key = 1;
+}
+
+message LoadResponse {
+  string key = 1;
+  string value = 2;
+}
