@@ -37,7 +37,7 @@ services:
 
   mongodb:
     container_name: mongodb
-    image: mongo:latest
+    image: mongo:8.0
     restart: always
     command: --config /etc/mongo/mongod.conf
     volumes:
@@ -46,7 +46,7 @@ services:
     networks:
       - app-net
     healthcheck:
-      test: mongosh --eval 'db.adminCommand("ping")' --quiet
+      test: mongosh --eval 'db.runCommand("ping").ok' --quiet
       interval: 10s
       timeout: 5s
       retries: 5

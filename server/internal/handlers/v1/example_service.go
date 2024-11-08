@@ -18,7 +18,7 @@ type ExampleService struct {
 
 func (s *ExampleService) Echo(_ context.Context, req *gen.EchoRequest) (*gen.EchoResponse, error) {
 	fmt.Printf("Echo: %s\n", req.Value)
-	return &gen.EchoResponse{Value: fmt.Sprintf("Echo: %s", req.Value)}, nil
+	return &gen.EchoResponse{Value: req.Value}, nil
 }
 
 type ExampleRow struct {
