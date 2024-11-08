@@ -17,14 +17,14 @@ import (
 	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/middlewares"
 )
 
-func newGRPC(port int, client *mongo.Client) (net.Listener, *grpc.Server) {
+func newGRPC(port int, mongoClient *mongo.Client) (net.Listener, *grpc.Server) {
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("error listening address %d: %v", port, err)
 	}
 
 	s := grpc.NewServer()
-	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: client})
+	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: mongoClient})
 
 	fmt.Printf("Starting grpc server on port %d...\n", port)
 	return l, s
