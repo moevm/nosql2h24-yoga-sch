@@ -1,85 +1,108 @@
-<template>
-  <div>
-    <h2>{{ getEntityTitle(entityType) }}</h2>
+<template xmlns="http://www.w3.org/1999/html">
+  <div class="table-container">
+    <h2>{{ items.length + " " + entityType }}</h2>
     <table v-if="items.length" border="1" cellpadding="10">
       <thead>
       <tr>
-        <th v-for="header in getTableHeaders(entityType)" :key="header">{{ header }}</th>
+        <th v-for="header in getColumnConfig(entityType)" :key="header.label">{{ header.label }}</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="item in items" :key="item._id">
-        <td v-if="entityType === 'clients'">{{ item._id }}</td>
-        <td v-if="entityType === 'clients'">{{ item.name }}</td>
-        <td v-if="entityType === 'clients'">{{ item.phone }}</td>
-        <td v-if="entityType === 'clients'">{{ item.gender }}</td>
-        <td v-if="entityType === 'clients'">{{ item.birth_date }}</td>
-        <td v-if="entityType === 'clients'">{{ item.created_at }}</td>
-        <td v-if="entityType === 'clients'">{{ item.updated_at }}</td>
-        <td v-if="entityType === 'clients'">{{ item.password }}</td>
-        <td v-if="entityType === 'clients'">
-          <a v-if="item.picture_uri" :href="item.picture_uri" target="_blank">{{ item.picture_uri }}</a>
-        </td>
-        <td v-if="entityType === 'clients'">
-          <ul>
-            <li v-for="classId in item.classes" :key="classId">{{ classId }}</li>
-          </ul>
-        </td>
-
-        <td v-if="entityType === 'trainers'">{{ item._id }}</td>
-        <td v-if="entityType === 'trainers'">{{ item.name }}</td>
-        <td v-if="entityType === 'trainers'">{{ item.phone }}</td>
-        <td v-if="entityType === 'trainers'">{{ item.gender }}</td>
-        <td v-if="entityType === 'trainers'">{{ item.birth_date }}</td>
-        <td v-if="entityType === 'trainers'">{{ item.created_at }}</td>
-        <td v-if="entityType === 'trainers'">{{ item.updated_at }}</td>
-        <td v-if="entityType === 'trainers'">{{ item.studio_id }}</td>
-        <td v-if="entityType === 'trainers'">
-          <a v-if="item.picture_uri" :href="item.picture_uri" target="_blank">Фото</a>
-        </td>
-        <td v-if="entityType === 'trainers'">
-          <ul>
-            <li v-for="classId in item.classes" :key="classId">{{ classId }}</li>
-          </ul>
-        </td>
-
-        <td v-if="entityType === 'classes'">{{ item._id }}</td>
-        <td v-if="entityType === 'classes'">{{ item.class_name }}</td>
-        <td v-if="entityType === 'classes'">{{ item.time }}</td>
-        <td v-if="entityType === 'classes'">{{ item.studio_id }}</td>
-        <td v-if="entityType === 'classes'">{{ item.trainer_id }}</td>
-        <td v-if="entityType === 'classes'">
-          <ul>
-            <li v-for="clientId in item.clients" :key="clientId">{{ clientId }}</li>
-          </ul>
-        </td>
-
-        <td v-if="entityType === 'studios'">{{ item._id }}</td>
-        <td v-if="entityType === 'studios'">{{ item.address }}</td>
-        <td v-if="entityType === 'studios'">
-          <ul>
-            <li v-for="classId in item.classes" :key="classId">{{ classId }}</li>
-          </ul>
-        </td>
-        <td v-if="entityType === 'studios'">
-          <ul>
-            <li v-for="trainerId in item.trainers" :key="trainerId">{{ trainerId }}</li>
-          </ul>
-        </td>
+      <tr v-for="item in items" :key="item['_id']">
+        <template v-for="column in getColumnConfig(entityType)" :key="column.key">
+          <td v-if="!column.isLink && !column.isList && !column.isDate">{{ item[column.key as keyof Entity] }}</td>
+          <td v-else-if="column.isLink">
+            <a v-if="item[column.key as keyof Entity]" :href="item[column.key as keyof Entity]" target="_blank">
+              {{ item[column.key as keyof Entity] }}
+            </a>
+          </td>
+          <td v-else-if="column.isDate && column.isTime">{{ getDateTime(item[column.key as keyof Entity]) }}</td>
+          <td v-else-if="column.isDate && !column.isTime">{{ getDate(item[column.key as keyof Entity]) }}</td>
+          <td v-else-if="column.isList">
+            <ul>
+              <li v-for="elem in item[column.key as keyof Entity]" :key="elem">{{ elem }}</li>
+            </ul>
+          </td>
+        </template>
       </tr>
       </tbody>
     </table>
     <p v-else>Нет данных для отображения.</p>
+
+    <button @click="showModal = true" class="add-button">Добавить новый элемент</button>
+
+    <div v-if="showModal" class="modal">
+      <div class="modal-content">
+        <h3>Добавить новый элемент</h3>
+        <form @submit.prevent="addNewItem">
+          <div v-for="header in getColumnConfig(entityType)" :key="header.label">
+            <div v-if="header.isNeeded" class="form-group">
+              <label :for="header.key">{{ header.label }}</label>
+              <input v-model="formData.phone"
+                     v-if="header.label === 'Phone'"
+                     type="tel"
+                     :id="header.key"
+                     v-mask="'7(###)###-####'"
+                     required />
+              <select v-model="formData.gender"
+                      v-else-if="header.label === 'Gender'"
+                      :id="header.key"
+                      required>
+                <option value="M">M</option>
+                <option value="F">F</option>
+              </select>
+              <input v-model="formData.password"
+                     v-else-if="header.label === 'Password'"
+                     type="password"
+                     :id="header.key"
+                     required />
+              <input v-model="formData[header.key]"
+                     v-else-if="header.label === 'Password'"
+                     type="datetime-local"
+                     :id="header.key"
+                     required />
+              <input v-model="formData[header.key]"
+                     v-else-if="header.label === 'Birth Date'"
+                     type="date"
+                     :max="today"
+                     :id="header.key"
+                     required />
+              <input v-model="formData[header.key]"
+                     v-else-if="!header.isLink && !header.isList && !header.isDate && !header.isTime"
+                     :id="header.key"
+                     :placeholder="'Enter ' + header.label"
+                     required />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="modal-btn-create" @click="addNewItem()">Создать</button>
+            <button type="button" class="modal-btn-close" @click="showModal = false">Закрыть</button>
+          </div>
+        </form>
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, type Ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { VueMaskDirective } from 'vue-the-mask';
+import { type Classes, type Clients, type Studios, type Trainers} from "@/types/types";
 
+type Entity = Clients | Classes | Studios | Trainers
 const route = useRoute();
-const entityType = ref(route.params.entityType as 'clients' | 'trainers' | 'classes' | 'studios');
-const items = ref([]);
+const entityType = ref(route.params.entityType as 'Clients' | 'Trainers' | 'Classes' | 'Studios');
+const items: Ref<Entity[]> = ref([]);
+const showModal = ref(false);
+const errorMessage = ref("");
+
+const formData = ref<Record<string, any>>({});
+const today = new Date().toISOString().split('T')[0];
 
 async function loadData() {
   try {
@@ -88,39 +111,268 @@ async function loadData() {
     items.value = data || [];
   } catch (error) {
     console.error("Ошибка при загрузке данных:", error);
+    items.value = [{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    },{
+      "_id" : "671e6188c4140ba749707d2f",
+      "name": "Elizaveta Andreeva",
+      "phone": "+7(999)99-9999",
+      "gender": "F",
+      "birth_date": "2000-01-01",
+      "created_at": "2040-10-28T23:58:18Z",
+      "updated_at": "2040-10-29T23:58:18Z",
+      "password": "11111111",
+      "picture_uri": "https://cdn.example.com",
+      "classes": ["671e6196bc9ec2a1455fda9a"]
+    }];
   }
 }
 
 onMounted(loadData);
 
 watch(() => route.params.entityType, (newType) => {
-  entityType.value = newType as 'clients' | 'trainers' | 'classes' | 'studios';
+  entityType.value = newType as 'Clients' | 'Trainers' | 'Classes' | 'Studios';
   loadData();
 });
 
-function getEntityTitle(type: string) {
+function getColumnConfig(type: string) {
   switch (type) {
-    case 'clients': return 'Клиенты';
-    case 'trainers': return 'Тренеры';
-    case 'classes': return 'Занятия';
-    case 'studios': return 'Студии';
-    default: return 'Список';
+    case 'Clients': return [
+      { key: '_id', label: 'ID' },
+      { key: 'name', label: 'Name', isNeeded: true },
+      { key: 'phone', label: 'Phone', isNeeded: true },
+      { key: 'gender', label: 'Gender', isNeeded: true },
+      { key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true },
+      { key: 'created_at', label: 'Created At', isDate: true, isTime: true },
+      { key: 'updated_at', label: 'Updated At', isDate: true, isTime: true },
+      { key: 'password', label: 'Password', isNeeded: true },
+      { key: 'picture_uri', label: 'Picture', isLink: true },
+      { key: 'classes', label: 'Classes', isList: true }
+    ];
+    case 'Trainers': return [
+      { key: '_id', label: 'ID' },
+      { key: 'name', label: 'Name', isNeeded: true },
+      { key: 'phone', label: 'Phone', isNeeded: true },
+      { key: 'gender', label: 'Gender', isNeeded: true },
+      { key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true },
+      { key: 'created_at', label: 'Created At', isDate: true, isTime: true  },
+      { key: 'updated_at', label: 'Updated At', isDate: true, isTime: true  },
+      { key: 'studio_id', label: 'Studio ID', isNeeded: true },
+      { key: 'picture_uri', label: 'Picture', isLink: true },
+      { key: 'classes', label: 'Classes', isList: true }
+    ];
+    case 'Classes': return [
+      { key: '_id', label: 'ID' },
+      { key: 'class_name', label: 'Class Type', isNeeded: true },
+      { key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true },
+      { key: 'studio_id', label: 'Studio ID', isNeeded: true },
+      { key: 'trainer_id', label: 'Trainer ID', isNeeded: true },
+      { key: 'clients', label: 'Clients', isList: true }
+    ];
+    case 'Studios': return [
+      { key: '_id', label: 'ID' },
+      { key: 'address', label: 'Address', isNeeded: true },
+      { key: 'classes', label: 'Classes', isList: true },
+      { key: 'trainers', label: 'Trainers', isList: true }
+    ];
+    default: return [];
   }
 }
 
-// Функция для получения заголовков таблицы
-function getTableHeaders(type: string) {
-  switch (type) {
-    case 'clients': return ['ID', 'Имя', 'Телефон', 'Гендер', 'Дата рождения', 'Создан', 'Обновлен', 'Пароль', 'Фото', 'Занятия'];
-    case 'trainers': return ['ID', 'Имя', 'Телефон', 'Гендер', 'Дата рождения', 'Создан', 'Обновлен', 'Студия', 'Фото', 'Занятия'];
-    case 'classes': return ['ID', 'Название занятия', 'Время', 'Студия', 'Тренер', 'Клиенты'];
-    case 'studios': return ['ID', 'Адрес', 'Занятия', 'Тренеры'];
-    default: return [];
+function getDateTime(date: string) {
+  return new Date(date).toLocaleString()
+}
+
+function getDate(date: string) {
+  return new Date(date).toDateString()
+}
+
+const addNewItem = async () => {
+  try {
+    const newItem = {
+      type: entityType.value,
+      data: formData.value
+    };
+    console.log(newItem)
+
+    const response = await fetch(`address/${entityType.value}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newItem)
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.statusText}`);
+    }
+
+    await loadData();
+    showModal.value = false;
+    errorMessage.value = "";
+  } catch (error) {
+    if (error instanceof Error) {
+      errorMessage.value = `Ошибка при отправке данных: ${error.message}`;
+    } else {
+      errorMessage.value = "Произошла неизвестная ошибка";
+    }
   }
 }
 </script>
 
 <style scoped>
+
+.error-message {
+  color: #f44336;
+  background-color: #ffebee;
+  padding: 10px;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  margin-top: 15px;
+  text-align: center;
+}
+
 h2 {
   margin-top: 1rem;
 }
@@ -154,5 +406,125 @@ ul {
 li {
   list-style-type: none;
   margin: 0.5rem 0;
+}
+
+.table-container {
+  padding-bottom: 60px; /* Отступ снизу для места для кнопки */
+}
+
+ .add-button {
+   position: fixed;
+   bottom: 20px;
+   right: 20px;
+   padding: 12px 24px;
+   background-color: #f44336;
+   color: white;
+   border: none;
+   border-radius: 8px;
+   cursor: pointer;
+   font-size: 16px;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   transition: background-color 0.3s ease, transform 0.2s ease;
+   z-index: 100;
+ }
+
+.add-button:hover {
+  background-color: #d32f2f;
+  transform: translateY(-3px);
+}
+
+.add-button:active {
+  background-color: #b71c1c;
+  transform: translateY(0);
+}
+
+/* Модальное окно */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px; /* Ограничиваем максимальную ширину окна */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Скроллинг если контент слишком длинный */
+  max-height: 90vh; /* Ограничение по высоте */
+}
+
+.modal-content h3 {
+  text-align: center;
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+/* Форматирование группы полей */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+/* Кнопки в модальном окне */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.modal-content button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.modal-btn-create {
+  background-color: #4CAF50;
+}
+
+.modal-btn-create:hover {
+  background-color: #388E3C;
+}
+
+.modal-btn-close {
+  background-color: #757575;
+}
+
+.modal-btn-close:hover {
+  background-color: #616161;
 }
 </style>

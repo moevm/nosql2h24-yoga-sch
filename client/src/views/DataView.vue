@@ -4,7 +4,7 @@
     <ul class="entity-list">
       <li class="entity-item">
         <router-link
-            :to="{ name: 'EntityList', params: { entityType: 'clients' } }"
+            :to="{ name: 'EntityList', params: { entityType: 'Clients' } }"
             class="entity-link"
         >
           Список клиентов
@@ -12,7 +12,7 @@
       </li>
       <li class="entity-item">
         <router-link
-            :to="{ name: 'EntityList', params: { entityType: 'trainers' } }"
+            :to="{ name: 'EntityList', params: { entityType: 'Trainers' } }"
             class="entity-link"
         >
           Список тренеров
@@ -20,7 +20,7 @@
       </li>
       <li class="entity-item">
         <router-link
-            :to="{ name: 'EntityList', params: { entityType: 'studios' } }"
+            :to="{ name: 'EntityList', params: { entityType: 'Studios' } }"
             class="entity-link"
         >
           Список студий
@@ -28,7 +28,7 @@
       </li>
       <li class="entity-item">
         <router-link
-            :to="{ name: 'EntityList', params: { entityType: 'classes' } }"
+            :to="{ name: 'EntityList', params: { entityType: 'Classes' } }"
             class="entity-link"
         >
           Список занятий
