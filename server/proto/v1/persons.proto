@@ -1,0 +1,28 @@
+syntax = "proto3";
+package fitness_aggregator.v1;
+
+option go_package = "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/server/api/proto/v1";
+
+import "google/protobuf/timestamp.proto";
+
+enum Gender {
+  GENDER_UNKNOWN = 0;
+  FEMALE = 1;
+  MALE = 2;
+}
+
+message Person {
+  string id = 1;
+  string phone = 2;
+  string name = 3;
+  string picture_uri = 4;
+  google.protobuf.Timestamp birth_date = 5;
+  Gender gender = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message Client {
+  Person person = 1;
+  string password = 2;
+}
