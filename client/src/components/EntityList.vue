@@ -42,7 +42,8 @@
                      v-if="header.label === 'Phone'"
                      type="tel"
                      :id="header.key"
-                     v-mask="'7(###)###-####'"
+                     placeholder="+7(999)999-9999"
+                     pattern="+7([0-9]{3})[0-9]{3}-[0-9]{4}"
                      required />
               <select v-model="formData.gender"
                       v-else-if="header.label === 'Gender'"
@@ -57,7 +58,7 @@
                      :id="header.key"
                      required />
               <input v-model="formData[header.key]"
-                     v-else-if="header.label === 'Password'"
+                     v-else-if="header.label === 'Time'"
                      type="datetime-local"
                      :id="header.key"
                      required />
@@ -91,7 +92,6 @@
 <script setup lang="ts">
 import { ref, type Ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { VueMaskDirective } from 'vue-the-mask';
 import { type Classes, type Clients, type Studios, type Trainers} from "@/types/types";
 
 type Entity = Clients | Classes | Studios | Trainers
@@ -111,161 +111,6 @@ async function loadData() {
     items.value = data || [];
   } catch (error) {
     console.error("Ошибка при загрузке данных:", error);
-    items.value = [{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    },{
-      "_id" : "671e6188c4140ba749707d2f",
-      "name": "Elizaveta Andreeva",
-      "phone": "+7(999)99-9999",
-      "gender": "F",
-      "birth_date": "2000-01-01",
-      "created_at": "2040-10-28T23:58:18Z",
-      "updated_at": "2040-10-29T23:58:18Z",
-      "password": "11111111",
-      "picture_uri": "https://cdn.example.com",
-      "classes": ["671e6196bc9ec2a1455fda9a"]
-    }];
   }
 }
 
