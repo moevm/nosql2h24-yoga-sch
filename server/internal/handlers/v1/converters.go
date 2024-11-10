@@ -49,6 +49,28 @@ func convertDbPerson(p db.Person) *gen.Person {
 	}
 }
 
+func convertDbTrainer(t db.Trainer) *gen.Trainer {
+	var classIDs []string
+	for _, id := range t.ClassIDs {
+		classIDs = append(classIDs, id.Hex())
+	}
+
+	return &gen.Trainer{
+		Id:         t.ID.Hex(),
+		Phone:      t.Phone,
+		Name:       t.Name,
+		PictureUri: t.PictureURI,
+		BirthDate:  timestamppb.New(t.BirthDate),
+		Gender:     convertDbGender(t.Gender),
+		CreatedAt:  timestamppb.New(t.CreatedAt),
+		UpdatedAt:  timestamppb.New(t.UpdatedAt),
+
+		ClassIds: classIDs,
+
+		StudioId: t.StudioID.Hex(),
+	}
+}
+
 func convertDbStudio(s db.Studio) *gen.Studio {
 	var classIDs []string
 	for _, id := range s.ClassIDs {
@@ -62,7 +84,6 @@ func convertDbStudio(s db.Studio) *gen.Studio {
 
 	return &gen.Studio{
 		Id:        s.ID.Hex(),
-		Name:      s.Name,
 		Address:   s.Address,
 		CreatedAt: timestamppb.New(s.CreatedAt),
 		UpdatedAt: timestamppb.New(s.UpdatedAt),

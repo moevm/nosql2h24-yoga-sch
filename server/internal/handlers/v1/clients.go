@@ -16,21 +16,21 @@ import (
 func (s *FitnessAggregator) CreateClient(
 	ctx context.Context, req *gen.CreateClientRequest,
 ) (*gen.CreateClientResponse, error) {
-	if req == nil || req.Client == nil || req.Client.Person == nil {
+	if req == nil || req.Client == nil {
 		return nil, status.Error(codes.InvalidArgument, "no request provided")
 	}
 
-	gender, err := convertGenGender(req.Client.Person.Gender)
+	gender, err := convertGenGender(req.Client.Gender)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	bsonID, err := s.Repo.InsertClient(ctx, db.Client{
 		Person: db.Person{
-			Name:       req.Client.Person.Name,
-			Phone:      req.Client.Person.Phone,
-			PictureURI: req.Client.Person.PictureUri,
-			BirthDate:  req.Client.Person.BirthDate.AsTime(),
+			Name:       req.Client.Name,
+			Phone:      req.Client.Phone,
+			PictureURI: req.Client.PictureUri,
+			BirthDate:  req.Client.BirthDate.AsTime(),
 			Gender:     gender,
 			ClassIDs:   []bson.ObjectID{},
 		},
