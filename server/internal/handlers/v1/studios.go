@@ -81,8 +81,7 @@ func (s *FitnessAggregator) DeleteStudio(
 		return nil, status.Errorf(codes.InvalidArgument, "invalid id: %v", err)
 	}
 
-	err = s.Repo.DeleteStudio(ctx, bsonID)
-	if err != nil {
+	if err = s.Repo.DeleteStudio(ctx, bsonID); err != nil {
 		if errors.Is(err, db.ErrNotFound) {
 			return nil, status.Errorf(codes.NotFound, "studio with id %s not found", req.Id)
 		}

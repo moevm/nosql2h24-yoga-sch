@@ -45,6 +45,11 @@ func (r MongoRepository) InsertTrainer(
 		return bson.ObjectID{}, fmt.Errorf("failed to insert trainer: %w", err)
 	}
 
+	if err := studiosCollection.FindOneAndUpdate(ctx, bson.M{"_id": trainer.StudioID},
+		bson.M{"$push": bson.M{"trainer_ids": result.ID}}).Err(); err != nil {
+		return bson.ObjectID{}, fmt.Errorf("failed to update studio: %w", err)
+	}
+
 	fmt.Printf("Found or inserted trainer with id %v\n", result.ID)
 	return result.ID, nil
 }
@@ -87,12 +92,24 @@ func (r MongoRepository) GetTrainer(ctx context.Context, id bson.ObjectID) (Trai
 }
 
 func (r MongoRepository) DeleteTrainer(ctx context.Context, id bson.ObjectID) error {
-	collection := r.Db().Collection(trainers)
+	trainersCollection := r.Db().Collection(trainers)
+	studiosCollection := r.Db().Collection(studios)
 
-	switch res, err := collection.DeleteOne(ctx, bson.M{"_id": id}); {
-	case errors.Is(err, mongo.ErrNoDocuments) || res.DeletedCount == 0:
-		return ErrNotFound
-	case err != nil:
+	var trainer Trainer
+	if err := trainersCollection.FindOne(ctx, bson.M{"_id": id}).
+		Decode(&trainer); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("failed to find trainer: %w", err)
+	}
+
+	if err := studiosCollection.FindOneAndUpdate(ctx, bson.M{"trainer_ids": id},
+		bson.M{"$pull": bson.M{"trainer_ids": id}}).Err(); err != nil {
+		return fmt.Errorf("failed to update studio: %w", err)
+	}
+
+	if _, err := trainersCollection.DeleteOne(ctx, bson.M{"_id": id}); err != nil {
 		return fmt.Errorf("failed to delete trainer: %w", err)
 	}
 
