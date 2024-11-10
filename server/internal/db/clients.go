@@ -25,7 +25,7 @@ func (r MongoRepository) InsertClient(
 
 	collection := r.Db().Collection(clients)
 
-	filter := bson.M{"phone": client.Person.Phone, "password": client.Password}
+	filter := bson.M{"phone": client.Person.Phone}
 	update := bson.M{"$setOnInsert": client}
 	opts := options.FindOneAndUpdate().
 		SetUpsert(true).SetReturnDocument(options.After)

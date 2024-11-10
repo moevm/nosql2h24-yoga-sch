@@ -14,12 +14,12 @@ func (r MongoRepository) MakeAppointment(
 	clientsCollection := r.Db().Collection(clients)
 
 	if err := classesCollection.FindOneAndUpdate(ctx, bson.M{"_id": classID},
-		bson.M{"$addToSet": bson.M{"clients": clientID}}).Err(); err != nil {
+		bson.M{"$addToSet": bson.M{"client_ids": clientID}}).Err(); err != nil {
 		return fmt.Errorf("error updating class %s: %v", classID, err)
 	}
 
 	if err := clientsCollection.FindOneAndUpdate(ctx, bson.M{"_id": clientID},
-		bson.M{"$addToSet": bson.M{"classes": classID}}).Err(); err != nil {
+		bson.M{"$addToSet": bson.M{"class_ids": classID}}).Err(); err != nil {
 		return fmt.Errorf("error updating client %s: %v", clientID, err)
 	}
 
@@ -33,12 +33,12 @@ func (r MongoRepository) CancelAppointment(
 	clientsCollection := r.Db().Collection(clients)
 
 	if _, err := classesCollection.UpdateOne(ctx, bson.M{"_id": classID},
-		bson.M{"$pull": bson.M{"clients": clientID}}); err != nil {
+		bson.M{"$pull": bson.M{"client_ids": clientID}}); err != nil {
 		return fmt.Errorf("error updating class %s: %v", classID, err)
 	}
 
 	if _, err := clientsCollection.UpdateOne(ctx, bson.M{"_id": clientID},
-		bson.M{"$pull": bson.M{"classes": classID}}); err != nil {
+		bson.M{"$pull": bson.M{"class_ids": classID}}); err != nil {
 		return fmt.Errorf("error updating client %s: %v", clientID, err)
 	}
 

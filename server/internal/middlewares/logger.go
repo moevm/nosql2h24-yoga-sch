@@ -9,6 +9,7 @@ import (
 
 func WithLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Cookies()
 		m := httpsnoop.CaptureMetrics(next, w, r)
 		log.Printf("http[%d]-- %s -- %s", m.Code, r.Method, r.URL.Path)
 	})

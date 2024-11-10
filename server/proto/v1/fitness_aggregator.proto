@@ -325,7 +325,7 @@ service FitnessAggregator {
     option idempotency_level = IDEMPOTENT;
 
     option (google.api.http) = {
-      delete: "/api/v1/appointment",
+      delete: "/api/v1/appointment/{client_id}/{class_id}",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
