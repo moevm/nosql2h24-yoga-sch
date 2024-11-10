@@ -17,6 +17,7 @@ const routes = [
     {   path: '/data/:entityType',
         name: 'EntityList',
         component: EntityList,
+        props: true,
     },
 ];
 

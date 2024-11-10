@@ -1,6 +1,6 @@
 <template xmlns="http://www.w3.org/1999/html">
   <div class="table-container">
-    <h2>{{ items.length + " " + entityType }}</h2>
+    <h2>{{ (items?.length || 0) + " " + entityType }}</h2>
     <table v-if="items.length" border="1" cellpadding="10">
       <thead>
       <tr>
@@ -183,12 +183,16 @@ function getDate(date: string) {
 
 const addNewItem = async () => {
   try {
+    if (formData.value.birthDate) {
+      formData.value.birthDate = new Date(formData.value.birthDate).toISOString();
+    }
+
     let payload = {
       [entityType.value.toLowerCase()]: formData.value
     };
 
     formData.value = {}
-    console.log(payload);
+    console.log(JSON.stringify(payload));
 
     const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
       method: "POST",
@@ -205,6 +209,7 @@ const addNewItem = async () => {
     await loadData();
     showModal.value = false;
     errorMessage.value = "";
+    location.reload();
   } catch (error) {
     if (error instanceof Error) {
       errorMessage.value = `Ошибка при отправке данных: ${error.message}`;
