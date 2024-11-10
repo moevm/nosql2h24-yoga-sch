@@ -18,15 +18,34 @@ import (
 	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/middlewares"
 )
 
-func newGRPC(port int, mgClient *mongo.Client) (net.Listener, *grpc.Server) {
+func newGRPC(
+	port int,
+	jwtSecret, adminToken string,
+	mgClient *mongo.Client,
+) (net.Listener, *grpc.Server) {
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("error listening address %d: %v", port, err)
 	}
 
-	s := grpc.NewServer()
+	authorizer := &v1.Authorizer{
+		Repo:       db.NewMongoRepository(mgClient),
+		JWTSecret:  jwtSecret,
+		AdminToken: adminToken,
+	}
+
+	s := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			authorizer.AuthInterceptor,
+			authorizer.PermissionInterceptor,
+		),
+	)
+
 	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: mgClient})
-	genv1.RegisterFitnessAggregatorServer(s, &v1.FitnessAggregator{Repo: db.NewMongoRepository(mgClient)})
+	genv1.RegisterFitnessAggregatorServer(s, &v1.FitnessAggregator{
+		Repo: db.NewMongoRepository(mgClient),
+	})
+	genv1.RegisterAuthorizerServer(s, authorizer)
 
 	fmt.Printf("Starting grpc server on port %d...\n", port)
 	return l, s
@@ -42,6 +61,7 @@ func newHTTP(httpPort, grpcPort int) *http.Server {
 	handlersToRegister := []HandlerRegistrar{
 		genv1.RegisterExampleServiceHandlerFromEndpoint,
 		genv1.RegisterFitnessAggregatorHandlerFromEndpoint,
+		genv1.RegisterAuthorizerHandlerFromEndpoint,
 	}
 
 	for _, h := range handlersToRegister {

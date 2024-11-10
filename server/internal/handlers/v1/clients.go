@@ -71,6 +71,11 @@ func (s *FitnessAggregator) GetClient(
 		return nil, status.Errorf(codes.InvalidArgument, "invalid id: %v", err)
 	}
 
+	tokenClientID := GetUserIDFromContext(ctx)
+	if tokenClientID != bsonID.Hex() {
+		return nil, status.Error(codes.PermissionDenied, "client ID does not match token")
+	}
+
 	client, err := s.Repo.GetClient(ctx, bsonID)
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {

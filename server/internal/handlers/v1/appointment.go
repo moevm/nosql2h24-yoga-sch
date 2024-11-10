@@ -17,14 +17,19 @@ func (s *FitnessAggregator) CreateAppointment(
 		return nil, status.Error(codes.InvalidArgument, "no request provided")
 	}
 
-	classBsonID, err := bson.ObjectIDFromHex(req.ClassId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid class ID")
-	}
-
 	clientBsonID, err := bson.ObjectIDFromHex(req.ClientId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid client ID")
+	}
+
+	tokenClientID := GetUserIDFromContext(ctx)
+	if tokenClientID != clientBsonID.Hex() {
+		return nil, status.Error(codes.PermissionDenied, "client ID does not match token")
+	}
+
+	classBsonID, err := bson.ObjectIDFromHex(req.ClassId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid class ID")
 	}
 
 	if err := s.Repo.MakeAppointment(ctx, classBsonID, clientBsonID); err != nil {
@@ -41,14 +46,19 @@ func (s *FitnessAggregator) CancelAppointment(
 		return nil, status.Error(codes.InvalidArgument, "no request provided")
 	}
 
-	classBsonID, err := bson.ObjectIDFromHex(req.ClassId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid class ID")
-	}
-
 	clientBsonID, err := bson.ObjectIDFromHex(req.ClientId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid client ID")
+	}
+
+	tokenClientID := GetUserIDFromContext(ctx)
+	if tokenClientID != clientBsonID.Hex() {
+		return nil, status.Error(codes.PermissionDenied, "client ID does not match token")
+	}
+
+	classBsonID, err := bson.ObjectIDFromHex(req.ClassId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid class ID")
 	}
 
 	if err := s.Repo.CancelAppointment(ctx, classBsonID, clientBsonID); err != nil {
