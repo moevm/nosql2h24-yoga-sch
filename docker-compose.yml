@@ -43,6 +43,7 @@ services:
     volumes:
       - db-data:/data/db
       - ./mongodb/:/etc/mongo/
+      - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - app-net
     healthcheck:

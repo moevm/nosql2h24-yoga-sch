@@ -4,13 +4,15 @@
     <table v-if="items.length" border="1" cellpadding="10">
       <thead>
       <tr>
-        <th v-for="header in getColumnConfig(entityType)" :key="header.label">{{ header.label }}</th>
+        <template v-for="header in getColumnConfig(entityType)" :key="header.label">
+          <th v-if="header.label !== 'Password'">{{ header.label }}</th>
+        </template>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="item in items" :key="item['_id']">
+      <tr v-for="item in items" :key="item['id']">
         <template v-for="column in getColumnConfig(entityType)" :key="column.key">
-          <td v-if="!column.isLink && !column.isList && !column.isDate">{{ item[column.key as keyof Entity] }}</td>
+          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">{{ item[column.key as keyof Entity] }}</td>
           <td v-else-if="column.isLink">
             <a v-if="item[column.key as keyof Entity]" :href="item[column.key as keyof Entity]" target="_blank">
               {{ item[column.key as keyof Entity] }}
@@ -95,7 +97,7 @@ import {type Class, type Client, type Studio, type Trainer} from "@/types/types"
 
 type Entity = Client | Class | Studio | Trainer
 const route = useRoute();
-const entityType = ref(route.params.entityType as 'Client' | 'Trainer' | 'Class' | 'Studio');
+const entityType = ref(route.params.entityType as 'client' | 'trainer' | 'class' | 'studio');
 const items: Ref<Entity[]> = ref([]);
 const showModal = ref(false);
 const errorMessage = ref("");
@@ -107,11 +109,27 @@ const URI = `${window.location.protocol}//${window.location.hostname}`
 
 async function loadData() {
   try {
-    const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
+    const response = await fetch(`${URI}/api/v1/${entityType.value}`, {
       method: 'GET'
     });
     const data = await response.json();
-    items.value = data || [];
+
+    switch (entityType.value) {
+      case 'client':
+        items.value = data.clients || [];
+        break;
+      case 'trainer':
+        items.value = data.trainers || [];
+        break;
+      case 'class':
+        items.value = data.classes || [];
+        break;
+      case 'studio':
+        items.value = data.studios || [];
+        break;
+    }
+
+    console.log(items.value);
   } catch (error) {
     console.error("Ошибка при загрузке данных:", error);
   }
@@ -120,28 +138,28 @@ async function loadData() {
 onMounted(loadData);
 
 watch(() => route.params.entityType, (newType) => {
-  entityType.value = newType as 'Client' | 'Trainer' | 'Class' | 'Studio';
+  entityType.value = newType as 'client' | 'trainer' | 'class' | 'studio';
   loadData();
 });
 
 function getColumnConfig(type: string) {
   switch (type) {
-    case 'Client':
+    case 'client':
       return [
-        {key: '_id', label: 'ID'},
+        {key: 'id', label: 'ID'},
         {key: 'name', label: 'Name', isNeeded: true},
         {key: 'phone', label: 'Phone', isNeeded: true},
         {key: 'gender', label: 'Gender', isNeeded: true},
         {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
         {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
         {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'password', label: 'Password', isNeeded: true},
+        {key: 'password', label: 'Password', isNeeded: true, isPassword: true},
         {key: 'pictureUri', label: 'Picture', isLink: true},
-        {key: 'classes', label: 'Classes', isList: true}
+        {key: 'classIds', label: 'Classes', isList: true}
       ];
-    case 'Trainer':
+    case 'trainer':
       return [
-        {key: '_id', label: 'ID'},
+        {key: 'id', label: 'ID'},
         {key: 'name', label: 'Name', isNeeded: true},
         {key: 'phone', label: 'Phone', isNeeded: true},
         {key: 'gender', label: 'Gender', isNeeded: true},
@@ -150,20 +168,20 @@ function getColumnConfig(type: string) {
         {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
         {key: 'studioId', label: 'Studio ID', isNeeded: true},
         {key: 'pictureUri', label: 'Picture', isLink: true},
-        {key: 'classes', label: 'Classes', isList: true}
+        {key: 'classIds', label: 'Classes', isList: true}
       ];
-    case 'Class':
+    case 'class':
       return [
-        {key: '_id', label: 'ID'},
+        {key: 'id', label: 'ID'},
         {key: 'name', label: 'Class Type', isNeeded: true},
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
         {key: 'studioId', label: 'Studio ID', isNeeded: true},
         {key: 'trainerId', label: 'Trainer ID', isNeeded: true},
         {key: 'clients', label: 'Clients', isList: true}
       ];
-    case 'Studio':
+    case 'studio':
       return [
-        {key: '_id', label: 'ID'},
+        {key: 'id', label: 'ID'},
         {key: 'address', label: 'Address', isNeeded: true},
         {key: 'classes', label: 'Classes', isList: true},
         {key: 'trainers', label: 'Trainers', isList: true}

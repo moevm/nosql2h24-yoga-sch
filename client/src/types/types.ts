@@ -1,6 +1,6 @@
 
 export interface Client {
-    _id: string,
+    id: string,
     name: string,
     phone: string,
     gender: string,
@@ -9,11 +9,11 @@ export interface Client {
     updatedAt: string,
     password: string,
     pictureUri: string,
-    classes: string[]
+    classIds: string[]
 }
 
 export interface Trainer {
-    _id: string,
+    id: string,
     name: string,
     phone: string,
     studioId: string,
@@ -22,18 +22,18 @@ export interface Trainer {
     createdAt: string,
     updatedAt: string,
     pictureUri: string,
-    classes: string[]
+    classIds: string[]
 }
 
 export interface Studio {
-    _id: string,
+    id: string,
     address: string,
     classes: string[]
     trainers: string[]
 }
 
 export interface Class {
-    _id: string,
+    id: string,
     name: string,
     time: string,
     studioId: string,
