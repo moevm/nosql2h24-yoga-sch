@@ -14,15 +14,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/db"
 	gen "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/gen/proto/v1"
 )
 
 const (
-	gRPCGatewayCookie = "grpcgateway-cookie"
-	userIDMDKey       = "user_id"
-	adminID           = "admin"
+	gRPCGatewayCookie      = "grpcgateway-cookie"
+	authorizationCookieKey = "Authorization"
+	userIDMDKey            = "user_id"
+	adminID                = "admin"
 )
 
 type Authorizer struct {
@@ -46,6 +48,10 @@ var endpointPermissionValidators = []struct {
 	regex     string
 	onlyAdmin bool
 }{
+	{
+		regex:     gen.Authorizer_IsAdmin_FullMethodName,
+		onlyAdmin: true,
+	},
 	{
 		regex:     `\/fitness_aggregator\.v1\.Authorizer\/*`,
 		onlyAdmin: false,
@@ -143,6 +149,10 @@ func (a *Authorizer) Auth(
 	return &gen.AuthResponse{Token: tokenString}, nil
 }
 
+func (a *Authorizer) IsAdmin(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
+}
+
 func (a *Authorizer) AuthInterceptor(
 	ctx context.Context,
 	req interface{},
@@ -172,7 +182,7 @@ func (a *Authorizer) AuthInterceptor(
 		cookieMap[c.Name] = c.Value
 	}
 
-	token, ok := cookieMap["Authorization"]
+	token, ok := cookieMap[authorizationCookieKey]
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "authorization cookie not found")
 	}
