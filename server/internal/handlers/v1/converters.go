@@ -71,3 +71,22 @@ func convertDbStudio(s db.Studio) *gen.Studio {
 		TrainerIds: trainerIDs,
 	}
 }
+
+func convertDbClass(c db.Class) *gen.Class {
+	var clientIDs []string
+	for _, id := range c.ClientIDs {
+		clientIDs = append(clientIDs, id.Hex())
+	}
+
+	return &gen.Class{
+		Id:        c.ID.Hex(),
+		Name:      c.Name,
+		Time:      timestamppb.New(c.Time),
+		CreatedAt: timestamppb.New(c.CreatedAt),
+		UpdatedAt: timestamppb.New(c.UpdatedAt),
+
+		StudioId:  c.StudioID.Hex(),
+		TrainerId: c.TrainerID.Hex(),
+		ClientIds: clientIDs,
+	}
+}

@@ -24,6 +24,11 @@ type Repository interface {
 	GetStudios(ctx context.Context) ([]Studio, error)
 	GetStudio(ctx context.Context, id bson.ObjectID) (Studio, error)
 	DeleteStudio(ctx context.Context, id bson.ObjectID) error
+
+	InsertClass(ctx context.Context, class Class) (bson.ObjectID, error)
+	GetClasses(ctx context.Context) ([]Class, error)
+	GetClass(ctx context.Context, id bson.ObjectID) (Class, error)
+	DeleteClass(ctx context.Context, id bson.ObjectID) error
 }
 
 type MongoRepository struct {

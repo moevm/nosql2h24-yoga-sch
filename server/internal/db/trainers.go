@@ -104,8 +104,8 @@ func (r MongoRepository) DeleteTrainer(ctx context.Context, id bson.ObjectID) er
 		return fmt.Errorf("failed to find trainer: %w", err)
 	}
 
-	if err := studiosCollection.FindOneAndUpdate(ctx, bson.M{"trainer_ids": id},
-		bson.M{"$pull": bson.M{"trainer_ids": id}}).Err(); err != nil {
+	if _, err := studiosCollection.UpdateOne(ctx, bson.M{"_id": trainer.StudioID},
+		bson.M{"$pull": bson.M{"trainer_ids": id}}); err != nil {
 		return fmt.Errorf("failed to update studio: %w", err)
 	}
 
