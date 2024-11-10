@@ -106,7 +106,10 @@ func (s *FitnessAggregator) DeleteTrainer(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := s.Repo.DeleteTrainer(ctx, bsonID); err != nil {
+	if err = s.Repo.DeleteTrainer(ctx, bsonID); err != nil {
+		if errors.Is(err, db.ErrNotFound) {
+			return nil, status.Errorf(codes.NotFound, "trainer with id %s not found", req.Id)
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

@@ -44,3 +44,15 @@ message Studio {
   repeated string class_ids = 9;
   repeated string trainer_ids = 10;
 }
+
+message Class {
+  string id = 1;
+  string name = 2;
+  google.protobuf.Timestamp time = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+
+  string studio_id = 6;
+  string trainer_id = 7;
+  repeated string client_ids = 8;
+}

@@ -94,8 +94,7 @@ func (s *FitnessAggregator) DeleteClient(
 		return nil, status.Errorf(codes.InvalidArgument, "invalid id: %v", err)
 	}
 
-	err = s.Repo.DeleteClient(ctx, bsonID)
-	if err != nil {
+	if err = s.Repo.DeleteClient(ctx, bsonID); err != nil {
 		if errors.Is(err, db.ErrNotFound) {
 			return nil, status.Error(codes.NotFound, fmt.Sprintf("client with id %s not found", req.Id))
 		}
