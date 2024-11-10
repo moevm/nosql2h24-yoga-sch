@@ -48,3 +48,26 @@ func convertDbPerson(p db.Person) *gen.Person {
 		ClassIds: classIDs,
 	}
 }
+
+func convertDbStudio(s db.Studio) *gen.Studio {
+	var classIDs []string
+	for _, id := range s.ClassIDs {
+		classIDs = append(classIDs, id.Hex())
+	}
+
+	var trainerIDs []string
+	for _, id := range s.TrainerIDs {
+		trainerIDs = append(trainerIDs, id.Hex())
+	}
+
+	return &gen.Studio{
+		Id:        s.ID.Hex(),
+		Name:      s.Name,
+		Address:   s.Address,
+		CreatedAt: timestamppb.New(s.CreatedAt),
+		UpdatedAt: timestamppb.New(s.UpdatedAt),
+
+		ClassIds:   classIDs,
+		TrainerIds: trainerIDs,
+	}
+}

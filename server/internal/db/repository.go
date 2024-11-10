@@ -19,6 +19,11 @@ type Repository interface {
 	GetTrainers(ctx context.Context) ([]Trainer, error)
 	GetTrainer(ctx context.Context, id bson.ObjectID) (Trainer, error)
 	DeleteTrainer(ctx context.Context, id bson.ObjectID) error
+
+	InsertStudio(ctx context.Context, studio Studio) (bson.ObjectID, error)
+	GetStudios(ctx context.Context) ([]Studio, error)
+	GetStudio(ctx context.Context, id bson.ObjectID) (Studio, error)
+	DeleteStudio(ctx context.Context, id bson.ObjectID) error
 }
 
 type MongoRepository struct {

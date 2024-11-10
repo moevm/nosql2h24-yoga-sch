@@ -74,7 +74,7 @@ func (s *FitnessAggregator) GetClient(
 	client, err := s.Repo.GetClient(ctx, bsonID)
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
-			return nil, status.Error(codes.NotFound, fmt.Sprintf("client with id %s not found", req.Id))
+			return nil, status.Errorf(codes.NotFound, "client with id %s not found", req.Id)
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}

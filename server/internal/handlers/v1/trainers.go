@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"google.golang.org/grpc/codes"
@@ -40,6 +41,9 @@ func (s *FitnessAggregator) CreateTrainer(
 		StudioID: studioID,
 	})
 	if err != nil {
+		if errors.Is(err, db.ErrNotFound) {
+			return nil, status.Errorf(codes.InvalidArgument, "studio with id %s not found", req.Trainer.StudioId)
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -54,15 +58,15 @@ func (s *FitnessAggregator) GetTrainers(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var persons []*gen.Trainer
+	var trainersResp []*gen.Trainer
 	for _, t := range trainers {
-		persons = append(persons, &gen.Trainer{
+		trainersResp = append(trainersResp, &gen.Trainer{
 			Person:   convertDbPerson(t.Person),
 			StudioId: t.StudioID.Hex(),
 		})
 	}
 
-	return &gen.GetTrainersResponse{Trainers: persons}, nil
+	return &gen.GetTrainersResponse{Trainers: trainersResp}, nil
 }
 
 func (s *FitnessAggregator) GetTrainer(

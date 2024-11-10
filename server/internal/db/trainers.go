@@ -23,7 +23,16 @@ func (r MongoRepository) InsertTrainer(
 	trainer.CreatedAt = time.Now()
 	trainer.UpdatedAt = time.Now()
 
-	collection := r.mg.Database("yoga").Collection(trainers)
+	studiosCollection := r.Db().Collection(studios)
+	if err := studiosCollection.FindOne(ctx, bson.M{"_id": trainer.StudioID}).
+		Decode(&Studio{}); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return bson.ObjectID{}, ErrNotFound
+		}
+		return bson.ObjectID{}, fmt.Errorf("failed to find studio: %w", err)
+	}
+
+	trainersCollection := r.Db().Collection(trainers)
 
 	filter := bson.M{"phone": trainer.Person.Phone}
 	update := bson.M{"$setOnInsert": trainer}
@@ -31,7 +40,7 @@ func (r MongoRepository) InsertTrainer(
 		SetUpsert(true).SetReturnDocument(options.After)
 
 	var result Person
-	if err := collection.FindOneAndUpdate(ctx, filter, update, opts).
+	if err := trainersCollection.FindOneAndUpdate(ctx, filter, update, opts).
 		Decode(&result); err != nil {
 		return bson.ObjectID{}, fmt.Errorf("failed to insert trainer: %w", err)
 	}
@@ -41,7 +50,7 @@ func (r MongoRepository) InsertTrainer(
 }
 
 func (r MongoRepository) GetTrainers(ctx context.Context) ([]Trainer, error) {
-	collection := r.mg.Database("yoga").Collection(trainers)
+	collection := r.Db().Collection(trainers)
 
 	trainersCursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -63,10 +72,11 @@ func (r MongoRepository) GetTrainers(ctx context.Context) ([]Trainer, error) {
 }
 
 func (r MongoRepository) GetTrainer(ctx context.Context, id bson.ObjectID) (Trainer, error) {
-	collection := r.mg.Database("yoga").Collection(trainers)
+	collection := r.Db().Collection(trainers)
 
 	var trainer Trainer
-	if err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&trainer); err != nil {
+	if err := collection.FindOne(ctx, bson.M{"_id": id}).
+		Decode(&trainer); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return Trainer{}, ErrNotFound
 		}
@@ -77,7 +87,7 @@ func (r MongoRepository) GetTrainer(ctx context.Context, id bson.ObjectID) (Trai
 }
 
 func (r MongoRepository) DeleteTrainer(ctx context.Context, id bson.ObjectID) error {
-	collection := r.mg.Database("yoga").Collection(trainers)
+	collection := r.Db().Collection(trainers)
 
 	switch res, err := collection.DeleteOne(ctx, bson.M{"_id": id}); {
 	case errors.Is(err, mongo.ErrNoDocuments) || res.DeletedCount == 0:
