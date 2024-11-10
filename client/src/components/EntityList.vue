@@ -44,7 +44,7 @@
                      :id="header.key"
                      placeholder="+7(999)999-9999"
                      pattern="+7([0-9]{3})[0-9]{3}-[0-9]{4}"
-                     required />
+                     required/>
               <select v-model="formData.gender"
                       v-else-if="header.label === 'Gender'"
                       :id="header.key"
@@ -56,23 +56,23 @@
                      v-else-if="header.label === 'Password'"
                      type="password"
                      :id="header.key"
-                     required />
+                     required/>
               <input v-model="formData[header.key]"
                      v-else-if="header.label === 'Time'"
                      type="datetime-local"
                      :id="header.key"
-                     required />
+                     required/>
               <input v-model="formData[header.key]"
                      v-else-if="header.label === 'Birth Date'"
                      type="date"
                      :max="today"
                      :id="header.key"
-                     required />
+                     required/>
               <input v-model="formData[header.key]"
                      v-else-if="!header.isLink && !header.isList && !header.isDate && !header.isTime"
                      :id="header.key"
                      :placeholder="'Enter ' + header.label"
-                     required />
+                     required/>
             </div>
           </div>
           <div class="modal-actions">
@@ -90,9 +90,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import { type Class, type Client, type Studio, type Trainer} from "@/types/types";
+import {ref, type Ref, onMounted, watch} from 'vue';
+import {useRoute} from 'vue-router';
+import {type Class, type Client, type Studio, type Trainer} from "@/types/types";
 
 type Entity = Client | Class | Studio | Trainer
 const route = useRoute();
@@ -108,7 +108,9 @@ const URI = `${window.location.protocol}//${window.location.hostname}`
 
 async function loadData() {
   try {
-    const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`);
+    const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
+      method: 'GET'
+    });
     const data = await response.json();
     items.value = data || [];
   } catch (error) {
@@ -125,45 +127,50 @@ watch(() => route.params.entityType, (newType) => {
 
 function getColumnConfig(type: string) {
   switch (type) {
-    case 'Client': return [
-      { key: '_id', label: 'ID' },
-      { key: 'name', label: 'Name', isNeeded: true },
-      { key: 'phone', label: 'Phone', isNeeded: true },
-      { key: 'gender', label: 'Gender', isNeeded: true },
-      { key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true },
-      { key: 'created_at', label: 'Created At', isDate: true, isTime: true },
-      { key: 'updated_at', label: 'Updated At', isDate: true, isTime: true },
-      { key: 'password', label: 'Password', isNeeded: true },
-      { key: 'picture_uri', label: 'Picture', isLink: true },
-      { key: 'classes', label: 'Classes', isList: true }
-    ];
-    case 'Trainer': return [
-      { key: '_id', label: 'ID' },
-      { key: 'name', label: 'Name', isNeeded: true },
-      { key: 'phone', label: 'Phone', isNeeded: true },
-      { key: 'gender', label: 'Gender', isNeeded: true },
-      { key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true },
-      { key: 'created_at', label: 'Created At', isDate: true, isTime: true  },
-      { key: 'updated_at', label: 'Updated At', isDate: true, isTime: true  },
-      { key: 'studio_id', label: 'Studio ID', isNeeded: true },
-      { key: 'picture_uri', label: 'Picture', isLink: true },
-      { key: 'classes', label: 'Classes', isList: true }
-    ];
-    case 'Class': return [
-      { key: '_id', label: 'ID' },
-      { key: 'class_name', label: 'Class Type', isNeeded: true },
-      { key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true },
-      { key: 'studio_id', label: 'Studio ID', isNeeded: true },
-      { key: 'trainer_id', label: 'Trainer ID', isNeeded: true },
-      { key: 'clients', label: 'Clients', isList: true }
-    ];
-    case 'Studio': return [
-      { key: '_id', label: 'ID' },
-      { key: 'address', label: 'Address', isNeeded: true },
-      { key: 'classes', label: 'Classes', isList: true },
-      { key: 'trainers', label: 'Trainers', isList: true }
-    ];
-    default: return [];
+    case 'Client':
+      return [
+        {key: '_id', label: 'ID'},
+        {key: 'name', label: 'Name', isNeeded: true},
+        {key: 'phone', label: 'Phone', isNeeded: true},
+        {key: 'gender', label: 'Gender', isNeeded: true},
+        {key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
+        {key: 'created_at', label: 'Created At', isDate: true, isTime: true},
+        {key: 'updated_at', label: 'Updated At', isDate: true, isTime: true},
+        {key: 'password', label: 'Password', isNeeded: true},
+        {key: 'picture_uri', label: 'Picture', isLink: true},
+        {key: 'classes', label: 'Classes', isList: true}
+      ];
+    case 'Trainer':
+      return [
+        {key: '_id', label: 'ID'},
+        {key: 'name', label: 'Name', isNeeded: true},
+        {key: 'phone', label: 'Phone', isNeeded: true},
+        {key: 'gender', label: 'Gender', isNeeded: true},
+        {key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
+        {key: 'created_at', label: 'Created At', isDate: true, isTime: true},
+        {key: 'updated_at', label: 'Updated At', isDate: true, isTime: true},
+        {key: 'studio_id', label: 'Studio ID', isNeeded: true},
+        {key: 'picture_uri', label: 'Picture', isLink: true},
+        {key: 'classes', label: 'Classes', isList: true}
+      ];
+    case 'Class':
+      return [
+        {key: '_id', label: 'ID'},
+        {key: 'class_name', label: 'Class Type', isNeeded: true},
+        {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
+        {key: 'studio_id', label: 'Studio ID', isNeeded: true},
+        {key: 'trainer_id', label: 'Trainer ID', isNeeded: true},
+        {key: 'clients', label: 'Clients', isList: true}
+      ];
+    case 'Studio':
+      return [
+        {key: '_id', label: 'ID'},
+        {key: 'address', label: 'Address', isNeeded: true},
+        {key: 'classes', label: 'Classes', isList: true},
+        {key: 'trainers', label: 'Trainers', isList: true}
+      ];
+    default:
+      return [];
   }
 }
 
@@ -177,18 +184,43 @@ function getDate(date: string) {
 
 const addNewItem = async () => {
   try {
-    const newItem = {
-      type: entityType.value,
-      data: formData.value
-    };
-    console.log(newItem)
+    let payload = {};
+    if (entityType.value === 'Client' || entityType.value === 'Trainer') {
+      payload = {
+        [entityType.value.toLowerCase()]: {
+          person: {
+            name: formData.value.name,
+            phone: formData.value.phone,
+            birthDate: formData.value.birth_date,
+            gender: formData.value.gender
+          },
+          password: formData.value.password
+        }
+      };
+    } else {
+      if (entityType.value === 'Studio') {
+        payload = {
+          [entityType.value.toLowerCase()]: {
+            address: formData.value.address
+          }
+        }
+      } else {
+        payload = {
+          [entityType.value.toLowerCase()]: {
+            address: formData.value.address
+          }
+        }
+      }
+    }
+
+    console.log(payload);
 
     const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(newItem)
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
@@ -259,21 +291,21 @@ li {
   padding-bottom: 60px; /* Отступ снизу для места для кнопки */
 }
 
- .add-button {
-   position: fixed;
-   bottom: 20px;
-   right: 20px;
-   padding: 12px 24px;
-   background-color: #f44336;
-   color: white;
-   border: none;
-   border-radius: 8px;
-   cursor: pointer;
-   font-size: 16px;
-   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-   transition: background-color 0.3s ease, transform 0.2s ease;
-   z-index: 100;
- }
+.add-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 24px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  z-index: 100;
+}
 
 .add-button:hover {
   background-color: #d32f2f;
