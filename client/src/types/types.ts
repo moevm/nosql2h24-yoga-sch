@@ -4,11 +4,11 @@ export interface Client {
     name: string,
     phone: string,
     gender: string,
-    birth_date: string,
-    created_at: string,
-    updated_at: string,
+    birthDate: string,
+    createdAt: string,
+    updatedAt: string,
     password: string,
-    picture_uri: string,
+    pictureUri: string,
     classes: string[]
 }
 
@@ -16,12 +16,12 @@ export interface Trainer {
     _id: string,
     name: string,
     phone: string,
-    studio_id: string,
+    studioId: string,
     gender: string,
-    birth_date: string,
-    created_at: string,
-    updated_at: string,
-    picture_uri: string,
+    birthDate: string,
+    createdAt: string,
+    updatedAt: string,
+    pictureUri: string,
     classes: string[]
 }
 
@@ -34,9 +34,9 @@ export interface Studio {
 
 export interface Class {
     _id: string,
-    class_name: string,
+    name: string,
     time: string,
-    studio_id: string,
-    trainer_id: string,
+    studioId: string,
+    trainerId: string,
     clients: string[]
 }

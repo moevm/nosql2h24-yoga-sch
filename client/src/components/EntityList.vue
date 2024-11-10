@@ -49,8 +49,8 @@
                       v-else-if="header.label === 'Gender'"
                       :id="header.key"
                       required>
-                <option value="M">M</option>
-                <option value="F">F</option>
+                <option value="MALE">M</option>
+                <option value="FEMALE">F</option>
               </select>
               <input v-model="formData.password"
                      v-else-if="header.label === 'Password'"
@@ -133,11 +133,11 @@ function getColumnConfig(type: string) {
         {key: 'name', label: 'Name', isNeeded: true},
         {key: 'phone', label: 'Phone', isNeeded: true},
         {key: 'gender', label: 'Gender', isNeeded: true},
-        {key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
-        {key: 'created_at', label: 'Created At', isDate: true, isTime: true},
-        {key: 'updated_at', label: 'Updated At', isDate: true, isTime: true},
+        {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
+        {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
+        {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
         {key: 'password', label: 'Password', isNeeded: true},
-        {key: 'picture_uri', label: 'Picture', isLink: true},
+        {key: 'pictureUri', label: 'Picture', isLink: true},
         {key: 'classes', label: 'Classes', isList: true}
       ];
     case 'Trainer':
@@ -146,20 +146,20 @@ function getColumnConfig(type: string) {
         {key: 'name', label: 'Name', isNeeded: true},
         {key: 'phone', label: 'Phone', isNeeded: true},
         {key: 'gender', label: 'Gender', isNeeded: true},
-        {key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
-        {key: 'created_at', label: 'Created At', isDate: true, isTime: true},
-        {key: 'updated_at', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'studio_id', label: 'Studio ID', isNeeded: true},
-        {key: 'picture_uri', label: 'Picture', isLink: true},
+        {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
+        {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
+        {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'pictureUri', label: 'Picture', isLink: true},
         {key: 'classes', label: 'Classes', isList: true}
       ];
     case 'Class':
       return [
         {key: '_id', label: 'ID'},
-        {key: 'class_name', label: 'Class Type', isNeeded: true},
+        {key: 'name', label: 'Class Type', isNeeded: true},
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studio_id', label: 'Studio ID', isNeeded: true},
-        {key: 'trainer_id', label: 'Trainer ID', isNeeded: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'trainerId', label: 'Trainer ID', isNeeded: true},
         {key: 'clients', label: 'Clients', isList: true}
       ];
     case 'Studio':
@@ -184,36 +184,11 @@ function getDate(date: string) {
 
 const addNewItem = async () => {
   try {
-    let payload = {};
-    if (entityType.value === 'Client' || entityType.value === 'Trainer') {
-      payload = {
-        [entityType.value.toLowerCase()]: {
-          person: {
-            name: formData.value.name,
-            phone: formData.value.phone,
-            birthDate: formData.value.birth_date,
-            gender: formData.value.gender
-          },
-          password: formData.value.password
-        }
-      };
-    } else {
-      if (entityType.value === 'Studio') {
-        payload = {
-          [entityType.value.toLowerCase()]: {
-            address: formData.value.address
-          }
-        }
-      } else {
-        payload = {
-          [entityType.value.toLowerCase()]: {
-            name: formData.value.class_name,
-            time: formData.value.time,
-          }
-        }
-      }
-    }
+    let payload = {
+      [entityType.value.toLowerCase()]: formData.value
+    };
 
+    formData.value = {}
     console.log(payload);
 
     const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
