@@ -6,7 +6,8 @@ option go_package = "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/serv
 import "google/api/annotations.proto";
 import "google/protobuf/any.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "v1/persons.proto";
+
+import "v1/entities.proto";
 
 service FitnessAggregator {
   rpc CreateClient(CreateClientRequest) returns (CreateClientResponse) {
@@ -81,6 +82,152 @@ service FitnessAggregator {
       }
     };
   }
+
+  rpc CreateTrainer(CreateTrainerRequest) returns (CreateTrainerResponse) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      post: "/api/v1/trainer",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "201",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CreateTrainerResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetTrainers(GetTrainersRequest) returns (GetTrainersResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+
+    option (google.api.http) = {
+      get: "/api/v1/trainer",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.GetTrainersResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetTrainer(GetTrainerRequest) returns (GetTrainerResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+
+    option (google.api.http) = {
+      get: "/api/v1/trainer/{id}",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.GetTrainerResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc DeleteTrainer(DeleteTrainerRequest) returns (DeleteTrainerResponse) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      delete: "/api/v1/trainer/{id}",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.DeleteTrainerResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc CreateStudio(CreateStudioRequest) returns (CreateStudioResponse) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      post: "/api/v1/studio",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "201",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CreateStudioResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetStudios(GetStudiosRequest) returns (GetStudiosResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+
+    option (google.api.http) = {
+      get: "/api/v1/studio",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.GetStudiosResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetStudio(GetStudioRequest) returns (GetStudioResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+
+    option (google.api.http) = {
+      get: "/api/v1/studio/{id}",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.GetStudioResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc DeleteStudio(DeleteStudioRequest) returns (DeleteStudioResponse) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      delete: "/api/v1/studio/{id}",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.DeleteStudioResponse"}
+          }
+        }
+      }
+    };
+  }
 }
 
 message CreateClientRequest {
@@ -110,3 +257,59 @@ message DeleteClientRequest {
 }
 
 message DeleteClientResponse {}
+
+message CreateTrainerRequest {
+  Trainer trainer = 1;
+}
+
+message CreateTrainerResponse {
+  string trainer_id = 1;
+}
+
+message GetTrainersRequest {}
+
+message GetTrainersResponse {
+  repeated Trainer trainers = 1;
+}
+
+message GetTrainerRequest {
+  string id = 1;
+}
+
+message GetTrainerResponse {
+  Trainer trainer = 1;
+}
+
+message DeleteTrainerRequest {
+  string id = 1;
+}
+
+message DeleteTrainerResponse {}
+
+message CreateStudioRequest {
+  Studio studio = 1;
+}
+
+message CreateStudioResponse {
+  string studio_id = 1;
+}
+
+message GetStudiosRequest {}
+
+message GetStudiosResponse {
+  repeated Studio studios = 1;
+}
+
+message GetStudioRequest {
+  string id = 1;
+}
+
+message GetStudioResponse {
+  Studio studio = 1;
+}
+
+message DeleteStudioRequest {
+  string id = 1;
+}
+
+message DeleteStudioResponse {}
