@@ -5,6 +5,7 @@ option go_package = "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/serv
 
 import "google/api/annotations.proto";
 import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 service Authorizer {
@@ -21,6 +22,24 @@ service Authorizer {
         value: {
           schema: {
             json_schema: {ref: ".fitness_aggregator.v1.AuthResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc IsAdmin(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+
+    option (google.api.http) = {
+      post: "/api/v1/auth/is-admin",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".google.protobuf.Empty"}
           }
         }
       }
