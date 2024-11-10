@@ -14,7 +14,6 @@ import (
 
 type Studio struct {
 	ID        bson.ObjectID `bson:"_id,omitempty"`
-	Name      string        `bson:"name"`
 	Address   string        `bson:"address"`
 	CreatedAt time.Time     `bson:"created_at"`
 	UpdatedAt time.Time     `bson:"updated_at"`
@@ -31,7 +30,7 @@ func (r MongoRepository) InsertStudio(
 
 	collection := r.Db().Collection(studios)
 
-	filter := bson.M{"name": studio.Name, "address": studio.Address}
+	filter := bson.M{"address": studio.Address}
 	update := bson.M{"$setOnInsert": studio}
 	opts := options.FindOneAndUpdate().
 		SetUpsert(true).SetReturnDocument(options.After)

@@ -56,13 +56,12 @@ message Trainer {
 
 message Studio {
   string id = 1;
-  string name = 2;
-  string address = 4;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string address = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
 
-  repeated string class_ids = 9;
-  repeated string trainer_ids = 10;
+  repeated string class_ids = 5;
+  repeated string trainer_ids = 6;
 }
 
 message Class {

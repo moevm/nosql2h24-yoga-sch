@@ -84,7 +84,6 @@ func convertDbStudio(s db.Studio) *gen.Studio {
 
 	return &gen.Studio{
 		Id:        s.ID.Hex(),
-		Name:      s.Name,
 		Address:   s.Address,
 		CreatedAt: timestamppb.New(s.CreatedAt),
 		UpdatedAt: timestamppb.New(s.UpdatedAt),
