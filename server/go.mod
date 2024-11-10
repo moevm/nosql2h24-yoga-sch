@@ -4,6 +4,7 @@ go 1.22.5
 
 require (
 	github.com/felixge/httpsnoop v1.0.4
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
 	go.mongodb.org/mongo-driver/v2 v2.0.0-beta2
 	golang.org/x/sync v0.8.0

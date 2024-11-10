@@ -36,7 +36,8 @@ func (s *FitnessAggregator) CreateTrainer(
 			PictureURI: req.Trainer.Person.PictureUri,
 			BirthDate:  req.Trainer.Person.BirthDate.AsTime(),
 			Gender:     gender,
-			ClassIDs:   []bson.ObjectID{},
+
+			ClassIDs: []bson.ObjectID{},
 		},
 		StudioID: studioID,
 	})

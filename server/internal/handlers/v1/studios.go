@@ -22,6 +22,9 @@ func (s *FitnessAggregator) CreateStudio(
 	bsonID, err := s.Repo.InsertStudio(ctx, db.Studio{
 		Name:    req.Studio.Name,
 		Address: req.Studio.Address,
+
+		ClassIDs:   []bson.ObjectID{},
+		TrainerIDs: []bson.ObjectID{},
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

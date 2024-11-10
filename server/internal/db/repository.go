@@ -10,6 +10,8 @@ import (
 )
 
 type Repository interface {
+	GetIDByCreds(ctx context.Context, phone, password string) (bson.ObjectID, error)
+
 	InsertClient(ctx context.Context, client Client) (bson.ObjectID, error)
 	GetClients(ctx context.Context) ([]Client, error)
 	GetClient(ctx context.Context, id bson.ObjectID) (Client, error)
