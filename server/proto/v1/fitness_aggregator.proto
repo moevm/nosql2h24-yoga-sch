@@ -301,6 +301,43 @@ service FitnessAggregator {
       }
     };
   }
+
+  rpc CreateAppointment(CreateAppointmentRequest) returns (CreateAppointmentResponse) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      post: "/api/v1/appointment",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CreateAppointmentResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc CancelAppointment(CancelAppointmentRequest) returns (CancelAppointmentResponse) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      delete: "/api/v1/appointment",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CancelAppointmentResponse"}
+          }
+        }
+      }
+    };
+  }
 }
 
 message CreateClientRequest {
@@ -414,3 +451,17 @@ message DeleteClassRequest {
 }
 
 message DeleteClassResponse {}
+
+message CreateAppointmentRequest {
+  string client_id = 1;
+  string class_id = 2;
+}
+
+message CreateAppointmentResponse {}
+
+message CancelAppointmentRequest {
+  string client_id = 1;
+  string class_id = 2;
+}
+
+message CancelAppointmentResponse {}

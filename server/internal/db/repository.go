@@ -29,6 +29,9 @@ type Repository interface {
 	GetClasses(ctx context.Context) ([]Class, error)
 	GetClass(ctx context.Context, id bson.ObjectID) (Class, error)
 	DeleteClass(ctx context.Context, id bson.ObjectID) error
+
+	MakeAppointment(ctx context.Context, classID, clientID bson.ObjectID) error
+	CancelAppointment(ctx context.Context, classID, clientID bson.ObjectID) error
 }
 
 type MongoRepository struct {

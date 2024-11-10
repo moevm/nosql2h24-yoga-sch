@@ -24,14 +24,6 @@ func (r MongoRepository) InsertTrainer(
 	trainer.UpdatedAt = time.Now()
 
 	studiosCollection := r.Db().Collection(studios)
-	if err := studiosCollection.FindOne(ctx, bson.M{"_id": trainer.StudioID}).
-		Decode(&Studio{}); err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return bson.ObjectID{}, ErrNotFound
-		}
-		return bson.ObjectID{}, fmt.Errorf("failed to find studio: %w", err)
-	}
-
 	trainersCollection := r.Db().Collection(trainers)
 
 	filter := bson.M{"phone": trainer.Person.Phone}
