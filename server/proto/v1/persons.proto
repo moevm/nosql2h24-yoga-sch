@@ -20,9 +20,16 @@ message Person {
   Gender gender = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
+
+  repeated string class_ids = 9;
 }
 
 message Client {
   Person person = 1;
   string password = 2;
+}
+
+message Trainer {
+  Person person = 1;
+  string studio_id = 2;
 }
