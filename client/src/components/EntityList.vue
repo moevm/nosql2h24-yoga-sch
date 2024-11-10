@@ -92,11 +92,11 @@
 <script setup lang="ts">
 import { ref, type Ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { type Classes, type Clients, type Studios, type Trainers} from "@/types/types";
+import { type Class, type Client, type Studio, type Trainer} from "@/types/types";
 
-type Entity = Clients | Classes | Studios | Trainers
+type Entity = Client | Class | Studio | Trainer
 const route = useRoute();
-const entityType = ref(route.params.entityType as 'Clients' | 'Trainers' | 'Classes' | 'Studios');
+const entityType = ref(route.params.entityType as 'Client' | 'Trainer' | 'Class' | 'Studio');
 const items: Ref<Entity[]> = ref([]);
 const showModal = ref(false);
 const errorMessage = ref("");
@@ -104,9 +104,11 @@ const errorMessage = ref("");
 const formData = ref<Record<string, any>>({});
 const today = new Date().toISOString().split('T')[0];
 
+const URI = `${window.location.protocol}//${window.location.hostname}`
+
 async function loadData() {
   try {
-    const response = await fetch(`address/${entityType.value}`); // заменить на правильный адрес
+    const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`);
     const data = await response.json();
     items.value = data || [];
   } catch (error) {
@@ -117,13 +119,13 @@ async function loadData() {
 onMounted(loadData);
 
 watch(() => route.params.entityType, (newType) => {
-  entityType.value = newType as 'Clients' | 'Trainers' | 'Classes' | 'Studios';
+  entityType.value = newType as 'Client' | 'Trainer' | 'Class' | 'Studio';
   loadData();
 });
 
 function getColumnConfig(type: string) {
   switch (type) {
-    case 'Clients': return [
+    case 'Client': return [
       { key: '_id', label: 'ID' },
       { key: 'name', label: 'Name', isNeeded: true },
       { key: 'phone', label: 'Phone', isNeeded: true },
@@ -135,7 +137,7 @@ function getColumnConfig(type: string) {
       { key: 'picture_uri', label: 'Picture', isLink: true },
       { key: 'classes', label: 'Classes', isList: true }
     ];
-    case 'Trainers': return [
+    case 'Trainer': return [
       { key: '_id', label: 'ID' },
       { key: 'name', label: 'Name', isNeeded: true },
       { key: 'phone', label: 'Phone', isNeeded: true },
@@ -147,7 +149,7 @@ function getColumnConfig(type: string) {
       { key: 'picture_uri', label: 'Picture', isLink: true },
       { key: 'classes', label: 'Classes', isList: true }
     ];
-    case 'Classes': return [
+    case 'Class': return [
       { key: '_id', label: 'ID' },
       { key: 'class_name', label: 'Class Type', isNeeded: true },
       { key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true },
@@ -155,7 +157,7 @@ function getColumnConfig(type: string) {
       { key: 'trainer_id', label: 'Trainer ID', isNeeded: true },
       { key: 'clients', label: 'Clients', isList: true }
     ];
-    case 'Studios': return [
+    case 'Studio': return [
       { key: '_id', label: 'ID' },
       { key: 'address', label: 'Address', isNeeded: true },
       { key: 'classes', label: 'Classes', isList: true },
@@ -181,7 +183,7 @@ const addNewItem = async () => {
     };
     console.log(newItem)
 
-    const response = await fetch(`address/${entityType.value}`, {
+    const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

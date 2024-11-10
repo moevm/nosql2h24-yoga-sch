@@ -1,5 +1,5 @@
 
-export interface Clients {
+export interface Client {
     _id: string,
     name: string,
     phone: string,
@@ -12,7 +12,7 @@ export interface Clients {
     classes: string[]
 }
 
-export interface Trainers {
+export interface Trainer {
     _id: string,
     name: string,
     phone: string,
@@ -25,14 +25,14 @@ export interface Trainers {
     classes: string[]
 }
 
-export interface Studios {
+export interface Studio {
     _id: string,
     address: string,
     classes: string[]
     trainers: string[]
 }
 
-export interface Classes {
+export interface Class {
     _id: string,
     class_name: string,
     time: string,
