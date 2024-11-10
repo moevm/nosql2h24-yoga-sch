@@ -33,7 +33,7 @@ func (s *FitnessAggregator) CreateTrainer(
 		Person: db.Person{
 			Name:       req.Trainer.Name,
 			Phone:      req.Trainer.Phone,
-			PictureURI: req.Trainer.PictureUri,
+			PictureURI: "cdn.example.com",
 			BirthDate:  req.Trainer.BirthDate.AsTime(),
 			Gender:     gender,
 

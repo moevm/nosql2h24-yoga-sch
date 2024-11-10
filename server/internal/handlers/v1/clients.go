@@ -29,10 +29,11 @@ func (s *FitnessAggregator) CreateClient(
 		Person: db.Person{
 			Name:       req.Client.Name,
 			Phone:      req.Client.Phone,
-			PictureURI: req.Client.PictureUri,
+			PictureURI: "cdn.example.com",
 			BirthDate:  req.Client.BirthDate.AsTime(),
 			Gender:     gender,
-			ClassIDs:   []bson.ObjectID{},
+
+			ClassIDs: []bson.ObjectID{},
 		},
 		Password: req.Client.Password,
 	})
