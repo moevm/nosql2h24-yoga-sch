@@ -228,6 +228,116 @@ service FitnessAggregator {
       }
     };
   }
+
+  rpc CreateClass(CreateClassRequest) returns (CreateClassResponse) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      post: "/api/v1/class",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "201",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CreateClassResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetClasses(GetClassesRequest) returns (GetClassesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+
+    option (google.api.http) = {
+      get: "/api/v1/class",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.GetClassesResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetClass(GetClassRequest) returns (GetClassResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+
+    option (google.api.http) = {
+      get: "/api/v1/class/{id}",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.GetClassResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc DeleteClass(DeleteClassRequest) returns (DeleteClassResponse) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      delete: "/api/v1/class/{id}",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.DeleteClassResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc CreateAppointment(CreateAppointmentRequest) returns (CreateAppointmentResponse) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      post: "/api/v1/appointment",
+      body: "*",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CreateAppointmentResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc CancelAppointment(CancelAppointmentRequest) returns (CancelAppointmentResponse) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      delete: "/api/v1/appointment",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CancelAppointmentResponse"}
+          }
+        }
+      }
+    };
+  }
 }
 
 message CreateClientRequest {
@@ -313,3 +423,45 @@ message DeleteStudioRequest {
 }
 
 message DeleteStudioResponse {}
+
+message CreateClassRequest {
+  Class class = 1;
+}
+
+message CreateClassResponse {
+  string class_id = 1;
+}
+
+message GetClassesRequest {}
+
+message GetClassesResponse {
+  repeated Class classes = 1;
+}
+
+message GetClassRequest {
+  string id = 1;
+}
+
+message GetClassResponse {
+  Class class = 1;
+}
+
+message DeleteClassRequest {
+  string id = 1;
+}
+
+message DeleteClassResponse {}
+
+message CreateAppointmentRequest {
+  string client_id = 1;
+  string class_id = 2;
+}
+
+message CreateAppointmentResponse {}
+
+message CancelAppointmentRequest {
+  string client_id = 1;
+  string class_id = 2;
+}
+
+message CancelAppointmentResponse {}

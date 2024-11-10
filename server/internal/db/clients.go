@@ -85,10 +85,10 @@ func (r MongoRepository) DeleteClient(ctx context.Context, id bson.ObjectID) err
 	collection := r.Db().Collection(clients)
 
 	switch res, err := collection.DeleteOne(ctx, bson.M{"_id": id}); {
-	case errors.Is(err, mongo.ErrNoDocuments) || res.DeletedCount == 0:
-		return ErrNotFound
 	case err != nil:
 		return fmt.Errorf("failed to delete client: %w", err)
+	case res.DeletedCount == 0:
+		return ErrNotFound
 	}
 
 	return nil

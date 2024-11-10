@@ -23,8 +23,6 @@ type Studio struct {
 	TrainerIDs []bson.ObjectID `bson:"trainer_ids"`
 }
 
-// InsertStudio inserts a studio into the database.
-// Pair name and address must be unique.
 func (r MongoRepository) InsertStudio(
 	ctx context.Context, studio Studio,
 ) (bson.ObjectID, error) {
@@ -86,13 +84,32 @@ func (r MongoRepository) GetStudio(ctx context.Context, id bson.ObjectID) (Studi
 }
 
 func (r MongoRepository) DeleteStudio(ctx context.Context, id bson.ObjectID) error {
-	collection := r.Db().Collection(studios)
+	studiosCollection := r.Db().Collection(studios)
+	trainersCollection := r.Db().Collection(trainers)
+	classesCollection := r.Db().Collection(classes)
 
-	res, err := collection.DeleteOne(ctx, bson.M{"_id": id})
-	switch {
-	case errors.Is(err, mongo.ErrNoDocuments) || res.DeletedCount == 0:
-		return ErrNotFound
-	case err != nil:
+	var studio Studio
+	if err := studiosCollection.FindOne(ctx, bson.M{"_id": id}).
+		Decode(&studio); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("failed to find studio: %w", err)
+	}
+
+	for _, trainerID := range studio.TrainerIDs {
+		if _, err := trainersCollection.DeleteOne(ctx, bson.M{"_id": trainerID}); err != nil {
+			return fmt.Errorf("failed to delete trainer: %w", err)
+		}
+	}
+
+	for _, classID := range studio.ClassIDs {
+		if _, err := classesCollection.DeleteOne(ctx, bson.M{"_id": classID}); err != nil {
+			return fmt.Errorf("failed to delete class: %w", err)
+		}
+	}
+
+	if _, err := studiosCollection.DeleteOne(ctx, bson.M{"_id": id}); err != nil {
 		return fmt.Errorf("failed to delete studio: %w", err)
 	}
 
