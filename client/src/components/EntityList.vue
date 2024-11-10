@@ -207,7 +207,8 @@ const addNewItem = async () => {
       } else {
         payload = {
           [entityType.value.toLowerCase()]: {
-            address: formData.value.address
+            name: formData.value.class_name,
+            time: formData.value.time,
           }
         }
       }
