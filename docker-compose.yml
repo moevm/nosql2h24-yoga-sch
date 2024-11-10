@@ -1,19 +1,4 @@
 services:
-  nginx:
-    container_name: nginx
-    image: ${CI_REGISTRY_IMAGE}/nginx:${IMAGE_TAG}
-    build:
-      context: ./nginx/
-      dockerfile: Dockerfile
-    networks:
-      - app-net
-    ports:
-      - 80:80
-      - 8443:8443
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    restart: always
-
   client:
     container_name: client
     image: ${CI_REGISTRY_IMAGE}/client:${IMAGE_TAG}
@@ -22,6 +7,12 @@ services:
       dockerfile: Dockerfile
     networks:
       - app-net
+    ports:
+      - 80:80
+      - 8443:8443
+    volumes:
+      - ./client/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
 
   server:
     container_name: server
