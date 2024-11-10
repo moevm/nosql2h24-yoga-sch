@@ -42,15 +42,14 @@
                      v-if="header.label === 'Phone'"
                      type="tel"
                      :id="header.key"
-                     placeholder="+7(999)999-9999"
-                     pattern="+7([0-9]{3})[0-9]{3}-[0-9]{4}"
+                     placeholder="+7 (999) 999-9999"
                      required/>
               <select v-model="formData.gender"
                       v-else-if="header.label === 'Gender'"
                       :id="header.key"
                       required>
-                <option value="MALE">M</option>
-                <option value="FEMALE">F</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
               </select>
               <input v-model="formData.password"
                      v-else-if="header.label === 'Password'"
@@ -264,7 +263,7 @@ li {
 }
 
 .table-container {
-  padding-bottom: 60px; /* Отступ снизу для места для кнопки */
+  padding-bottom: 60px;
 }
 
 .add-button {
@@ -293,7 +292,6 @@ li {
   transform: translateY(0);
 }
 
-/* Модальное окно */
 .modal {
   position: fixed;
   top: 0;
@@ -312,10 +310,10 @@ li {
   padding: 20px;
   border-radius: 8px;
   width: 90%;
-  max-width: 500px; /* Ограничиваем максимальную ширину окна */
+  max-width: 500px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow-y: auto; /* Скроллинг если контент слишком длинный */
-  max-height: 90vh; /* Ограничение по высоте */
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 .modal-content h3 {
@@ -325,7 +323,6 @@ li {
   margin-bottom: 20px;
 }
 
-/* Форматирование группы полей */
 .form-group {
   margin-bottom: 15px;
 }
@@ -347,7 +344,6 @@ li {
   font-size: 14px;
 }
 
-/* Кнопки в модальном окне */
 .modal-actions {
   display: flex;
   justify-content: space-between;
