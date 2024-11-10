@@ -12,32 +12,44 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/db"
 	genv1 "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/gen/proto/v1"
 	v1 "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/handlers/v1"
 	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/middlewares"
 )
 
-func newGRPC(port int, mongoClient *mongo.Client) (net.Listener, *grpc.Server) {
+func newGRPC(port int, mgClient *mongo.Client) (net.Listener, *grpc.Server) {
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatalf("error listening address %d: %v", port, err)
 	}
 
 	s := grpc.NewServer()
-	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: mongoClient})
+	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: mgClient})
+	genv1.RegisterFitnessAggregatorServer(s, &v1.FitnessAggregator{Repo: db.NewMongoRepository(mgClient)})
 
 	fmt.Printf("Starting grpc server on port %d...\n", port)
 	return l, s
 }
 
+type HandlerRegistrar = func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) error
+
 func newHTTP(httpPort, grpcPort int) *http.Server {
 	mux := runtime.NewServeMux()
 
 	grpcOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	if err := genv1.RegisterExampleServiceHandlerFromEndpoint(
-		context.Background(), mux, fmt.Sprintf(":%d", grpcPort), grpcOpts,
-	); err != nil {
-		log.Fatalf("failed to register http endpoint: %v", err)
+
+	handlersToRegister := []HandlerRegistrar{
+		genv1.RegisterExampleServiceHandlerFromEndpoint,
+		genv1.RegisterFitnessAggregatorHandlerFromEndpoint,
+	}
+
+	for _, h := range handlersToRegister {
+		if err := h(
+			context.Background(), mux, fmt.Sprintf(":%d", grpcPort), grpcOpts,
+		); err != nil {
+			log.Fatalf("failed to register http endpoint: %v", err)
+		}
 	}
 
 	s := &http.Server{
