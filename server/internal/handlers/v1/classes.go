@@ -30,10 +30,12 @@ func (s *FitnessAggregator) CreateClass(
 	}
 
 	bsonID, err := s.Repo.InsertClass(ctx, db.Class{
-		Name:      req.Class.Name,
-		Time:      req.Class.Time.AsTime(),
+		Name: req.Class.Name,
+		Time: req.Class.Time.AsTime(),
+
 		TrainerID: trainerID,
 		StudioID:  studioID,
+		ClientIDs: []bson.ObjectID{},
 	})
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {

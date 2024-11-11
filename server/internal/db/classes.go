@@ -46,12 +46,12 @@ func (r MongoRepository) InsertClass(
 	}
 
 	if err := studiosCollection.FindOneAndUpdate(ctx, bson.M{"_id": class.StudioID},
-		bson.M{"$push": bson.M{"class_ids": result.ID}}).Err(); err != nil {
+		bson.M{"$addToSet": bson.M{"class_ids": result.ID}}).Err(); err != nil {
 		return bson.ObjectID{}, fmt.Errorf("failed to update studio: %w", err)
 	}
 
 	if err := trainersCollection.FindOneAndUpdate(ctx, bson.M{"_id": class.TrainerID},
-		bson.M{"$push": bson.M{"class_ids": result.ID}}).Err(); err != nil {
+		bson.M{"$addToSet": bson.M{"class_ids": result.ID}}).Err(); err != nil {
 		return bson.ObjectID{}, fmt.Errorf("failed to update trainer: %w", err)
 	}
 

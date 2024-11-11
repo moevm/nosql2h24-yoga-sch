@@ -38,7 +38,7 @@ func (r MongoRepository) InsertTrainer(
 	}
 
 	if err := studiosCollection.FindOneAndUpdate(ctx, bson.M{"_id": trainer.StudioID},
-		bson.M{"$push": bson.M{"trainer_ids": result.ID}}).Err(); err != nil {
+		bson.M{"$addToSet": bson.M{"trainer_ids": result.ID}}).Err(); err != nil {
 		return bson.ObjectID{}, fmt.Errorf("failed to update studio: %w", err)
 	}
 

@@ -1,6 +1,4 @@
-FROM node:22.8-alpine
-
-RUN npm install -g http-server
+FROM node:22.8-alpine as builder
 
 WORKDIR /app
 
@@ -10,4 +8,14 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-CMD [ "http-server", "dist" ]
+# ---------------------------
+
+# Run application
+
+FROM nginx:1.27-alpine
+
+RUN adduser -D -g 'www' www
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+CMD nginx -g 'daemon off;'

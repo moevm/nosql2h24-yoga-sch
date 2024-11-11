@@ -13,10 +13,10 @@ import (
 	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/db"
 )
 
-func Run(httpPort, grpcPort int) {
+func Run(httpPort, grpcPort int, jwtSecret, adminToken string) {
 	dbC := db.New()
 
-	l, grpcS := newGRPC(grpcPort, dbC)
+	l, grpcS := newGRPC(grpcPort, jwtSecret, adminToken, dbC)
 	httpS := newHTTP(httpPort, grpcPort)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

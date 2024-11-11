@@ -15,11 +15,11 @@ import (
 func (s *FitnessAggregator) CreateTrainer(
 	ctx context.Context, req *gen.CreateTrainerRequest,
 ) (*gen.CreateTrainerResponse, error) {
-	if req == nil || req.Trainer == nil || req.Trainer.Person == nil {
+	if req == nil || req.Trainer == nil {
 		return nil, status.Error(codes.InvalidArgument, "no request provided")
 	}
 
-	gender, err := convertGenGender(req.Trainer.Person.Gender)
+	gender, err := convertGenGender(req.Trainer.Gender)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -31,12 +31,13 @@ func (s *FitnessAggregator) CreateTrainer(
 
 	bsonID, err := s.Repo.InsertTrainer(ctx, db.Trainer{
 		Person: db.Person{
-			Name:       req.Trainer.Person.Name,
-			Phone:      req.Trainer.Person.Phone,
-			PictureURI: req.Trainer.Person.PictureUri,
-			BirthDate:  req.Trainer.Person.BirthDate.AsTime(),
+			Name:       req.Trainer.Name,
+			Phone:      req.Trainer.Phone,
+			PictureURI: req.Trainer.PictureUri,
+			BirthDate:  req.Trainer.BirthDate.AsTime(),
 			Gender:     gender,
-			ClassIDs:   []bson.ObjectID{},
+
+			ClassIDs: []bson.ObjectID{},
 		},
 		StudioID: studioID,
 	})
@@ -60,10 +61,7 @@ func (s *FitnessAggregator) GetTrainers(
 
 	var trainersResp []*gen.Trainer
 	for _, t := range trainers {
-		trainersResp = append(trainersResp, &gen.Trainer{
-			Person:   convertDbPerson(t.Person),
-			StudioId: t.StudioID.Hex(),
-		})
+		trainersResp = append(trainersResp, convertDbTrainer(t))
 	}
 
 	return &gen.GetTrainersResponse{Trainers: trainersResp}, nil
@@ -87,10 +85,7 @@ func (s *FitnessAggregator) GetTrainer(
 	}
 
 	return &gen.GetTrainerResponse{
-		Trainer: &gen.Trainer{
-			Person:   convertDbPerson(trainer.Person),
-			StudioId: trainer.StudioID.Hex(),
-		},
+		Trainer: convertDbTrainer(trainer),
 	}, nil
 }
 
