@@ -129,7 +129,7 @@ async function loadData() {
         break;
     }
 
-    console.log(items.value);
+    // console.log(items.value);
   } catch (error) {
     console.error("Ошибка при загрузке данных:", error);
   }
