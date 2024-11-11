@@ -18,16 +18,3 @@ db.clients.insertOne(
         "classes": []
     }
 );
-
-db.trainers.insertOne(
-    {
-        "name": "Olga Ivanova",
-        "phone": "+7(922)99-1111",
-        "gender": "FEMALE",
-        "birth_date": "2001-10-28T23:58:18Z",
-        "created_at": "2040-10-28T23:58:18Z",
-        "updated_at": "2040-10-29T23:58:18Z",
-        "picture_uri": "https://cdn.example.com",
-        "class_ids": []
-    }
-);

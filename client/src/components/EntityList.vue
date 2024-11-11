@@ -205,6 +205,10 @@ const addNewItem = async () => {
       formData.value.birthDate = new Date(formData.value.birthDate).toISOString();
     }
 
+    if (formData.value.time) {
+      formData.value.time = new Date(formData.value.time).toISOString();
+    }
+
     let payload = {
       [entityType.value.toLowerCase()]: formData.value
     };

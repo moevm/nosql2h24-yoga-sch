@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from './components/Home.vue';
-import DataView from './views/DataView.vue';
+import Home from '@/components/Home.vue';
+import DataView from '@/views/DataView.vue';
 import EntityList from "@/components/EntityList.vue";
 
 const routes = [
