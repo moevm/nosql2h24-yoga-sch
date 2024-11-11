@@ -1,16 +1,18 @@
 <template xmlns="http://www.w3.org/1999/html">
   <div class="table-container">
-    <h2>{{ items.length + " " + entityType }}</h2>
+    <h2>{{ (items?.length || 0) + " " + entityType }}</h2>
     <table v-if="items.length" border="1" cellpadding="10">
       <thead>
       <tr>
-        <th v-for="header in getColumnConfig(entityType)" :key="header.label">{{ header.label }}</th>
+        <template v-for="header in getColumnConfig(entityType)" :key="header.label">
+          <th v-if="header.label !== 'Password'">{{ header.label }}</th>
+        </template>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="item in items" :key="item['_id']">
+      <tr v-for="item in items" :key="item['id']">
         <template v-for="column in getColumnConfig(entityType)" :key="column.key">
-          <td v-if="!column.isLink && !column.isList && !column.isDate">{{ item[column.key as keyof Entity] }}</td>
+          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">{{ item[column.key as keyof Entity] }}</td>
           <td v-else-if="column.isLink">
             <a v-if="item[column.key as keyof Entity]" :href="item[column.key as keyof Entity]" target="_blank">
               {{ item[column.key as keyof Entity] }}
@@ -42,15 +44,14 @@
                      v-if="header.label === 'Phone'"
                      type="tel"
                      :id="header.key"
-                     placeholder="+7(999)999-9999"
-                     pattern="+7([0-9]{3})[0-9]{3}-[0-9]{4}"
+                     placeholder="+7 (999) 999-9999"
                      required/>
               <select v-model="formData.gender"
                       v-else-if="header.label === 'Gender'"
                       :id="header.key"
                       required>
-                <option value="M">M</option>
-                <option value="F">F</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
               </select>
               <input v-model="formData.password"
                      v-else-if="header.label === 'Password'"
@@ -96,7 +97,7 @@ import {type Class, type Client, type Studio, type Trainer} from "@/types/types"
 
 type Entity = Client | Class | Studio | Trainer
 const route = useRoute();
-const entityType = ref(route.params.entityType as 'Client' | 'Trainer' | 'Class' | 'Studio');
+const entityType = ref(route.params.entityType as 'client' | 'trainer' | 'class' | 'studio');
 const items: Ref<Entity[]> = ref([]);
 const showModal = ref(false);
 const errorMessage = ref("");
@@ -108,11 +109,27 @@ const URI = `${window.location.protocol}//${window.location.hostname}`
 
 async function loadData() {
   try {
-    const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
+    const response = await fetch(`${URI}/api/v1/${entityType.value}`, {
       method: 'GET'
     });
     const data = await response.json();
-    items.value = data || [];
+
+    switch (entityType.value) {
+      case 'client':
+        items.value = data.clients || [];
+        break;
+      case 'trainer':
+        items.value = data.trainers || [];
+        break;
+      case 'class':
+        items.value = data.classes || [];
+        break;
+      case 'studio':
+        items.value = data.studios || [];
+        break;
+    }
+
+    console.log(items.value);
   } catch (error) {
     console.error("Ошибка при загрузке данных:", error);
   }
@@ -121,50 +138,50 @@ async function loadData() {
 onMounted(loadData);
 
 watch(() => route.params.entityType, (newType) => {
-  entityType.value = newType as 'Client' | 'Trainer' | 'Class' | 'Studio';
+  entityType.value = newType as 'client' | 'trainer' | 'class' | 'studio';
   loadData();
 });
 
 function getColumnConfig(type: string) {
   switch (type) {
-    case 'Client':
+    case 'client':
       return [
-        {key: '_id', label: 'ID'},
+        {key: 'id', label: 'ID'},
         {key: 'name', label: 'Name', isNeeded: true},
         {key: 'phone', label: 'Phone', isNeeded: true},
         {key: 'gender', label: 'Gender', isNeeded: true},
-        {key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
-        {key: 'created_at', label: 'Created At', isDate: true, isTime: true},
-        {key: 'updated_at', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'password', label: 'Password', isNeeded: true},
-        {key: 'picture_uri', label: 'Picture', isLink: true},
-        {key: 'classes', label: 'Classes', isList: true}
+        {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
+        {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
+        {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
+        {key: 'password', label: 'Password', isNeeded: true, isPassword: true},
+        {key: 'pictureUri', label: 'Picture', isLink: true},
+        {key: 'classIds', label: 'Classes', isList: true}
       ];
-    case 'Trainer':
+    case 'trainer':
       return [
-        {key: '_id', label: 'ID'},
+        {key: 'id', label: 'ID'},
         {key: 'name', label: 'Name', isNeeded: true},
         {key: 'phone', label: 'Phone', isNeeded: true},
         {key: 'gender', label: 'Gender', isNeeded: true},
-        {key: 'birth_date', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
-        {key: 'created_at', label: 'Created At', isDate: true, isTime: true},
-        {key: 'updated_at', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'studio_id', label: 'Studio ID', isNeeded: true},
-        {key: 'picture_uri', label: 'Picture', isLink: true},
-        {key: 'classes', label: 'Classes', isList: true}
+        {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
+        {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
+        {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'pictureUri', label: 'Picture', isLink: true},
+        {key: 'classIds', label: 'Classes', isList: true}
       ];
-    case 'Class':
+    case 'class':
       return [
-        {key: '_id', label: 'ID'},
-        {key: 'class_name', label: 'Class Type', isNeeded: true},
+        {key: 'id', label: 'ID'},
+        {key: 'name', label: 'Class Type', isNeeded: true},
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studio_id', label: 'Studio ID', isNeeded: true},
-        {key: 'trainer_id', label: 'Trainer ID', isNeeded: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'trainerId', label: 'Trainer ID', isNeeded: true},
         {key: 'clients', label: 'Clients', isList: true}
       ];
-    case 'Studio':
+    case 'studio':
       return [
-        {key: '_id', label: 'ID'},
+        {key: 'id', label: 'ID'},
         {key: 'address', label: 'Address', isNeeded: true},
         {key: 'classes', label: 'Classes', isList: true},
         {key: 'trainers', label: 'Trainers', isList: true}
@@ -184,36 +201,16 @@ function getDate(date: string) {
 
 const addNewItem = async () => {
   try {
-    let payload = {};
-    if (entityType.value === 'Client' || entityType.value === 'Trainer') {
-      payload = {
-        [entityType.value.toLowerCase()]: {
-          person: {
-            name: formData.value.name,
-            phone: formData.value.phone,
-            birthDate: formData.value.birth_date,
-            gender: formData.value.gender
-          },
-          password: formData.value.password
-        }
-      };
-    } else {
-      if (entityType.value === 'Studio') {
-        payload = {
-          [entityType.value.toLowerCase()]: {
-            address: formData.value.address
-          }
-        }
-      } else {
-        payload = {
-          [entityType.value.toLowerCase()]: {
-            address: formData.value.address
-          }
-        }
-      }
+    if (formData.value.birthDate) {
+      formData.value.birthDate = new Date(formData.value.birthDate).toISOString();
     }
 
-    console.log(payload);
+    let payload = {
+      [entityType.value.toLowerCase()]: formData.value
+    };
+
+    formData.value = {}
+    console.log(JSON.stringify(payload));
 
     const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
       method: "POST",
@@ -230,6 +227,7 @@ const addNewItem = async () => {
     await loadData();
     showModal.value = false;
     errorMessage.value = "";
+    location.reload();
   } catch (error) {
     if (error instanceof Error) {
       errorMessage.value = `Ошибка при отправке данных: ${error.message}`;
@@ -288,7 +286,7 @@ li {
 }
 
 .table-container {
-  padding-bottom: 60px; /* Отступ снизу для места для кнопки */
+  padding-bottom: 60px;
 }
 
 .add-button {
@@ -317,7 +315,6 @@ li {
   transform: translateY(0);
 }
 
-/* Модальное окно */
 .modal {
   position: fixed;
   top: 0;
@@ -336,10 +333,10 @@ li {
   padding: 20px;
   border-radius: 8px;
   width: 90%;
-  max-width: 500px; /* Ограничиваем максимальную ширину окна */
+  max-width: 500px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow-y: auto; /* Скроллинг если контент слишком длинный */
-  max-height: 90vh; /* Ограничение по высоте */
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 .modal-content h3 {
@@ -349,7 +346,6 @@ li {
   margin-bottom: 20px;
 }
 
-/* Форматирование группы полей */
 .form-group {
   margin-bottom: 15px;
 }
@@ -371,7 +367,6 @@ li {
   font-size: 14px;
 }
 
-/* Кнопки в модальном окне */
 .modal-actions {
   display: flex;
   justify-content: space-between;

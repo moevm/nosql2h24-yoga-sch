@@ -1,42 +1,42 @@
 
 export interface Client {
-    _id: string,
+    id: string,
     name: string,
     phone: string,
     gender: string,
-    birth_date: string,
-    created_at: string,
-    updated_at: string,
+    birthDate: string,
+    createdAt: string,
+    updatedAt: string,
     password: string,
-    picture_uri: string,
-    classes: string[]
+    pictureUri: string,
+    classIds: string[]
 }
 
 export interface Trainer {
-    _id: string,
+    id: string,
     name: string,
     phone: string,
-    studio_id: string,
+    studioId: string,
     gender: string,
-    birth_date: string,
-    created_at: string,
-    updated_at: string,
-    picture_uri: string,
-    classes: string[]
+    birthDate: string,
+    createdAt: string,
+    updatedAt: string,
+    pictureUri: string,
+    classIds: string[]
 }
 
 export interface Studio {
-    _id: string,
+    id: string,
     address: string,
     classes: string[]
     trainers: string[]
 }
 
 export interface Class {
-    _id: string,
-    class_name: string,
+    id: string,
+    name: string,
     time: string,
-    studio_id: string,
-    trainer_id: string,
+    studioId: string,
+    trainerId: string,
     clients: string[]
 }
