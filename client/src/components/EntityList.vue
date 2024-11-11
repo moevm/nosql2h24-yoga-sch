@@ -213,7 +213,6 @@ const addNewItem = async () => {
       [entityType.value.toLowerCase()]: formData.value
     };
 
-    formData.value = {}
     console.log(JSON.stringify(payload));
 
     const response = await fetch(`${URI}/api/v1/${entityType.value.toLowerCase()}`, {
@@ -228,10 +227,12 @@ const addNewItem = async () => {
       throw new Error(`${response.statusText}`);
     }
 
-    await loadData();
     showModal.value = false;
+    formData.value = {};
+    await loadData();
+
     errorMessage.value = "";
-    location.reload();
+    // location.reload();
   } catch (error) {
     if (error instanceof Error) {
       errorMessage.value = `Ошибка при отправке данных: ${error.message}`;
