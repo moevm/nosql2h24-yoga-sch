@@ -33,7 +33,7 @@ services:
     command: --config /etc/mongo/mongod.conf
     volumes:
       - db-data:/data/db
-      - ./mongodb/:/etc/mongo/
+      - ./mongodb/mongod.conf:/etc/mongo/mongod.conf
       - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - app-net
