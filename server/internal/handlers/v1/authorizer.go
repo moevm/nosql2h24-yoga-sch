@@ -76,6 +76,10 @@ var endpointPermissionValidators = []struct {
 		regex:     `\/fitness_aggregator\.v1\.FitnessAggregator\/*`,
 		onlyAdmin: true,
 	},
+	{
+		regex:     `\/fitness_aggregator\.v1\.AdminPanel\/*`,
+		onlyAdmin: true,
+	},
 }
 
 func (a *Authorizer) PermissionInterceptor(

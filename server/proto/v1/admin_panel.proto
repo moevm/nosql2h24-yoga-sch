@@ -1,0 +1,30 @@
+syntax = "proto3";
+package fitness_aggregator.v1;
+
+option go_package = "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/server/api/proto/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+service AdminPanel {
+  rpc DropDB(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option idempotency_level = IDEMPOTENT;
+
+    option (google.api.http) = {
+      post: "/api/admin/v1/drop-db",
+      body: "*",
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".google.protobuf.Empty"}
+          }
+        }
+      }
+    };
+  }
+}

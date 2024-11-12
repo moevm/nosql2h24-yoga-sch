@@ -10,6 +10,8 @@ import (
 )
 
 type Repository interface {
+	DropDB(ctx context.Context) error
+
 	GetIDByCreds(ctx context.Context, phone, password string) (bson.ObjectID, error)
 
 	InsertClient(ctx context.Context, client Client) (bson.ObjectID, error)
@@ -51,12 +53,16 @@ const (
 
 var ErrNotFound = errors.New("not found")
 
+func NewMongoRepository(mg *mongo.Client) Repository {
+	return MongoRepository{mg: mg}
+}
+
 func (r MongoRepository) Db() *mongo.Database {
 	return r.mg.Database(dbName)
 }
 
-func NewMongoRepository(mg *mongo.Client) Repository {
-	return MongoRepository{mg: mg}
+func (r MongoRepository) DropDB(ctx context.Context) error {
+	return r.Db().Drop(ctx)
 }
 
 type Gender string

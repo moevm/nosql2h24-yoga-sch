@@ -28,8 +28,10 @@ func newGRPC(
 		log.Fatalf("error listening address %d: %v", port, err)
 	}
 
+	repo := db.NewMongoRepository(mgClient)
+
 	authorizer := &v1.Authorizer{
-		Repo:       db.NewMongoRepository(mgClient),
+		Repo:       repo,
 		JWTSecret:  jwtSecret,
 		AdminToken: adminToken,
 	}
@@ -41,11 +43,10 @@ func newGRPC(
 		),
 	)
 
-	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: mgClient})
-	genv1.RegisterFitnessAggregatorServer(s, &v1.FitnessAggregator{
-		Repo: db.NewMongoRepository(mgClient),
-	})
 	genv1.RegisterAuthorizerServer(s, authorizer)
+	genv1.RegisterAdminPanelServer(s, &v1.AdminPanel{Repo: repo})
+	genv1.RegisterFitnessAggregatorServer(s, &v1.FitnessAggregator{Repo: repo})
+	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: mgClient})
 
 	fmt.Printf("Starting grpc server on port %d...\n", port)
 	return l, s
@@ -59,9 +60,10 @@ func newHTTP(httpPort, grpcPort int) *http.Server {
 	grpcOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	handlersToRegister := []HandlerRegistrar{
-		genv1.RegisterExampleServiceHandlerFromEndpoint,
-		genv1.RegisterFitnessAggregatorHandlerFromEndpoint,
 		genv1.RegisterAuthorizerHandlerFromEndpoint,
+		genv1.RegisterAdminPanelHandlerFromEndpoint,
+		genv1.RegisterFitnessAggregatorHandlerFromEndpoint,
+		genv1.RegisterExampleServiceHandlerFromEndpoint,
 	}
 
 	for _, h := range handlersToRegister {
