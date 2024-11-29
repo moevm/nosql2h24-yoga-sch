@@ -154,9 +154,11 @@ async function registerUser() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        phone: formData.value.phone,
-        password: formData.value.password,
-        name: formData.value.name,
+        client: {
+          phone: formData.value.phone,
+          password: formData.value.password,
+          name: formData.value.name,
+        }
       }),
     });
 
