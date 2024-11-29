@@ -10,7 +10,7 @@
       <h2 class="auth-header">{{ isLogin ? 'Log In' : 'Sign Up' }}</h2>
       <form @submit.prevent="isLogin ? loginUser() : registerUser()">
         <div class="form-group">
-          <label for="phone">phone number</label>
+          <label for="phone">Phone number</label>
           <input
               v-model="formattedPhone"
               type="tel"
@@ -20,7 +20,7 @@
           />
         </div>
         <div class="form-group">
-          <label for="password">password</label>
+          <label for="password">Password</label>
           <input
               v-model="formData.password"
               type="password"
@@ -30,7 +30,7 @@
           />
         </div>
         <div v-if="!isLogin" class="form-group">
-          <label for="name">name</label>
+          <label for="name">Name</label>
           <input
               v-model="formData.name"
               type="text"
@@ -38,6 +38,17 @@
               placeholder="Enter your name"
               required
           />
+        </div>
+        <div v-if="!isLogin" class="form-group">
+          <label for="gender">Gender</label>
+          <select
+              v-model="formData.gender"
+              id="gender"
+              required
+          >
+            <option value="F">Female</option>
+            <option value="M">Male</option>
+          </select>
         </div>
         <div class="auth-actions">
           <button
@@ -78,6 +89,7 @@ const formData = ref({
   phone: '',
   password: '',
   name: '',
+  gender: 'F',  // Default gender set to Female
 });
 
 const formattedPhone = computed({
@@ -110,11 +122,6 @@ function formatPhone(value: string): string {
 
 function toggleAuthMode() {
   isLogin.value = !isLogin.value;
-}
-
-function getCookie(name: string): string | null {
-  const matches = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1')}=([^;]*)`));
-  return matches ? decodeURIComponent(matches[1]) : null;
 }
 
 async function loginUser() {
@@ -158,6 +165,7 @@ async function registerUser() {
           phone: formData.value.phone,
           password: formData.value.password,
           name: formData.value.name,
+          gender: formData.value.gender === 'F' ? 'FEMALE' : 'MALE',  // Convert F/M to FEMALE/MALE
         }
       }),
     });
@@ -235,7 +243,8 @@ form {
   text-align: left;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   width: 100%;
   padding: 12px;
   border: none;
@@ -243,6 +252,18 @@ form {
   background-color: #d9d9d9;
   font-size: 14px;
   box-sizing: border-box;
+}
+
+.form-group select {
+  appearance: none; /* Remove default dropdown arrow */
+  background-color: #d9d9d9; /* Same as the input field */
+  color: #6a5862; /* Match input text color */
+  padding-right: 30px; /* Space for custom dropdown arrow */
+}
+
+.form-group select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .auth-actions {
@@ -294,5 +315,20 @@ form {
 .auth-header {
   margin: 0;
   text-align: center;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #6a5862;
+  pointer-events: none;
 }
 </style>
