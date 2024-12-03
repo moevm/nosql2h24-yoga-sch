@@ -1,6 +1,8 @@
 <template>
   <div class="entity-list-container">
-    <h1 class="page-title">Данные из базы данных</h1>
+    <div class="header-container">
+      <h1 class="page-title">Данные из базы данных</h1>
+    </div>
     <ul class="entity-list">
       <li class="entity-item">
         <router-link
@@ -43,21 +45,34 @@
 
 <style scoped>
 .entity-list-container {
-  padding: 0;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 0;
+  margin: 0;
+  height: 100vh;
+}
+
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  width: 100%;
 }
 
 .page-title {
   font-family: 'Montserrat', sans-serif;
   color: #6A5862;
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin: 0;
 }
 
 ul.entity-list {
   list-style-type: none;
   padding: 0;
-  margin: 0;
+  margin: 20px 0 0;
 }
 
 li.entity-item {
@@ -73,17 +88,17 @@ li.entity-item {
   font-size: 1.2rem;
   border-radius: 8px;
   text-decoration: none;
-  transition: background-color 0.3s, transform 0.3s;
+  transition: transform 0.3s ease;
   text-align: center;
   width: auto;
 }
 
 .entity-link:hover {
-  background-color: #D9D9D9;
+  transform: scale(1.1);
 }
 
 .entity-link:active {
-  background-color: #6A5862;
+  transform: scale(1.05);
 }
 
 .entity-link:focus {

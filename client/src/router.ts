@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import DataView from '@/views/DataView.vue';
 import EntityList from "@/components/EntityList.vue";
 import Auth from "@/components/Auth.vue";
+import AdminPage from "@/components/AdminPage.vue";
 
 const routes = [
     {
@@ -10,11 +11,16 @@ const routes = [
         component: Auth,
     },
     {
-        path: '/data',
+        path: '/admin',
+        name: 'AdminPage',
+        component: AdminPage,
+    },
+    {
+        path: '/admin/data',
         name: 'DataView',
         component: DataView,
     },
-    {   path: '/data/:entityType',
+    {   path: '/admin/data/:entityType',
         name: 'EntityList',
         component: EntityList,
         props: true,

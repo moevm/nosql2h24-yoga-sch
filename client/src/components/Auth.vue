@@ -89,7 +89,7 @@ const formData = ref({
   phone: '',
   password: '',
   name: '',
-  gender: 'F',  // Default gender set to Female
+  gender: 'F',
 });
 
 const formattedPhone = computed({
@@ -146,7 +146,7 @@ async function loginUser() {
     console.log('Login response:', result);
 
     document.cookie = `Authorization=admin; path=/; max-age=86400; secure; SameSite=Strict`;
-    await router.push('/data');
+    await router.push('/admin');
   } catch (error) {
     alert('Login failed. Please try again.');
   }
@@ -165,7 +165,7 @@ async function registerUser() {
           phone: formData.value.phone,
           password: formData.value.password,
           name: formData.value.name,
-          gender: formData.value.gender === 'F' ? 'FEMALE' : 'MALE',  // Convert F/M to FEMALE/MALE
+          gender: formData.value.gender === 'F' ? 'FEMALE' : 'MALE',
         }
       }),
     });

@@ -1,9 +1,15 @@
 <template>
   <div>
     <nav class="navbar">
-      <div v-if="isLoggedIn" class="nav-links">
-        <router-link to="/" class="nav-link" @click="logout">Выход</router-link>
-        <router-link to="/data" class="nav-link">База данных</router-link>
+      <div v-if="isLoggedIn" class="nav-icons">
+        <!-- Значок выхода -->
+        <router-link to="/" class="nav-link" @click="logout">
+          <img src="https://img.icons8.com/?size=100&id=2445&format=png&color=ffffff" alt="Выход" class="nav-icon" />
+        </router-link>
+        <!-- Значок дом -->
+        <router-link to="/admin" class="nav-link">
+          <img src="https://img.icons8.com/?size=100&id=73&format=png&color=ffffff" alt="Дом" class="nav-icon" />
+        </router-link>
       </div>
     </nav>
     <main>
@@ -58,28 +64,32 @@ function logout() {
 .navbar {
   background-color: #6A5862;
   height: 60px;
-  padding: 0 20px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  padding: 0 20px;
   color: white;
-  overflow: hidden;
 }
 
-.nav-links {
+.nav-icons {
   display: flex;
-  gap: 15px;
+  gap: 20px;
+  align-items: center;
 }
 
 .nav-link {
-  color: white;
   text-decoration: none;
   font-size: 1.2rem;
-  transition: color 0.3s;
+  transition: transform 0.3s;
 }
 
-.nav-link:hover {
-  color: #969696;
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.3s ease;
+}
+
+.nav-icon:hover {
+  transform: scale(1.1);
 }
 
 main {
