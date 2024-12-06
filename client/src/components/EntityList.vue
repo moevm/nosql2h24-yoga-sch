@@ -1,6 +1,36 @@
 <template xmlns="http://www.w3.org/1999/html">
   <div class="table-container">
     <h2>{{ (items?.length || 0) + " " + entityType }}</h2>
+
+    <div class="filters">
+      <h3>Фильтры поиска</h3>
+      <div
+          v-for="header in getColumnConfig(entityType)"
+          :key="header.key"
+          class="filter-group">
+      <label :for="'filter-' + header.key">
+          {{ header.label }}
+        </label>
+
+        <select v-if="header.label === 'Gender'" :id="'filter-' + header.key" v-model="filters[header.key]">
+          <option selected disabled hidden value="">All</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+        </select>
+
+        <input v-else-if="header.isDate && header.isTime" type="datetime-local"
+               :id="'filter-' + header.key" v-model="filters[header.key]" />
+        <input v-else-if="header.isDate && !header.isTime" type="date"
+               :id="'filter-' + header.key" v-model="filters[header.key]" />
+
+        <input v-else type="text"
+               :id="'filter-' + header.key"
+               :placeholder="'Введите ' + header.label"
+               v-model="filters[header.key]" />
+      </div>
+      <button class="apply-filters" @click="applyFilters">Apply</button>
+    </div>
+
     <table v-if="items.length" border="1" cellpadding="10">
       <thead>
       <tr>
@@ -98,6 +128,8 @@ import {type Class, type Client, type Studio, type Trainer} from "@/types/types"
 type Entity = Client | Class | Studio | Trainer
 const route = useRoute();
 const entityType = ref(route.params.entityType as 'client' | 'trainer' | 'class' | 'studio');
+const filters: Ref<Record<string, string>> = ref({});
+
 const items: Ref<Entity[]> = ref([]);
 const showModal = ref(false);
 const errorMessage = ref("");
@@ -106,6 +138,7 @@ const formData = ref<Record<string, any>>({});
 const today = new Date().toISOString().split('T')[0];
 
 const URI = `${window.location.protocol}//${window.location.hostname}`
+
 
 async function loadData() {
   try {
@@ -241,6 +274,24 @@ const addNewItem = async () => {
     }
   }
 }
+
+const applyFilters = async () => {
+  const queryParams = Object.entries(filters.value)
+      .filter(([_, value]) => value)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join('&');
+
+  try {
+    const response = await fetch(`${URI}/api/v1/${entityType.value}?${queryParams}`, {
+      method: 'GET',
+    });
+    const data = await response.json();
+    items.value = data[entityType.value.toLowerCase()] || [];
+  } catch (error) {
+    console.error('Ошибка фильтрации:', error);
+  }
+};
+
 </script>
 
 <style scoped>
@@ -405,5 +456,51 @@ li {
 
 .modal-btn-close:hover {
   background-color: #616161;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: nowrap; /* Размещение фильтров в одну строку */
+  overflow-x: auto;
+  gap: 15px; /* Отступы между фильтрами */
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  max-width: 200px;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.apply-filters {
+  flex: 0 0 auto;
+  background-color: #a4a4a4;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 16px;
+}
+
+.apply-filters:hover {
+  background-color: #8d8d8d;
 }
 </style>
