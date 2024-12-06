@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log/slog"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"google.golang.org/grpc/codes"
@@ -33,8 +32,6 @@ func (p *AdminPanel) DropDB(
 func (p *AdminPanel) ImportDB(
 	ctx context.Context, req *gen.DBData,
 ) (*emptypb.Empty, error) {
-	slog.Info(req.Data)
-
 	var data map[string][]bson.M
 	if err := json.Unmarshal([]byte(req.Data), &data); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Invalid JSON data: %s", err))
