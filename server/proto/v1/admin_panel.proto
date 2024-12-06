@@ -12,7 +12,7 @@ service AdminPanel {
     option idempotency_level = IDEMPOTENT;
 
     option (google.api.http) = {
-      post: "/api/admin/v1/drop-db",
+      post: "/api/admin/v1/db/drop",
       body: "*",
     };
 
@@ -27,4 +27,48 @@ service AdminPanel {
       }
     };
   }
+
+  rpc ImportDB(DBData) returns (google.protobuf.Empty) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      post: "/api/admin/v1/db/import",
+      body: "*",
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "204",
+        value: {
+          schema: {
+            json_schema: {ref: ".google.protobuf.Empty"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc ExportDB(google.protobuf.Empty) returns (DBData) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      post: "/api/admin/v1/db/export",
+      body: "*",
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.DBData"}
+          }
+        }
+      }
+    };
+  }
+}
+
+message DBData {
+  string data = 1;
 }
