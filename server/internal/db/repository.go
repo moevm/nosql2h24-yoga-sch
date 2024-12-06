@@ -11,6 +11,8 @@ import (
 
 type Repository interface {
 	DropDB(ctx context.Context) error
+	ImportDB(ctx context.Context, data map[string][]bson.M) error
+	ExportDB(ctx context.Context) (map[string][]bson.M, error)
 
 	GetIDByCreds(ctx context.Context, phone, password string) (bson.ObjectID, error)
 
@@ -59,10 +61,6 @@ func NewMongoRepository(mg *mongo.Client) Repository {
 
 func (r MongoRepository) Db() *mongo.Database {
 	return r.mg.Database(dbName)
-}
-
-func (r MongoRepository) DropDB(ctx context.Context) error {
-	return r.Db().Drop(ctx)
 }
 
 type Gender string
