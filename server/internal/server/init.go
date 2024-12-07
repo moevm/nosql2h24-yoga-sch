@@ -45,6 +45,7 @@ func newGRPC(
 
 	genv1.RegisterAuthorizerServer(s, authorizer)
 	genv1.RegisterAdminPanelServer(s, &v1.AdminPanel{Repo: repo})
+	genv1.RegisterSearchEngineServer(s, &v1.SearchEngine{Repo: repo})
 	genv1.RegisterFitnessAggregatorServer(s, &v1.FitnessAggregator{Repo: repo})
 	genv1.RegisterExampleServiceServer(s, &v1.ExampleService{DbC: mgClient})
 
@@ -62,6 +63,7 @@ func newHTTP(httpPort, grpcPort int) *http.Server {
 	handlersToRegister := []HandlerRegistrar{
 		genv1.RegisterAuthorizerHandlerFromEndpoint,
 		genv1.RegisterAdminPanelHandlerFromEndpoint,
+		genv1.RegisterSearchEngineHandlerFromEndpoint,
 		genv1.RegisterFitnessAggregatorHandlerFromEndpoint,
 		genv1.RegisterExampleServiceHandlerFromEndpoint,
 	}

@@ -1,0 +1,51 @@
+syntax = "proto3";
+package fitness_aggregator.v1;
+
+option go_package = "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/server/api/proto/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+import "v1/entities.proto";
+import "v1/utils.proto";
+
+service SearchEngine {
+  rpc SearchClients(ClientsFilter) returns (SearchClientsResponse) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      get: "/api/v1/search/clients",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.CreateClientResponse"}
+          }
+        }
+      }
+    };
+  }
+}
+
+message ClientsFilter {
+  string id_substring = 1;
+  string phone_substring = 2;
+  string name_substring = 3;
+  string picture_uri_substring = 4;
+  google.protobuf.Timestamp birth_date_interval_begin = 5;
+  google.protobuf.Timestamp birth_date_interval_end = 6;
+  repeated Gender genders = 7;
+  google.protobuf.Timestamp created_at_interval_begin = 8;
+  google.protobuf.Timestamp created_at_interval_end = 9;
+  google.protobuf.Timestamp updated_at_interval_begin = 10;
+  google.protobuf.Timestamp updated_at_interval_end = 11;
+
+  repeated string class_name_substrings = 12;
+}
+
+message SearchClientsResponse {
+  repeated Person clients = 1;
+}

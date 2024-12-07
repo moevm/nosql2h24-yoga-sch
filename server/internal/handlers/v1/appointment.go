@@ -22,8 +22,7 @@ func (s *FitnessAggregator) CreateAppointment(
 		return nil, status.Error(codes.InvalidArgument, "invalid client ID")
 	}
 
-	tokenClientID := GetUserIDFromContext(ctx)
-	if tokenClientID != clientBsonID.Hex() {
+	if err = checkUserToTargetPermissions(ctx, clientBsonID.Hex()); err != nil {
 		return nil, status.Error(codes.PermissionDenied, "client ID does not match token")
 	}
 
@@ -51,8 +50,7 @@ func (s *FitnessAggregator) CancelAppointment(
 		return nil, status.Error(codes.InvalidArgument, "invalid client ID")
 	}
 
-	tokenClientID := GetUserIDFromContext(ctx)
-	if tokenClientID != clientBsonID.Hex() {
+	if err = checkUserToTargetPermissions(ctx, clientBsonID.Hex()); err != nil {
 		return nil, status.Error(codes.PermissionDenied, "client ID does not match token")
 	}
 

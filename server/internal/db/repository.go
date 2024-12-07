@@ -14,6 +14,8 @@ type Repository interface {
 	ImportDB(ctx context.Context, data map[string][]bson.M) error
 	ExportDB(ctx context.Context) (map[string][]bson.M, error)
 
+	SearchClients(ctx context.Context, req ClientsFilter) (res []Person, err error)
+
 	GetIDByCreds(ctx context.Context, phone, password string) (bson.ObjectID, error)
 
 	InsertClient(ctx context.Context, client Client) (bson.ObjectID, error)

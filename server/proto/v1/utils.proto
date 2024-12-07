@@ -1,0 +1,12 @@
+syntax = "proto3";
+package fitness_aggregator.v1;
+
+option go_package = "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/server/api/proto/v1";
+
+import "google/protobuf/timestamp.proto";
+
+// TimeInterval: [begin, end)
+message TimeInterval {
+  google.protobuf.Timestamp begin = 1;
+  google.protobuf.Timestamp end = 2;
+}

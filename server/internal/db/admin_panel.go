@@ -40,17 +40,17 @@ func (r MongoRepository) ExportDB(
 	for _, colName := range colNames {
 		col := db.Collection(colName)
 
-		cursor, err := col.Find(ctx, bson.D{})
+		cur, err := col.Find(ctx, bson.D{})
 		if err != nil {
 			return nil, err
 		}
 
 		var docs []bson.M
-		if err = cursor.All(ctx, &docs); err != nil {
+		if err = cur.All(ctx, &docs); err != nil {
 			return nil, err
 		}
 
-		if err := cursor.Close(ctx); err != nil {
+		if err := cur.Close(ctx); err != nil {
 			return nil, err
 		}
 
