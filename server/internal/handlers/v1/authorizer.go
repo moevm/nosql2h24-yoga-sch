@@ -27,6 +27,10 @@ const (
 	adminID                = "admin"
 )
 
+var (
+	permissionDeniedErr = fmt.Errorf("permission denied")
+)
+
 type Authorizer struct {
 	gen.UnimplementedAuthorizerServer
 
@@ -71,6 +75,10 @@ var endpointPermissionValidators = []struct {
 	{
 		regex:     `\/fitness_aggregator\.v1\.ExampleService\/*`,
 		onlyAdmin: false,
+	},
+	{
+		regex:     `\/fitness_aggregator\.v1\.SearchEngine\/*`,
+		onlyAdmin: true,
 	},
 	{
 		regex:     `\/fitness_aggregator\.v1\.FitnessAggregator\/*`,
@@ -225,4 +233,13 @@ func validateJWT(inputToken, jwtSecret string) (Claims, error) {
 	}
 
 	return *claims, nil
+}
+
+func checkUserToTargetPermissions(ctx context.Context, targetID string) error {
+	switch GetUserIDFromContext(ctx) {
+	case adminID, targetID:
+		return nil
+	default:
+		return permissionDeniedErr
+	}
 }

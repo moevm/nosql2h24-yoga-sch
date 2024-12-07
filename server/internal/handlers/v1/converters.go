@@ -3,11 +3,16 @@ package v1
 import (
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/db"
 	gen "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/gen/proto/v1"
 )
+
+func ptr[T any](val T) *T {
+	return &val
+}
 
 func convertGenGender(gender gen.Gender) (db.Gender, error) {
 	switch gender {
@@ -18,6 +23,29 @@ func convertGenGender(gender gen.Gender) (db.Gender, error) {
 	default:
 		return db.GenderFemale, fmt.Errorf("unknown gender: %s", gender)
 	}
+}
+
+func convertGenGenders(genders []gen.Gender) (res []db.Gender, err error) {
+	for _, g := range genders {
+		r, err := convertGenGender(g)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
+	}
+	return res, nil
+}
+
+func convertGenTimeInterval(
+	begin *timestamppb.Timestamp, end *timestamppb.Timestamp,
+) (res db.TimeInterval) {
+	if begin != nil {
+		res.Begin = ptr(bson.NewDateTimeFromTime(begin.AsTime()))
+	}
+	if end != nil {
+		res.End = ptr(bson.NewDateTimeFromTime(end.AsTime()))
+	}
+	return res
 }
 
 func convertDbGender(gender db.Gender) gen.Gender {
@@ -47,6 +75,13 @@ func convertDbPerson(p db.Person) *gen.Person {
 
 		ClassIds: classIDs,
 	}
+}
+
+func convertDbPersons(ps []db.Person) (res []*gen.Person) {
+	for _, p := range ps {
+		res = append(res, convertDbPerson(p))
+	}
+	return res
 }
 
 func convertDbTrainer(t db.Trainer) *gen.Trainer {

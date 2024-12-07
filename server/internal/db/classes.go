@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -59,26 +58,26 @@ func (r MongoRepository) InsertClass(
 	return result.ID, nil
 }
 
-func (r MongoRepository) GetClasses(ctx context.Context) ([]Class, error) {
+func (r MongoRepository) GetClasses(
+	ctx context.Context,
+) (res []Class, err error) {
 	collection := r.Db().Collection(classes)
 
-	classesCursor, err := collection.Find(ctx, bson.M{})
+	cur, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to find classes: %w", err)
 	}
-	defer func(classesCursor *mongo.Cursor, ctx context.Context) {
-		err = classesCursor.Close(ctx)
-		if err != nil {
-			slog.Warn("failed to close classes: %v", err)
+	defer func(cur *mongo.Cursor, ctx context.Context) {
+		if err = cur.Close(ctx); err != nil {
+			err = fmt.Errorf("failed to close cursor: %w", err)
 		}
-	}(classesCursor, ctx)
+	}(cur, ctx)
 
-	var classes []Class
-	if err = classesCursor.All(ctx, &classes); err != nil {
+	if err = cur.All(ctx, &res); err != nil {
 		return nil, fmt.Errorf("failed to find classes: %w", err)
 	}
 
-	return classes, nil
+	return res, nil
 }
 
 func (r MongoRepository) GetClass(ctx context.Context, id bson.ObjectID) (Class, error) {
@@ -133,4 +132,38 @@ func (r MongoRepository) DeleteClass(ctx context.Context, id bson.ObjectID) erro
 	}
 
 	return nil
+}
+
+func (r MongoRepository) SearchClassesByNameRegex(
+	ctx context.Context, regexes []string,
+) (res []Class, err error) {
+	if len(regexes) == 0 {
+		return []Class{}, nil
+	}
+
+	col := r.Db().Collection(classes)
+
+	var nameRegexes []bson.M
+	for _, r := range regexes {
+		nameRegexes = append(nameRegexes, bson.M{
+			"name": bson.M{"$regex": r, "$options": "i"},
+		})
+	}
+	filter := bson.M{"$or": nameRegexes}
+
+	cur, err := col.Find(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search classes by name regex: %w", err)
+	}
+	defer func(cur *mongo.Cursor, ctx context.Context) {
+		if err = cur.Close(ctx); err != nil {
+			err = fmt.Errorf("failed to close cursor: %w", err)
+		}
+	}(cur, ctx)
+
+	if err = cur.All(ctx, &res); err != nil {
+		return nil, fmt.Errorf("failed to find classes by name regex: %w", err)
+	}
+
+	return res, nil
 }
