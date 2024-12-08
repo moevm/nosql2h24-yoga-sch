@@ -39,7 +39,7 @@ onMounted(() => {
 
   intervalId = window.setInterval(() => {
     checkAuthorization();
-  }, 1000);
+  }, 200);
 });
 
 onUnmounted(() => {
