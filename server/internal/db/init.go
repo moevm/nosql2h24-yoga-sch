@@ -12,7 +12,7 @@ import (
 
 func New() *mongo.Client {
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI("mongodb://mongodb:27017").SetServerAPIOptions(serverAPI)
+	opts := options.Client().ApplyURI("mongodb://db:27017").SetServerAPIOptions(serverAPI)
 
 	client, err := mongo.Connect(opts)
 
