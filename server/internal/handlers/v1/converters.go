@@ -106,6 +106,13 @@ func convertDbTrainer(t db.Trainer) *gen.Trainer {
 	}
 }
 
+func convertDbTrainers(ts []db.Trainer) (res []*gen.Trainer) {
+	for _, t := range ts {
+		res = append(res, convertDbTrainer(t))
+	}
+	return res
+}
+
 func convertDbStudio(s db.Studio) *gen.Studio {
 	var classIDs []string
 	for _, id := range s.ClassIDs {
@@ -128,6 +135,13 @@ func convertDbStudio(s db.Studio) *gen.Studio {
 	}
 }
 
+func convertDbStudios(ss []db.Studio) (res []*gen.Studio) {
+	for _, s := range ss {
+		res = append(res, convertDbStudio(s))
+	}
+	return res
+}
+
 func convertDbClass(c db.Class) *gen.Class {
 	var clientIDs []string
 	for _, id := range c.ClientIDs {
@@ -145,4 +159,11 @@ func convertDbClass(c db.Class) *gen.Class {
 		TrainerId: c.TrainerID.Hex(),
 		ClientIds: clientIDs,
 	}
+}
+
+func convertDbClasses(cs []db.Class) (res []*gen.Class) {
+	for _, c := range cs {
+		res = append(res, convertDbClass(c))
+	}
+	return res
 }
