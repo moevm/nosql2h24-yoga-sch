@@ -22,7 +22,61 @@ service SearchEngine {
         key: "200",
         value: {
           schema: {
-            json_schema: {ref: ".fitness_aggregator.v1.CreateClientResponse"}
+            json_schema: {ref: ".fitness_aggregator.v1.SearchClientsResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc SearchTrainers(TrainersFilter) returns (SearchTrainersResponse) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      get: "/api/v1/search/trainers",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.SearchTrainersResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc SearchStudios(StudiosFilter) returns (SearchStudiosResponse) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      get: "/api/v1/search/studios",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.SearchStudiosResponse"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc SearchClasses(ClassesFilter) returns (SearchClassesResponse) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+
+    option (google.api.http) = {
+      get: "/api/v1/search/classes",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      responses: {
+        key: "200",
+        value: {
+          schema: {
+            json_schema: {ref: ".fitness_aggregator.v1.SearchClassesResponse"}
           }
         }
       }
@@ -48,4 +102,60 @@ message ClientsFilter {
 
 message SearchClientsResponse {
   repeated Person clients = 1;
+}
+
+message TrainersFilter {
+  string id_substring = 1;
+  string phone_substring = 2;
+  string name_substring = 3;
+  string picture_uri_substring = 4;
+  google.protobuf.Timestamp birth_date_interval_begin = 5;
+  google.protobuf.Timestamp birth_date_interval_end = 6;
+  repeated Gender genders = 7;
+  google.protobuf.Timestamp created_at_interval_begin = 8;
+  google.protobuf.Timestamp created_at_interval_end = 9;
+  google.protobuf.Timestamp updated_at_interval_begin = 10;
+  google.protobuf.Timestamp updated_at_interval_end = 11;
+
+  repeated string class_name_substrings = 12;
+  repeated string studio_address_substrings = 13;
+}
+
+message SearchTrainersResponse {
+  repeated Trainer trainers = 1;
+}
+
+message StudiosFilter {
+  string id_substring = 1;
+  string address_substring = 2;
+  google.protobuf.Timestamp created_at_interval_begin = 3;
+  google.protobuf.Timestamp created_at_interval_end = 4;
+  google.protobuf.Timestamp updated_at_interval_begin = 5;
+  google.protobuf.Timestamp updated_at_interval_end = 6;
+
+  repeated string class_name_substrings = 7;
+  repeated string trainer_name_substrings = 8;
+}
+
+message SearchStudiosResponse {
+  repeated Studio studios = 1;
+}
+
+message ClassesFilter {
+  string id_substring = 1;
+  string name_substring = 2;
+  google.protobuf.Timestamp time_interval_begin = 3;
+  google.protobuf.Timestamp time_interval_end = 4;
+  google.protobuf.Timestamp created_at_interval_begin = 5;
+  google.protobuf.Timestamp created_at_interval_end = 6;
+  google.protobuf.Timestamp updated_at_interval_begin = 7;
+  google.protobuf.Timestamp updated_at_interval_end = 8;
+
+  repeated string studio_address_substrings = 9;
+  repeated string trainer_name_substrings = 10;
+  repeated string client_name_substrings = 11;
+}
+
+message SearchClassesResponse {
+  repeated Class classes = 1;
 }

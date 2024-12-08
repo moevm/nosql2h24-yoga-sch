@@ -15,6 +15,9 @@ type Repository interface {
 	ExportDB(ctx context.Context) (map[string][]bson.M, error)
 
 	SearchClients(ctx context.Context, req ClientsFilter) (res []Person, err error)
+	SearchTrainers(ctx context.Context, req TrainersFilter) (res []Trainer, err error)
+	SearchStudios(ctx context.Context, req StudiosFilter) (res []Studio, err error)
+	SearchClasses(ctx context.Context, req ClassesFilter) (res []Class, err error)
 
 	GetIDByCreds(ctx context.Context, phone, password string) (bson.ObjectID, error)
 

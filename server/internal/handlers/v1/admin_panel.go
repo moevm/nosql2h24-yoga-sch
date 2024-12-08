@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -33,8 +32,8 @@ func (p *AdminPanel) ImportDB(
 	ctx context.Context, req *gen.DBData,
 ) (*emptypb.Empty, error) {
 	var data map[string][]bson.M
-	if err := json.Unmarshal([]byte(req.Data), &data); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Invalid JSON data: %s", err))
+	if err := bson.UnmarshalExtJSON([]byte(req.Data), true, &data); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Invalid BSON data: %s", err))
 	}
 
 	if err := p.Repo.ImportDB(ctx, data); err != nil {
@@ -52,7 +51,7 @@ func (p *AdminPanel) ExportDB(
 		return nil, status.Errorf(codes.Internal, "Internal error: %w", err)
 	}
 
-	jsonData, err := json.Marshal(data)
+	jsonData, err := bson.MarshalExtJSON(data, true, true)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal error: %w", err)
 	}

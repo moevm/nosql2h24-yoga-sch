@@ -133,37 +133,3 @@ func (r MongoRepository) DeleteClass(ctx context.Context, id bson.ObjectID) erro
 
 	return nil
 }
-
-func (r MongoRepository) SearchClassesByNameRegex(
-	ctx context.Context, regexes []string,
-) (res []Class, err error) {
-	if len(regexes) == 0 {
-		return []Class{}, nil
-	}
-
-	col := r.Db().Collection(classes)
-
-	var nameRegexes []bson.M
-	for _, r := range regexes {
-		nameRegexes = append(nameRegexes, bson.M{
-			"name": bson.M{"$regex": r, "$options": "i"},
-		})
-	}
-	filter := bson.M{"$or": nameRegexes}
-
-	cur, err := col.Find(ctx, filter)
-	if err != nil {
-		return nil, fmt.Errorf("failed to search classes by name regex: %w", err)
-	}
-	defer func(cur *mongo.Cursor, ctx context.Context) {
-		if err = cur.Close(ctx); err != nil {
-			err = fmt.Errorf("failed to close cursor: %w", err)
-		}
-	}(cur, ctx)
-
-	if err = cur.All(ctx, &res); err != nil {
-		return nil, fmt.Errorf("failed to find classes by name regex: %w", err)
-	}
-
-	return res, nil
-}
