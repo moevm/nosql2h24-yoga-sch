@@ -16,4 +16,4 @@ RUN adduser -D -g 'www' www
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-CMD nginx -g 'daemon off;'
+CMD ["nginx", "-g", "daemon off;"]

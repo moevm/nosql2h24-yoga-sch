@@ -1,6 +1,6 @@
 FROM node:22.8-alpine
 
-RUN npm install -g http-server
+RUN npm install -g http-server@14.1.1
 
 WORKDIR /app
 
