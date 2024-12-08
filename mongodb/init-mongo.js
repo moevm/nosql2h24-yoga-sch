@@ -130,3 +130,19 @@ db.studios.insertOne(
         "trainer_ids": []
     }
 );
+
+// CLIENTS
+
+db.clients.insertOne(
+    {
+        "name": "Elizaveta Andreeva",
+        "phone": "+7(999)999-9999",
+        "gender": "FEMALE",
+        "birth_date": new Date("2001-10-28T23:58:18Z"),
+        "created_at": new Date("2024-10-28T23:58:18Z"),
+        "updated_at": new Date("2024-10-29T23:58:18Z"),
+        "password": "1",
+        "picture_uri": "cdn.example.com",
+        "class_ids": []
+    }
+);
