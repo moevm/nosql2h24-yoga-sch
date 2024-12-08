@@ -174,3 +174,17 @@ db.clients.insertOne(
         "class_ids": []
     }
 );
+
+db.clients.insertOne(
+    {
+        "name": "Irina Chikipiki",
+        "phone": "+7(999)666-6666",
+        "gender": "FEMALE",
+        "birth_date": new Date("2008-03-03T23:52:14Z"),
+        "created_at": new Date("2023-02-11T23:58:18Z"),
+        "updated_at": new Date("2023-02-11T23:58:18Z"),
+        "password": "1",
+        "picture_uri": "cdn.example.com",
+        "class_ids": []
+    }
+);
