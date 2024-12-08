@@ -143,7 +143,7 @@ const errorMessage = ref("");
 const formData = ref<Record<string, any>>({});
 const today = new Date().toISOString().split('T')[0];
 
-const URI = `${window.location.protocol}//${window.location.hostname}`
+const URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`
 
 
 async function loadData() {
