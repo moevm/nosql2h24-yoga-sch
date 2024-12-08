@@ -16,6 +16,8 @@ type TimeInterval struct {
 func SearchEntitiesByRegexName[T any](
 	ctx context.Context, col *mongo.Collection, field string, regexes []string,
 ) (res []T, err error) {
+	res = []T{}
+
 	if len(regexes) == 0 {
 		return nil, nil
 	}
@@ -26,7 +28,7 @@ func SearchEntitiesByRegexName[T any](
 			continue
 		}
 		nameRegexes = append(nameRegexes, bson.M{
-			"name": bson.M{"$regex": r, "$options": "i"},
+			field: bson.M{"$regex": r, "$options": "i"},
 		})
 	}
 	filter := bson.M{"$or": nameRegexes}
@@ -71,7 +73,11 @@ func (r MongoRepository) SearchClients(
 		ctx, r.Db().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredClasses != nil:
+	case filteredClasses == nil:
+		break
+	case len(filteredClasses) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredClasses {
 			classIDs = append(classIDs, e.ID)
 		}
@@ -138,21 +144,25 @@ type TrainersFilter struct {
 	CreatedAtInterval   TimeInterval
 	UpdatedAtInterval   TimeInterval
 
-	ClassNameSubstrings  []string
-	StudioNameSubstrings []string
+	ClassNameSubstrings     []string
+	StudioAddressSubstrings []string
 }
 
 func (r MongoRepository) SearchTrainers(
 	ctx context.Context, req TrainersFilter,
 ) (res []Trainer, err error) {
-	col := r.Db().Collection(clients)
+	col := r.Db().Collection(trainers)
 
 	var classIDs []bson.ObjectID
 	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
 		ctx, r.Db().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredClasses != nil:
+	case filteredClasses == nil:
+		break
+	case len(filteredClasses) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredClasses {
 			classIDs = append(classIDs, e.ID)
 		}
@@ -160,10 +170,14 @@ func (r MongoRepository) SearchTrainers(
 
 	var studioIDs []bson.ObjectID
 	switch filteredStudios, err := SearchEntitiesByRegexName[Studio](
-		ctx, r.Db().Collection(studios), "address", req.StudioNameSubstrings); {
+		ctx, r.Db().Collection(studios), "address", req.StudioAddressSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredStudios != nil:
+	case filteredStudios == nil:
+		break
+	case len(filteredStudios) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredStudios {
 			studioIDs = append(studioIDs, e.ID)
 		}
@@ -241,7 +255,11 @@ func (r MongoRepository) SearchStudios(
 		ctx, r.Db().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredClasses != nil:
+	case filteredClasses == nil:
+		break
+	case len(filteredClasses) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredClasses {
 			classIDs = append(classIDs, e.ID)
 		}
@@ -252,7 +270,11 @@ func (r MongoRepository) SearchStudios(
 		ctx, r.Db().Collection(trainers), "name", req.TrainerNameSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredTrainers != nil:
+	case filteredTrainers == nil:
+		break
+	case len(filteredTrainers) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredTrainers {
 			trainerIDs = append(trainerIDs, e.ID)
 		}
@@ -305,9 +327,9 @@ type ClassesFilter struct {
 	CreatedAtInterval TimeInterval
 	UpdatedAtInterval TimeInterval
 
-	StudioNameSubstrings  []string
-	TrainerNameSubstrings []string
-	ClientNameSubstrings  []string
+	StudioAddressSubstrings []string
+	TrainerNameSubstrings   []string
+	ClientNameSubstrings    []string
 }
 
 func (r MongoRepository) SearchClasses(
@@ -317,10 +339,14 @@ func (r MongoRepository) SearchClasses(
 
 	var studioIDs []bson.ObjectID
 	switch filteredStudios, err := SearchEntitiesByRegexName[Studio](
-		ctx, r.Db().Collection(studios), "address", req.StudioNameSubstrings); {
+		ctx, r.Db().Collection(studios), "address", req.StudioAddressSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredStudios != nil:
+	case filteredStudios == nil:
+		break
+	case len(filteredStudios) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredStudios {
 			studioIDs = append(studioIDs, e.ID)
 		}
@@ -331,7 +357,11 @@ func (r MongoRepository) SearchClasses(
 		ctx, r.Db().Collection(trainers), "name", req.TrainerNameSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredTrainers != nil:
+	case filteredTrainers == nil:
+		break
+	case len(filteredTrainers) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredTrainers {
 			trainerIDs = append(trainerIDs, e.ID)
 		}
@@ -342,7 +372,11 @@ func (r MongoRepository) SearchClasses(
 		ctx, r.Db().Collection(clients), "name", req.ClientNameSubstrings); {
 	case err != nil:
 		return nil, err
-	case filteredClients != nil:
+	case filteredClients == nil:
+		break
+	case len(filteredClients) == 0:
+		return res, nil
+	default:
 		for _, e := range filteredClients {
 			clientIDs = append(clientIDs, e.ID)
 		}

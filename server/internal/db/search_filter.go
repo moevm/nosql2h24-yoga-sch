@@ -33,11 +33,7 @@ func (f SearchFilter) AddSelector(name string, value []string) {
 
 func (f SearchFilter) AddIDsSelector(name string, value []bson.ObjectID) {
 	if len(value) > 0 {
-		var filter []string
-		for _, id := range value {
-			filter = append(filter, id.Hex())
-		}
-		f[name] = bson.M{"$in": filter}
+		f[name] = bson.M{"$in": value}
 	}
 }
 

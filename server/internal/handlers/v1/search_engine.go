@@ -67,16 +67,16 @@ func (e *SearchEngine) SearchTrainers(
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
 	trainers, err := e.Repo.SearchTrainers(ctx, db.TrainersFilter{
-		IDSubstring:          req.IdSubstring,
-		NameSubstring:        req.NameSubstring,
-		PhoneSubstring:       req.PhoneSubstring,
-		PictureURISubstring:  req.PictureUriSubstring,
-		BirthDateInterval:    birthDateInterval,
-		Genders:              genders,
-		CreatedAtInterval:    createdAtInterval,
-		UpdatedAtInterval:    updatedAtInterval,
-		ClassNameSubstrings:  req.ClassNameSubstrings,
-		StudioNameSubstrings: req.StudioNameSubstrings,
+		IDSubstring:             req.IdSubstring,
+		NameSubstring:           req.NameSubstring,
+		PhoneSubstring:          req.PhoneSubstring,
+		PictureURISubstring:     req.PictureUriSubstring,
+		BirthDateInterval:       birthDateInterval,
+		Genders:                 genders,
+		CreatedAtInterval:       createdAtInterval,
+		UpdatedAtInterval:       updatedAtInterval,
+		ClassNameSubstrings:     req.ClassNameSubstrings,
+		StudioAddressSubstrings: req.StudioAddressSubstrings,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching trainers error: %w", err)
@@ -122,14 +122,14 @@ func (e *SearchEngine) SearchClasses(
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
 	classes, err := e.Repo.SearchClasses(ctx, db.ClassesFilter{
-		IDSubstring:           req.IdSubstring,
-		NameSubstring:         req.NameSubstring,
-		TimeInterval:          timeInterval,
-		CreatedAtInterval:     createdAtInterval,
-		UpdatedAtInterval:     updatedAtInterval,
-		StudioNameSubstrings:  req.StudioNameSubstrings,
-		TrainerNameSubstrings: req.TrainerNameSubstrings,
-		ClientNameSubstrings:  req.ClientNameSubstrings,
+		IDSubstring:             req.IdSubstring,
+		NameSubstring:           req.NameSubstring,
+		TimeInterval:            timeInterval,
+		CreatedAtInterval:       createdAtInterval,
+		UpdatedAtInterval:       updatedAtInterval,
+		StudioAddressSubstrings: req.StudioAddressSubstrings,
+		TrainerNameSubstrings:   req.TrainerNameSubstrings,
+		ClientNameSubstrings:    req.ClientNameSubstrings,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching classes error: %w", err)
