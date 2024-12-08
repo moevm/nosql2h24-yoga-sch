@@ -146,3 +146,17 @@ db.clients.insertOne(
         "class_ids": []
     }
 );
+
+db.clients.insertOne(
+    {
+        "name": "Egor Butylo",
+        "phone": "+7(999)888-8888",
+        "gender": "MALE",
+        "birth_date": new Date("2002-09-11T23:52:14Z"),
+        "created_at": new Date("2024-09-22T23:58:18Z"),
+        "updated_at": new Date("2024-09-22T23:58:18Z"),
+        "password": "1",
+        "picture_uri": "cdn.example.com",
+        "class_ids": []
+    }
+);
