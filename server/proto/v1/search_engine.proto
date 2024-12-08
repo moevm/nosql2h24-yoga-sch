@@ -15,7 +15,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/clients",
+      get: "/api/v1/search/client",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
@@ -33,7 +33,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/trainers",
+      get: "/api/v1/search/trainer",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
@@ -51,7 +51,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/studios",
+      get: "/api/v1/search/studio",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
@@ -69,7 +69,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/classes",
+      get: "/api/v1/search/class",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
@@ -97,7 +97,7 @@ message ClientsFilter {
   google.protobuf.Timestamp updated_at_interval_begin = 10;
   google.protobuf.Timestamp updated_at_interval_end = 11;
 
-  repeated string class_name_substrings = 12;
+  repeated string class_id_substrings = 12;
 }
 
 message SearchClientsResponse {
@@ -117,8 +117,8 @@ message TrainersFilter {
   google.protobuf.Timestamp updated_at_interval_begin = 10;
   google.protobuf.Timestamp updated_at_interval_end = 11;
 
-  repeated string class_name_substrings = 12;
-  repeated string studio_address_substrings = 13;
+  repeated string class_id_substrings = 12;
+  repeated string studio_id_substrings = 13;
 }
 
 message SearchTrainersResponse {
@@ -133,8 +133,8 @@ message StudiosFilter {
   google.protobuf.Timestamp updated_at_interval_begin = 5;
   google.protobuf.Timestamp updated_at_interval_end = 6;
 
-  repeated string class_name_substrings = 7;
-  repeated string trainer_name_substrings = 8;
+  repeated string class_id_substrings = 7;
+  repeated string trainer_id_substrings = 8;
 }
 
 message SearchStudiosResponse {
@@ -151,9 +151,9 @@ message ClassesFilter {
   google.protobuf.Timestamp updated_at_interval_begin = 7;
   google.protobuf.Timestamp updated_at_interval_end = 8;
 
-  repeated string studio_address_substrings = 9;
-  repeated string trainer_name_substrings = 10;
-  repeated string client_name_substrings = 11;
+  repeated string studio_id_substrings = 9;
+  repeated string trainer_id_substrings = 10;
+  repeated string client_id_substrings = 11;
 }
 
 message SearchClassesResponse {
