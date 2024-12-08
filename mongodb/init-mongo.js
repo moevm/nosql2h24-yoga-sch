@@ -160,3 +160,17 @@ db.clients.insertOne(
         "class_ids": []
     }
 );
+
+db.clients.insertOne(
+    {
+        "name": "Oleg Mongol",
+        "phone": "+7(999)777-7777",
+        "gender": "MALE",
+        "birth_date": new Date("2012-04-22T23:52:14Z"),
+        "created_at": new Date("2024-01-22T23:58:18Z"),
+        "updated_at": new Date("2024-01-22T23:58:18Z"),
+        "password": "1",
+        "picture_uri": "cdn.example.com",
+        "class_ids": []
+    }
+);
