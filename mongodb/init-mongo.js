@@ -53,3 +53,17 @@ db.trainers.insertOne(
         "studio_id": ObjectId("507f1f77bcf86cd799439012")
     }
 );
+
+db.trainers.insertOne(
+    {
+        "name": "Vera Hans",
+        "phone": "+7(999)111-1111",
+        "gender": "FEMALE",
+        "birth_date": new Date("2008-03-03T23:52:14Z"),
+        "created_at": new Date("2023-02-11T23:58:18Z"),
+        "updated_at": new Date("2023-02-11T23:58:18Z"),
+        "picture_uri": "cdn.example.com",
+        "class_ids": [],
+        "studio_id": ObjectId("507f1f77bcf86cd799439012")
+    }
+);
