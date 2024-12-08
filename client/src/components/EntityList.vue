@@ -8,7 +8,7 @@
           v-for="header in getColumnConfig(entityType)"
           :key="header.key"
           class="filter-group">
-      <label :for="'filter-' + header.key">
+        <label :for="'filter-' + header.key">
           {{ header.label }}
         </label>
 
@@ -19,14 +19,14 @@
         </select>
 
         <input v-else-if="header.isDate && header.isTime" type="datetime-local"
-               :id="'filter-' + header.key" v-model="filters[header.key]" />
+               :id="'filter-' + header.key" v-model="filters[header.key]"/>
         <input v-else-if="header.isDate && !header.isTime" type="date"
-               :id="'filter-' + header.key" v-model="filters[header.key]" />
+               :id="'filter-' + header.key" v-model="filters[header.key]"/>
 
         <input v-else type="text"
                :id="'filter-' + header.key"
                :placeholder="'Введите ' + header.label"
-               v-model="filters[header.key]" />
+               v-model="filters[header.key]"/>
       </div>
       <button class="apply-filters" @click="applyFilters">Apply</button>
     </div>
@@ -42,7 +42,12 @@
       <tbody>
       <tr v-for="item in items" :key="item['id']">
         <template v-for="column in getColumnConfig(entityType)" :key="column.key">
-          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">{{ item[column.key as keyof Entity] }}</td>
+          <td v-if="column.isId">
+            {{fetchDataById(item[column.key as keyof Entity], column.key)}}
+          </td>
+          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">
+            {{ item[column.key as keyof Entity] }}
+          </td>
           <td v-else-if="column.isLink">
             <a v-if="item[column.key as keyof Entity]" :href="item[column.key as keyof Entity]" target="_blank">
               {{ item[column.key as keyof Entity] }}
@@ -175,7 +180,35 @@ watch(() => route.params.entityType, (newType) => {
   loadData();
 });
 
-function getColumnConfig(type: string) {
+async function fetchDataById(id: string, entityType: string): Promise<string> {
+  try {
+    const response = await fetch(`${URI}/api/v1/${entityType.slice(0, -2)}/${id}`);
+    if (!response.ok) {
+      throw new Error(`Ошибка загрузки данных для ID ${id}`);
+    }
+
+    const data = await response.json();
+    console.log(data[entityType.slice(0, -2)].address)
+    return data[entityType.slice(0, -2)].address;
+  } catch (error) {
+    console.error(`Ошибка при загрузке данных для ID ${id}:`, error);
+    return "Unknown";
+  }
+}
+
+type ColumnConfig = {
+  key: string;
+  label: string;
+  isNeeded?: boolean;
+  isDate?: boolean;
+  isTime?: boolean;
+  isPassword?: boolean;
+  isId?: boolean;
+  isLink?: boolean;
+  isList?: boolean;
+};
+
+function getColumnConfig(type: string): ColumnConfig[] {
   switch (type) {
     case 'client':
       return [
@@ -199,7 +232,7 @@ function getColumnConfig(type: string) {
         {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
         {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
         {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true, isId: true},
         {key: 'pictureUri', label: 'Picture', isLink: true},
         {key: 'classIds', label: 'Classes', isList: true}
       ];
@@ -208,7 +241,7 @@ function getColumnConfig(type: string) {
         {key: 'id', label: 'ID'},
         {key: 'name', label: 'Class Type', isNeeded: true},
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true, isId: true},
         {key: 'trainerId', label: 'Trainer ID', isNeeded: true},
         {key: 'clients', label: 'Clients', isList: true}
       ];
