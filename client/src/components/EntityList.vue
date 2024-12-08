@@ -42,9 +42,6 @@
       <tbody>
       <tr v-for="item in items" :key="item['id']">
         <template v-for="column in getColumnConfig(entityType)" :key="column.key">
-          <td v-if="column.isId">
-            {{fetchDataById(item[column.key as keyof Entity], column.key)}}
-          </td>
           <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">
             {{ item[column.key as keyof Entity] }}
           </td>
@@ -79,36 +76,48 @@
                      v-if="header.label === 'Phone'"
                      type="tel"
                      :id="header.key"
-                     placeholder="+7 (999) 999-9999"
-                     required/>
+                     placeholder="+7(999)999-9999"
+                     required
+              />
               <select v-model="formData.gender"
                       v-else-if="header.label === 'Gender'"
                       :id="header.key"
-                      required>
+                      required
+              >
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
+              </select>
+              <select v-model="formData.studioId" v-else-if="header.label === 'Studio ID'" :id="header.key" required>
+                <option value="" disabled selected>Выберите студию</option>
+                <option v-for="studio in studios" :key="studio.id" :value="studio.id">
+                  {{ studio.address }}
+                </option>
               </select>
               <input v-model="formData.password"
                      v-else-if="header.label === 'Password'"
                      type="password"
                      :id="header.key"
-                     required/>
+                     required
+              />
               <input v-model="formData[header.key]"
                      v-else-if="header.label === 'Time'"
                      type="datetime-local"
                      :id="header.key"
-                     required/>
+                     required
+              />
               <input v-model="formData[header.key]"
                      v-else-if="header.label === 'Birth Date'"
                      type="date"
                      :max="today"
                      :id="header.key"
-                     required/>
+                     required
+              />
               <input v-model="formData[header.key]"
                      v-else-if="!header.isLink && !header.isList && !header.isDate && !header.isTime"
                      :id="header.key"
                      :placeholder="'Enter ' + header.label"
-                     required/>
+                     required
+              />
             </div>
           </div>
           <div class="modal-actions">
@@ -126,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, type Ref, onMounted, watch} from 'vue';
+import {onMounted, type Ref, ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import {type Class, type Client, type Studio, type Trainer} from "@/types/types";
 
@@ -142,8 +151,19 @@ const errorMessage = ref("");
 const formData = ref<Record<string, any>>({});
 const today = new Date().toISOString().split('T')[0];
 
-const URI = `${window.location.protocol}//${window.location.hostname}`
+const URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`
 
+const studios: Ref<Studio[]> = ref([]);
+
+async function loadStudios() {
+  try {
+    const response = await fetch(`${URI}/api/v1/studio`);
+    const data = await response.json();
+    studios.value = data.studios || [];
+  } catch (error) {
+    console.error("Ошибка при загрузке студий:", error);
+  }
+}
 
 async function loadData() {
   try {
@@ -167,34 +187,21 @@ async function loadData() {
         break;
     }
 
-    // console.log(items.value);
+    console.log(items.value);
   } catch (error) {
     console.error("Ошибка при загрузке данных:", error);
   }
 }
 
-onMounted(loadData);
+onMounted(() => {
+  loadData();
+  loadStudios();
+});
 
 watch(() => route.params.entityType, (newType) => {
   entityType.value = newType as 'client' | 'trainer' | 'class' | 'studio';
   loadData();
 });
-
-async function fetchDataById(id: string, entityType: string): Promise<string> {
-  try {
-    const response = await fetch(`${URI}/api/v1/${entityType.slice(0, -2)}/${id}`);
-    if (!response.ok) {
-      throw new Error(`Ошибка загрузки данных для ID ${id}`);
-    }
-
-    const data = await response.json();
-    console.log(data[entityType.slice(0, -2)].address)
-    return data[entityType.slice(0, -2)].address;
-  } catch (error) {
-    console.error(`Ошибка при загрузке данных для ID ${id}:`, error);
-    return "Unknown";
-  }
-}
 
 type ColumnConfig = {
   key: string;
@@ -243,14 +250,14 @@ function getColumnConfig(type: string): ColumnConfig[] {
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
         {key: 'studioId', label: 'Studio ID', isNeeded: true, isId: true},
         {key: 'trainerId', label: 'Trainer ID', isNeeded: true},
-        {key: 'clients', label: 'Clients', isList: true}
+        {key: 'clientIds', label: 'Clients', isList: true}
       ];
     case 'studio':
       return [
         {key: 'id', label: 'ID'},
         {key: 'address', label: 'Address', isNeeded: true},
-        {key: 'classes', label: 'Classes', isList: true},
-        {key: 'trainers', label: 'Trainers', isList: true}
+        {key: 'classIds', label: 'Classes', isList: true},
+        {key: 'trainerIds', label: 'Trainers', isList: true}
       ];
     default:
       return [];
