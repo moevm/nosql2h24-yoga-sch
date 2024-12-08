@@ -39,3 +39,17 @@ db.trainers.insertOne(
         "studio_id": ObjectId("507f1f77bcf86cd799439011")
     }
 );
+
+db.trainers.insertOne(
+    {
+        "name": "Oleg Gi",
+        "phone": "+7(999)222-2222",
+        "gender": "MALE",
+        "birth_date": new Date("2012-04-22T23:52:14Z"),
+        "created_at": new Date("2024-01-22T23:58:18Z"),
+        "updated_at": new Date("2024-01-22T23:58:18Z"),
+        "picture_uri": "cdn.example.com",
+        "class_ids": [],
+        "studio_id": ObjectId("507f1f77bcf86cd799439012")
+    }
+);
