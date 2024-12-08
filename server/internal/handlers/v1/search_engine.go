@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,10 +14,6 @@ type SearchEngine struct {
 	gen.UnimplementedSearchEngineServer
 
 	Repo db.Repository
-}
-
-func splitString(s string) []string {
-	return strings.Split(s, ",")
 }
 
 func (e *SearchEngine) SearchClients(
