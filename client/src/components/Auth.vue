@@ -15,7 +15,7 @@
               v-model="formattedPhone"
               type="tel"
               id="phone"
-              placeholder="+7(XXX)XX-XXXXX"
+              placeholder="+7(XXX)XXX-XXXX"
               required
           />
         </div>
@@ -111,12 +111,12 @@ function formatPhone(value: string): string {
     return `+7(`;
   } else if (size < 4) {
     return `+7(${input}`;
-  } else if (size < 6) {
+  } else if (size < 7) {
     return `+7(${input.substring(0, 3)})${input.substring(3)}`;
   } else if (size < 11) {
-    return `+7(${input.substring(0, 3)})${input.substring(3, 5)}-${input.substring(5)}`;
+    return `+7(${input.substring(0, 3)})${input.substring(3, 6)}-${input.substring(6)}`;
   } else {
-    return `+7(${input.substring(0, 3)})${input.substring(3, 5)}-${input.substring(5, 10)}`;
+    return `+7(${input.substring(0, 3)})${input.substring(3, 6)}-${input.substring(6, 10)}`;
   }
 }
 
@@ -204,7 +204,7 @@ async function registerUser() {
 
 .auth-form {
   background-color: #6a5862;
-  top: 0px;
+  top: 0;
   padding: 40px;
   border-radius: 12px;
   width: 100%;
@@ -317,18 +317,4 @@ form {
   text-align: center;
 }
 
-.select-wrapper {
-  position: relative;
-}
-
-.select-wrapper::after {
-  content: '▼';
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  color: #6a5862;
-  pointer-events: none;
-}
 </style>
