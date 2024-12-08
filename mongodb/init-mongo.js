@@ -188,3 +188,17 @@ db.clients.insertOne(
         "class_ids": []
     }
 );
+
+db.clients.insertOne(
+    {
+        "name": "Vladislav Frolov",
+        "phone": "+7(999)555-5555",
+        "gender": "MALE",
+        "birth_date": new Date("1998-11-12T23:52:14Z"),
+        "created_at": new Date("2022-04-22T23:58:18Z"),
+        "updated_at": new Date("2022-04-22T23:58:18Z"),
+        "password": "1",
+        "picture_uri": "cdn.example.com",
+        "class_ids": []
+    }
+);
