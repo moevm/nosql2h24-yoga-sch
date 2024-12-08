@@ -16,6 +16,16 @@ type SearchEngine struct {
 	Repo db.Repository
 }
 
+func filterEmptyStrings(arr []string) []string {
+	var result []string
+	for _, str := range arr {
+		if str != "" {
+			result = append(result, str)
+		}
+	}
+	return result
+}
+
 func (e *SearchEngine) SearchClients(
 	ctx context.Context, req *gen.ClientsFilter,
 ) (*gen.SearchClientsResponse, error) {
@@ -41,7 +51,7 @@ func (e *SearchEngine) SearchClients(
 		Genders:             genders,
 		CreatedAtInterval:   createdAtInterval,
 		UpdatedAtInterval:   updatedAtInterval,
-		ClassIDSubstrings:   req.ClassIdSubstrings,
+		ClassIDSubstrings:   filterEmptyStrings(req.ClassIdSubstrings),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching clients error: %w", err)
@@ -75,8 +85,8 @@ func (e *SearchEngine) SearchTrainers(
 		Genders:             genders,
 		CreatedAtInterval:   createdAtInterval,
 		UpdatedAtInterval:   updatedAtInterval,
-		ClassIDSubstrings:   req.ClassIdSubstrings,
-		StudioIDSubstrings:  req.StudioIdSubstrings,
+		ClassIDSubstrings:   filterEmptyStrings(req.ClassIdSubstrings),
+		StudioIDSubstrings:  filterEmptyStrings(req.StudioIdSubstrings),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching trainers error: %w", err)
@@ -100,8 +110,8 @@ func (e *SearchEngine) SearchStudios(
 		AddressSubstring:    req.AddressSubstring,
 		CreatedAtInterval:   createdAtInterval,
 		UpdatedAtInterval:   updatedAtInterval,
-		ClassIDSubstrings:   req.ClassIdSubstrings,
-		TrainerIDSubstrings: req.TrainerIdSubstrings,
+		ClassIDSubstrings:   filterEmptyStrings(req.ClassIdSubstrings),
+		TrainerIDSubstrings: filterEmptyStrings(req.TrainerIdSubstrings),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching studios error: %w", err)
@@ -127,9 +137,9 @@ func (e *SearchEngine) SearchClasses(
 		TimeInterval:        timeInterval,
 		CreatedAtInterval:   createdAtInterval,
 		UpdatedAtInterval:   updatedAtInterval,
-		StudioIDSubstrings:  req.StudioIdSubstrings,
-		TrainerIDSubstrings: req.TrainerIdSubstrings,
-		ClientIDSubstrings:  req.ClientIdSubstrings,
+		StudioIDSubstrings:  filterEmptyStrings(req.StudioIdSubstrings),
+		TrainerIDSubstrings: filterEmptyStrings(req.TrainerIdSubstrings),
+		ClientIDSubstrings:  filterEmptyStrings(req.ClientIdSubstrings),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching classes error: %w", err)

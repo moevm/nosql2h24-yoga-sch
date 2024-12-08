@@ -67,12 +67,19 @@ func IDsRegexFilter(field string, regexes []string) bson.D {
 					bson.D{{
 						"$size", bson.D{{
 							"$filter", bson.M{
-								"input": fmt.Sprintf("$%s", field),
-								"as":    "elem_id",
-								"cond":  bson.D{{"$or", regexes}},
+								"input": bson.D{{
+									"$cond", bson.A{
+										bson.D{{"$isArray", fmt.Sprintf("$%s", field)}},
+										fmt.Sprintf("$%s", field),
+										bson.A{},
+									},
+								}},
+								"as":   "elem_id",
+								"cond": bson.D{{"$or", filter}},
 							},
 						}},
 					}},
+					0,
 				},
 			}},
 		}},
@@ -92,7 +99,7 @@ func IDRegexFilter(field string, regexes []string) bson.D {
 	return bson.D{{
 		"$match", bson.D{{
 			"$expr", bson.D{{
-				"$or", regexes,
+				"$or", filter,
 			}},
 		}},
 	}}
@@ -117,19 +124,9 @@ func (r MongoRepository) SearchClients(
 	col := r.DB().Collection(clients)
 
 	var pipeline mongo.Pipeline
+
 	if req.IDSubstring != "" {
-		pipeline = append(pipeline, bson.D{{
-			"$addFields", bson.D{{
-				"_id_string", bson.D{{
-					"$toString", "$_id"}}}}},
-		})
-		pipeline = append(pipeline, bson.D{{
-			"$match", bson.D{{
-				"_id_string", bson.M{
-					"$regex":   req.IDSubstring,
-					"$options": "i",
-				}}},
-		}})
+		pipeline = append(pipeline, IDRegexFilter("_id", []string{req.IDSubstring}))
 	}
 
 	if len(req.ClassIDSubstrings) > 0 {
@@ -190,19 +187,9 @@ func (r MongoRepository) SearchTrainers(
 	col := r.DB().Collection(trainers)
 
 	var pipeline mongo.Pipeline
+
 	if req.IDSubstring != "" {
-		pipeline = append(pipeline, bson.D{{
-			"$addFields", bson.D{{
-				"_id_string", bson.D{{
-					"$toString", "$_id"}}}}},
-		})
-		pipeline = append(pipeline, bson.D{{
-			"$match", bson.D{{
-				"_id_string", bson.M{
-					"$regex":   req.IDSubstring,
-					"$options": "i",
-				}}},
-		}})
+		pipeline = append(pipeline, IDRegexFilter("_id", []string{req.IDSubstring}))
 	}
 
 	if len(req.ClassIDSubstrings) > 0 {
@@ -262,58 +249,24 @@ func (r MongoRepository) SearchStudios(
 ) (res []Studio, err error) {
 	col := r.DB().Collection(studios)
 
-	var classIDs []bson.ObjectID
-	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
-		ctx, r.DB().Collection(classes), "name", req.ClassIDSubstrings); {
-	case err != nil:
-		return nil, err
-	case filteredClasses == nil:
-		break
-	case len(filteredClasses) == 0:
-		return res, nil
-	default:
-		for _, e := range filteredClasses {
-			classIDs = append(classIDs, e.ID)
-		}
-	}
-
-	var trainerIDs []bson.ObjectID
-	switch filteredTrainers, err := SearchEntitiesByRegexName[Trainer](
-		ctx, r.DB().Collection(trainers), "name", req.TrainerIDSubstrings); {
-	case err != nil:
-		return nil, err
-	case filteredTrainers == nil:
-		break
-	case len(filteredTrainers) == 0:
-		return res, nil
-	default:
-		for _, e := range filteredTrainers {
-			trainerIDs = append(trainerIDs, e.ID)
-		}
-	}
-
 	var pipeline mongo.Pipeline
+
 	if req.IDSubstring != "" {
-		pipeline = append(pipeline, bson.D{{
-			"$addFields", bson.D{{
-				"_id_string", bson.D{{
-					"$toString", "$_id"}}}}},
-		})
-		pipeline = append(pipeline, bson.D{{
-			"$match", bson.D{{
-				"_id_string", bson.M{
-					"$regex":   req.IDSubstring,
-					"$options": "i",
-				}}},
-		}})
+		pipeline = append(pipeline, IDRegexFilter("_id", []string{req.IDSubstring}))
+	}
+
+	if len(req.ClassIDSubstrings) > 0 {
+		pipeline = append(pipeline, IDsRegexFilter("class_ids", req.ClassIDSubstrings))
+	}
+
+	if len(req.TrainerIDSubstrings) > 0 {
+		pipeline = append(pipeline, IDsRegexFilter("trainer_ids", req.TrainerIDSubstrings))
 	}
 
 	filter := SearchFilter{}
 	filter.AddRegex("address", req.AddressSubstring)
 	filter.AddTimeInterval("created_at", req.CreatedAtInterval)
 	filter.AddTimeInterval("updated_at", req.UpdatedAtInterval)
-	filter.AddIDsSelector("class_ids", classIDs)
-	filter.AddIDsSelector("trainer_ids", trainerIDs)
 
 	pipeline = append(pipeline, bson.D{{"$match", filter}})
 
@@ -349,65 +302,22 @@ func (r MongoRepository) SearchClasses(
 ) (res []Class, err error) {
 	col := r.DB().Collection(classes)
 
-	var studioIDs []bson.ObjectID
-	switch filteredStudios, err := SearchEntitiesByRegexName[Studio](
-		ctx, r.DB().Collection(studios), "address", req.StudioIDSubstrings); {
-	case err != nil:
-		return nil, err
-	case filteredStudios == nil:
-		break
-	case len(filteredStudios) == 0:
-		return res, nil
-	default:
-		for _, e := range filteredStudios {
-			studioIDs = append(studioIDs, e.ID)
-		}
-	}
-
-	var trainerIDs []bson.ObjectID
-	switch filteredTrainers, err := SearchEntitiesByRegexName[Trainer](
-		ctx, r.DB().Collection(trainers), "name", req.TrainerIDSubstrings); {
-	case err != nil:
-		return nil, err
-	case filteredTrainers == nil:
-		break
-	case len(filteredTrainers) == 0:
-		return res, nil
-	default:
-		for _, e := range filteredTrainers {
-			trainerIDs = append(trainerIDs, e.ID)
-		}
-	}
-
-	var clientIDs []bson.ObjectID
-	switch filteredClients, err := SearchEntitiesByRegexName[Client](
-		ctx, r.DB().Collection(clients), "name", req.ClientIDSubstrings); {
-	case err != nil:
-		return nil, err
-	case filteredClients == nil:
-		break
-	case len(filteredClients) == 0:
-		return res, nil
-	default:
-		for _, e := range filteredClients {
-			clientIDs = append(clientIDs, e.ID)
-		}
-	}
-
 	var pipeline mongo.Pipeline
+
 	if req.IDSubstring != "" {
-		pipeline = append(pipeline, bson.D{{
-			"$addFields", bson.D{{
-				"_id_string", bson.D{{
-					"$toString", "$_id"}}}}},
-		})
-		pipeline = append(pipeline, bson.D{{
-			"$match", bson.D{{
-				"_id_string", bson.M{
-					"$regex":   req.IDSubstring,
-					"$options": "i",
-				}}},
-		}})
+		pipeline = append(pipeline, IDRegexFilter("_id", []string{req.IDSubstring}))
+	}
+
+	if len(req.StudioIDSubstrings) > 0 {
+		pipeline = append(pipeline, IDRegexFilter("studio_id", req.StudioIDSubstrings))
+	}
+
+	if len(req.TrainerIDSubstrings) > 0 {
+		pipeline = append(pipeline, IDRegexFilter("trainer_id", req.TrainerIDSubstrings))
+	}
+
+	if len(req.ClientIDSubstrings) > 0 {
+		pipeline = append(pipeline, IDsRegexFilter("client_ids", req.ClientIDSubstrings))
 	}
 
 	filter := SearchFilter{}
@@ -415,9 +325,6 @@ func (r MongoRepository) SearchClasses(
 	filter.AddTimeInterval("time", req.TimeInterval)
 	filter.AddTimeInterval("created_at", req.CreatedAtInterval)
 	filter.AddTimeInterval("updated_at", req.UpdatedAtInterval)
-	filter.AddIDsSelector("studio_id", studioIDs)
-	filter.AddIDsSelector("trainer_id", trainerIDs)
-	filter.AddIDsSelector("client_ids", clientIDs)
 
 	pipeline = append(pipeline, bson.D{{"$match", filter}})
 
