@@ -74,12 +74,14 @@
                      v-if="header.label === 'Phone'"
                      type="tel"
                      :id="header.key"
-                     placeholder="+7 (999) 999-9999"
-                     required/>
+                     placeholder="+7(999)999-9999"
+                     required
+              />
               <select v-model="formData.gender"
                       v-else-if="header.label === 'Gender'"
                       :id="header.key"
-                      required>
+                      required
+              >
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
               </select>
@@ -87,23 +89,27 @@
                      v-else-if="header.label === 'Password'"
                      type="password"
                      :id="header.key"
-                     required/>
+                     required
+              />
               <input v-model="formData[header.key]"
                      v-else-if="header.label === 'Time'"
                      type="datetime-local"
                      :id="header.key"
-                     required/>
+                     required
+              />
               <input v-model="formData[header.key]"
                      v-else-if="header.label === 'Birth Date'"
                      type="date"
                      :max="today"
                      :id="header.key"
-                     required/>
+                     required
+              />
               <input v-model="formData[header.key]"
                      v-else-if="!header.isLink && !header.isList && !header.isDate && !header.isTime"
                      :id="header.key"
                      :placeholder="'Enter ' + header.label"
-                     required/>
+                     required
+              />
             </div>
           </div>
           <div class="modal-actions">

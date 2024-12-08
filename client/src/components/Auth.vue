@@ -15,7 +15,7 @@
               v-model="formattedPhone"
               type="tel"
               id="phone"
-              placeholder="+7(XXX)XX-XXXXX"
+              placeholder="+7(XXX)XXX-XXXX"
               required
           />
         </div>
@@ -100,23 +100,25 @@ const formattedPhone = computed({
 });
 
 function formatPhone(value: string): string {
-  let input = value.replace(/\D/g, '');
+  let input = value.replace(/\D/g, ''); // Удаляем всё, кроме цифр
   const size = input.length;
-
-  if (size) {
-    input = input.substring(1);
-  }
 
   if (size === 0) {
     return `+7(`;
-  } else if (size < 4) {
+  }
+
+  if (input.startsWith('7')) {
+    input = input.substring(1);
+  }
+
+  if (size < 4) {
     return `+7(${input}`;
-  } else if (size < 6) {
+  } else if (size < 7) {
     return `+7(${input.substring(0, 3)})${input.substring(3)}`;
-  } else if (size < 11) {
-    return `+7(${input.substring(0, 3)})${input.substring(3, 5)}-${input.substring(5)}`;
+  } else if (size <= 10) {
+    return `+7(${input.substring(0, 3)})${input.substring(3, 6)}-${input.substring(6)}`;
   } else {
-    return `+7(${input.substring(0, 3)})${input.substring(3, 5)}-${input.substring(5, 10)}`;
+    return `+7(${input.substring(0, 3)})${input.substring(3, 6)}-${input.substring(6, 10)}`;
   }
 }
 
