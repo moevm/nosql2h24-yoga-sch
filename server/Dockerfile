@@ -3,15 +3,15 @@
 FROM golang:1.23-alpine AS tools
 
 # Install make
-RUN apk add make --no-cache
+RUN apk add make=4.4.1-r2 --no-cache
 
 # Install buf
 ARG BUF_VERSION=1.41.0
 
 RUN BUF_TAR_NAME="buf-$(uname -s)-$(uname -m).tar.gz" &&\
-    wget "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/${BUF_TAR_NAME}" &&\
-    tar -xvzf ${BUF_TAR_NAME} -C "/usr/local" --strip-components 1 &&\
-    rm -rf ${BUF_TAR_NAME}
+    wget --progress=dot:giga "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/${BUF_TAR_NAME}" &&\
+    tar -xvzf "${BUF_TAR_NAME}" -C "/usr/local" --strip-components 1 &&\
+    rm -rf "${BUF_TAR_NAME}"
 
 # Install proto libraries
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest &&\
@@ -27,7 +27,7 @@ FROM tools AS builder
 
 # Install go packages
 WORKDIR /src
-COPY ./go.mod ./go.sum .
+COPY ./go.mod ./go.sum ./
 
 RUN go mod download && go mod verify
 
