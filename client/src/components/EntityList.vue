@@ -3,7 +3,7 @@
     <h2>{{ (items?.length || 0) + " " + entityType }}</h2>
 
     <div class="filters">
-      <h3>Фильтры поиска</h3>
+      <h3>Search filters</h3>
       <div
           v-for="filter in getFilterConfig(entityType)"
           :key="filter.key"
@@ -12,7 +12,6 @@
           {{ filter.label }}
         </label>
 
-        <!-- Гендерный фильтр -->
         <div v-if="filter.label === 'Gender'" class="checkbox-group">
           <label>
             <input
@@ -45,7 +44,6 @@
             v-model="filters[filter.key]"
         />
 
-        <!-- Фильтры по строкам -->
         <input
             v-else
             type="text"
@@ -87,13 +85,13 @@
       </tr>
       </tbody>
     </table>
-    <p v-else>Нет данных для отображения.</p>
+    <p v-else>No data to show.</p>
 
-    <button @click="showModal = true" class="add-button">Добавить новый элемент</button>
+    <button @click="showModal = true" class="add-button">Add new element</button>
 
     <div v-if="showModal" class="modal">
       <div class="modal-content">
-        <h3>Добавить новый элемент</h3>
+        <h3>Add new element</h3>
         <form>
           <div v-for="header in getColumnConfig(entityType)" :key="header.label">
             <div v-if="header.isNeeded" class="form-group">
@@ -188,7 +186,7 @@ async function loadStudios() {
     const data = await response.json();
     studios.value = data.studios || [];
   } catch (error) {
-    console.error("Ошибка при загрузке студий:", error);
+    console.error("Error while loading studios:", error);
   }
 }
 
@@ -216,7 +214,7 @@ async function loadData() {
 
     console.log(items.value);
   } catch (error) {
-    console.error("Ошибка при загрузке данных:", error);
+    console.error("Error while loading data:", error);
   }
 }
 
@@ -306,7 +304,7 @@ function getFilterConfig(type: string) {
         {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
         {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
         {key: 'picture_uri_substring', label: 'Picture', isLink: true},
-        {key: 'class_ids_substrings', label: 'Classes', isList: true}
+        {key: 'class_id_substrings', label: 'Classes', isList: true}
       ];
     case 'trainer':
       return [
@@ -320,8 +318,8 @@ function getFilterConfig(type: string) {
         {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
         {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
         {key: 'picture_uri_substring', label: 'Picture', isLink: true},
-        {key: 'class_ids_substrings', label: 'Classes', isList: true},
-        {key: 'studio_ids_substring', label: 'Studio'}
+        {key: 'class_id_substrings', label: 'Classes', isList: true},
+        {key: 'studio_id_substrings', label: 'Studio'}
       ];
     case 'class':
       return [
@@ -329,16 +327,16 @@ function getFilterConfig(type: string) {
         {key: 'name_substring', label: 'Name'},
         {key: 'time_interval_begin', label: 'Time begin', isDate: true, isTime: true, isNeeded: true},
         {key: 'time_interval_end', label: 'Time end', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studio_id_substring', label: 'Studio ID', isNeeded: true},
-        {key: 'trainer_id_substring', label: 'Trainer ID', isNeeded: true},
-        {key: 'client_ids_substrings', label: 'Clients', isList: true}
+        {key: 'studio_id_substrings', label: 'Studio ID', isNeeded: true},
+        {key: 'trainer_id_substrings', label: 'Trainer ID', isNeeded: true},
+        {key: 'client_id_substrings', label: 'Clients', isList: true}
       ];
     case 'studio':
       return [
         {key: 'id_substring', label: 'ID'},
         {key: 'address_substring', label: 'Address', isNeeded: true},
-        {key: 'class_ids_substrings', label: 'Classes', isList: true},
-        {key: 'trainer_ids_substrings', label: 'Trainers', isList: true}
+        {key: 'class_id_substrings', label: 'Classes', isList: true},
+        {key: 'trainer_id_substrings', label: 'Trainers', isList: true}
       ];
     default:
       return [];
@@ -387,12 +385,11 @@ const addNewItem = async () => {
     await loadData();
 
     errorMessage.value = "";
-    // location.reload();
   } catch (error) {
     if (error instanceof Error) {
-      errorMessage.value = `Ошибка при отправке данных: ${error.message}`;
+      errorMessage.value = `Error while sending data: ${error.message}`;
     } else {
-      errorMessage.value = "Произошла неизвестная ошибка";
+      errorMessage.value = "Unknown error";
     }
   }
 }
@@ -401,18 +398,26 @@ const applyFilters = async () => {
   const queryParams = Object.entries(filters.value)
       .filter(([_, value]) => value && (Array.isArray(value) ? value.length > 0 : value))
       .map(([key, value]) => {
+        console.log(key, value);
         if (Array.isArray(value)) {
           return `${key}=${value.map(v => encodeURIComponent(v)).join(',')}`;
         } else if (key.includes('interval')) {
           return `${key}=${encodeURIComponent(new Date(value).toISOString().split('T')[0] + 'T00:00:00Z')}`;
-        } else {
+        } else if (key === 'class_id_substrings' || key === 'client_id_substrings' || key === 'studio_id_substrings' || key === 'trainer_id_substrings') {
+          return `${key}=${value
+              .trim()
+              .split(' ')
+              .map(v => encodeURIComponent(v))
+              .join(',')}`;
+        }
+        else {
           return `${key}=${encodeURIComponent(value)}`;
         }
       })
       .join('&');
 
   try {
-    const response = await fetch(`${URI}/api/v1/search/${entityType.value.toLowerCase()}s?${queryParams}`, {
+    const response = await fetch(`${URI}/api/v1/search/${entityType.value.toLowerCase()}?${queryParams}`, {
       method: 'GET',
     });
     const data = await response.json();
@@ -432,7 +437,7 @@ const applyFilters = async () => {
         break;
     }
   } catch (error) {
-    console.error('Ошибка при применении фильтров:', error);
+    console.error('Error while applying filters:', error);
   }
 };
 
@@ -604,9 +609,9 @@ li {
 
 .filters {
   display: flex;
-  flex-wrap: nowrap; /* Размещение фильтров в одну строку */
+  flex-wrap: nowrap;
   overflow-x: auto;
-  gap: 15px; /* Отступы между фильтрами */
+  gap: 15px;
   margin-bottom: 20px;
   padding: 15px;
   background: #ffffff;
@@ -650,25 +655,24 @@ li {
 
 .checkbox-group {
   display: flex;
-  flex-direction: column; /* Располагает элементы вертикально */
+  flex-direction: column;
 }
 
 .checkbox-group label {
   display: flex;
-  align-items: center; /* Выравнивает чекбокс и текст по вертикали */
-  gap: 10px; /* Отступ между чекбоксом и текстом */
+  align-items: center;
+  gap: 10px;
 }
 
 .checkbox-group input[type="checkbox"] {
-  margin: 0; /* Убирает отступы чекбокса */
-  margin-right: 10px; /* Расстояние между чекбоксом и текстом */
-  width: 20px; /* Задает фиксированный размер чекбокса */
-  height: 20px; /* Делаем чекбоксы одинаковыми */
+  margin: 0 10px 0 0;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
 }
 
 .checkbox-group label {
-  min-height: 20px; /* Обеспечивает ровное выравнивание текста по высоте чекбокса */
+  min-height: 20px;
 }
 
 </style>
