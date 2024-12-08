@@ -81,3 +81,17 @@ db.trainers.insertOne(
         "studio_id": ObjectId("507f1f77bcf86cd799439013")
     }
 );
+
+db.trainers.insertOne(
+    {
+        "name": "Nastya Vecher",
+        "phone": "+7(998)999-9999",
+        "gender": "MALE",
+        "birth_date": new Date("1998-11-12T23:52:14Z"),
+        "created_at": new Date("2022-04-22T23:58:18Z"),
+        "updated_at": new Date("2022-04-22T23:58:18Z"),
+        "picture_uri": "cdn.example.com",
+        "class_ids": [],
+        "studio_id": ObjectId("507f1f77bcf86cd799439013")
+    }
+);
