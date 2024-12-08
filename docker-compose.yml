@@ -34,7 +34,6 @@ services:
     command: --config /etc/mongo/mongod.conf
     volumes:
       - db-data:/data/db
-      - ./mongodb/mongod.conf:/etc/mongo/mongod.conf:ro
     networks:
       - db-net
     healthcheck:
