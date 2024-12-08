@@ -26,16 +26,16 @@ db.trainers.insertOne(
     }
 );
 
-db.clients.insertOne(
+db.trainers.insertOne(
     {
-        "name": "Elizaveta Andreeva",
-        "phone": "+7(999)99-9999",
-        "gender": "FEMALE",
-        "birth_date": "2001-10-28T23:58:18Z",
-        "created_at": "2024-10-28T23:58:18Z",
-        "updated_at": "2024-10-29T23:58:18Z",
-        "password": "1",
+        "name": "Egor Shmatcko",
+        "phone": "+7(999)333-3333",
+        "gender": "MALE",
+        "birth_date": new Date("2002-09-11T23:52:14Z"),
+        "created_at": new Date("2024-09-22T23:58:18Z"),
+        "updated_at": new Date("2024-09-22T23:58:18Z"),
         "picture_uri": "cdn.example.com",
-        "classes": []
+        "class_ids": [],
+        "studio_id": ObjectId("507f1f77bcf86cd799439011")
     }
 );
