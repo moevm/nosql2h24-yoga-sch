@@ -5,30 +5,57 @@
     <div class="filters">
       <h3>Фильтры поиска</h3>
       <div
-          v-for="header in getColumnConfig(entityType)"
-          :key="header.key"
+          v-for="filter in getFilterConfig(entityType)"
+          :key="filter.key"
           class="filter-group">
-      <label :for="'filter-' + header.key">
-          {{ header.label }}
+        <label :for="'filter-' + filter.key">
+          {{ filter.label }}
         </label>
 
-        <select v-if="header.label === 'Gender'" :id="'filter-' + header.key" v-model="filters[header.key]">
-          <option selected disabled hidden value="">All</option>
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
-        </select>
+        <!-- Гендерный фильтр -->
+        <div v-if="filter.label === 'Gender'" class="checkbox-group">
+          <label>
+            <input
+                type="checkbox"
+                value="MALE"
+                v-model="filters[filter.key]"
+            />
+            Male
+          </label>
+          <label>
+            <input
+                type="checkbox"
+                value="FEMALE"
+                v-model="filters[filter.key]"
+            />
+            Female
+          </label>
+        </div>
 
-        <input v-else-if="header.isDate && header.isTime" type="datetime-local"
-               :id="'filter-' + header.key" v-model="filters[header.key]" />
-        <input v-else-if="header.isDate && !header.isTime" type="date"
-               :id="'filter-' + header.key" v-model="filters[header.key]" />
+        <!-- Фильтры с датой и временем -->
+        <input
+            v-else-if="filter.isDate && filter.isTime"
+            type="datetime-local"
+            :id="'filter-' + filter.key"
+            v-model="filters[filter.key]"
+        />
+        <input
+            v-else-if="filter.isDate && !filter.isTime"
+            type="date"
+            :id="'filter-' + filter.key"
+            v-model="filters[filter.key]"
+        />
 
-        <input v-else type="text"
-               :id="'filter-' + header.key"
-               :placeholder="'Введите ' + header.label"
-               v-model="filters[header.key]" />
+        <!-- Фильтры по строкам -->
+        <input
+            v-else
+            type="text"
+            :id="'filter-' + filter.key"
+            :placeholder="'Введите ' + filter.label"
+            v-model="filters[filter.key]"
+        />
       </div>
-      <button class="apply-filters" @click="applyFilters">Apply</button>
+      <button class="apply-filters" @click="applyFilters">Применить</button>
     </div>
 
     <table v-if="items.length" border="1" cellpadding="10">
@@ -134,8 +161,9 @@ import {type Class, type Client, type Studio, type Trainer} from "@/types/types"
 type Entity = Client | Class | Studio | Trainer
 const route = useRoute();
 const entityType = ref(route.params.entityType as 'client' | 'trainer' | 'class' | 'studio');
-const filters: Ref<Record<string, string>> = ref({});
-
+const filters: Ref<Record<string, string[] | string>> = ref({
+  genders: []
+});
 const items: Ref<Entity[]> = ref([]);
 const showModal = ref(false);
 const errorMessage = ref("");
@@ -230,6 +258,61 @@ function getColumnConfig(type: string) {
   }
 }
 
+function getFilterConfig(type: string) {
+  switch (type) {
+    case 'client':
+      return [
+        {key: 'id_substring', label: 'ID'},
+        {key: 'name_substring', label: 'Name'},
+        {key: 'phone_substring', label: 'Phone'},
+        {key: 'genders', label: 'Gender', isList: true},
+        {key: 'birth_date_interval_begin', label: 'Birth date begin', isDate: true, isTime: false},
+        {key: 'birth_date_interval_end', label: 'Birth date end', isDate: true, isTime: false,},
+        {key: 'created_at_interval_begin', label: 'Created at begin', isDate: true, isTime: true},
+        {key: 'created_at_interval_end', label: 'Created at end', isDate: true, isTime: true},
+        {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
+        {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
+        {key: 'picture_uri_substring', label: 'Picture', isLink: true},
+        {key: 'class_ids_substrings', label: 'Classes', isList: true}
+      ];
+    case 'trainer':
+      return [
+        {key: 'id_substring', label: 'ID'},
+        {key: 'name_substring', label: 'Name'},
+        {key: 'phone_substring', label: 'Phone'},
+        {key: 'birth_date_interval_begin', label: 'Birth date begin', isDate: true, isTime: false},
+        {key: 'birth_date_interval_end', label: 'Birth date end', isDate: true, isTime: false,},
+        {key: 'created_at_interval_begin', label: 'Created at begin', isDate: true, isTime: true},
+        {key: 'created_at_interval_end', label: 'Created at end', isDate: true, isTime: true},
+        {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
+        {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
+        {key: 'picture_uri_substring', label: 'Picture', isLink: true},
+        {key: 'class_ids_substrings', label: 'Classes', isList: true},
+        {key: 'studio_ids_substring', label: 'Studio'}
+      ];
+    case 'class':
+      return [
+        {key: 'id_substring', label: 'ID'},
+        {key: 'name_substring', label: 'Name'},
+        {key: 'time_interval_begin', label: 'Time begin', isDate: true, isTime: true, isNeeded: true},
+        {key: 'time_interval_end', label: 'Time end', isDate: true, isTime: true, isNeeded: true},
+        {key: 'studio_id_substring', label: 'Studio ID', isNeeded: true},
+        {key: 'trainer_id_substring', label: 'Trainer ID', isNeeded: true},
+        {key: 'client_ids_substrings', label: 'Clients', isList: true}
+      ];
+    case 'studio':
+      return [
+        {key: 'id_substring', label: 'ID'},
+        {key: 'address_substring', label: 'Address', isNeeded: true},
+        {key: 'class_ids_substrings', label: 'Classes', isList: true},
+        {key: 'trainer_ids_substrings', label: 'Trainers', isList: true}
+      ];
+    default:
+      return [];
+  }
+}
+
+
 function getDateTime(date: string) {
   return new Date(date).toLocaleString()
 }
@@ -283,18 +366,40 @@ const addNewItem = async () => {
 
 const applyFilters = async () => {
   const queryParams = Object.entries(filters.value)
-      .filter(([_, value]) => value)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .filter(([_, value]) => value && (Array.isArray(value) ? value.length > 0 : value))
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `${key}=${value.map(v => encodeURIComponent(v)).join(',')}`;
+        } else if (key.includes('interval')) {
+          return `${key}=${encodeURIComponent(new Date(value).toISOString().split('T')[0] + 'T00:00:00Z')}`;
+        } else {
+          return `${key}=${encodeURIComponent(value)}`;
+        }
+      })
       .join('&');
 
   try {
-    const response = await fetch(`${URI}/api/v1/${entityType.value}?${queryParams}`, {
+    const response = await fetch(`${URI}/api/v1/search/${entityType.value.toLowerCase()}s?${queryParams}`, {
       method: 'GET',
     });
     const data = await response.json();
-    items.value = data[entityType.value.toLowerCase()] || [];
+
+    switch (entityType.value) {
+      case 'client':
+        items.value = data.clients || [];
+        break;
+      case 'trainer':
+        items.value = data.trainers || [];
+        break;
+      case 'class':
+        items.value = data.classes || [];
+        break;
+      case 'studio':
+        items.value = data.studios || [];
+        break;
+    }
   } catch (error) {
-    console.error('Ошибка фильтрации:', error);
+    console.error('Ошибка при применении фильтров:', error);
   }
 };
 
@@ -509,4 +614,28 @@ li {
 .apply-filters:hover {
   background-color: #8d8d8d;
 }
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column; /* Располагает элементы вертикально */
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center; /* Выравнивает чекбокс и текст по вертикали */
+  gap: 10px; /* Отступ между чекбоксом и текстом */
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin: 0; /* Убирает отступы чекбокса */
+  margin-right: 10px; /* Расстояние между чекбоксом и текстом */
+  width: 20px; /* Задает фиксированный размер чекбокса */
+  height: 20px; /* Делаем чекбоксы одинаковыми */
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  min-height: 20px; /* Обеспечивает ровное выравнивание текста по высоте чекбокса */
+}
+
 </style>
