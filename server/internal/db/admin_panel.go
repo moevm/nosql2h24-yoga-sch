@@ -19,6 +19,9 @@ func (r MongoRepository) ImportDB(
 	}
 
 	for colName, docs := range data {
+	    if len(docs) == 0 {
+	        continue
+	    }
 		col := r.Db().Collection(colName)
 		if _, err := col.InsertMany(ctx, docs); err != nil {
 			return err
