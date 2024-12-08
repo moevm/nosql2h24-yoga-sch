@@ -83,7 +83,7 @@
 import { computed, ref } from 'vue';
 import router from "@/router";
 
-const URI = `${window.location.protocol}//${window.location.hostname}`;
+const URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
 const isLogin = ref(true);
 const formData = ref({
   phone: '',
@@ -103,13 +103,15 @@ function formatPhone(value: string): string {
   let input = value.replace(/\D/g, '');
   const size = input.length;
 
-  if (size) {
+  if (size === 0) {
+    return `+7(`;
+  }
+
+  if (input.startsWith('7')) {
     input = input.substring(1);
   }
 
-  if (size === 0) {
-    return `+7(`;
-  } else if (size < 4) {
+  if (size < 4) {
     return `+7(${input}`;
   } else if (size < 7) {
     return `+7(${input.substring(0, 3)})${input.substring(3)}`;
@@ -204,7 +206,7 @@ async function registerUser() {
 
 .auth-form {
   background-color: #6a5862;
-  top: 0;
+  top: 0px;
   padding: 40px;
   border-radius: 12px;
   width: 100%;
@@ -317,4 +319,18 @@ form {
   text-align: center;
 }
 
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #6a5862;
+  pointer-events: none;
+}
 </style>

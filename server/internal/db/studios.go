@@ -28,7 +28,7 @@ func (r MongoRepository) InsertStudio(
 	studio.CreatedAt = time.Now()
 	studio.UpdatedAt = time.Now()
 
-	collection := r.Db().Collection(studios)
+	collection := r.DB().Collection(studios)
 
 	filter := bson.M{"address": studio.Address}
 	update := bson.M{"$setOnInsert": studio}
@@ -46,7 +46,7 @@ func (r MongoRepository) InsertStudio(
 }
 
 func (r MongoRepository) GetStudios(ctx context.Context) ([]Studio, error) {
-	collection := r.Db().Collection(studios)
+	collection := r.DB().Collection(studios)
 
 	studiosCursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -68,7 +68,7 @@ func (r MongoRepository) GetStudios(ctx context.Context) ([]Studio, error) {
 }
 
 func (r MongoRepository) GetStudio(ctx context.Context, id bson.ObjectID) (Studio, error) {
-	collection := r.Db().Collection(studios)
+	collection := r.DB().Collection(studios)
 
 	var studio Studio
 	if err := collection.FindOne(ctx, bson.M{"_id": id}).
@@ -83,9 +83,9 @@ func (r MongoRepository) GetStudio(ctx context.Context, id bson.ObjectID) (Studi
 }
 
 func (r MongoRepository) DeleteStudio(ctx context.Context, id bson.ObjectID) error {
-	studiosCollection := r.Db().Collection(studios)
-	trainersCollection := r.Db().Collection(trainers)
-	classesCollection := r.Db().Collection(classes)
+	studiosCollection := r.DB().Collection(studios)
+	trainersCollection := r.DB().Collection(trainers)
+	classesCollection := r.DB().Collection(classes)
 
 	var studio Studio
 	if err := studiosCollection.FindOne(ctx, bson.M{"_id": id}).

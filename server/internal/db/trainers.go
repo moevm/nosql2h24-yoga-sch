@@ -23,8 +23,8 @@ func (r MongoRepository) InsertTrainer(
 	trainer.CreatedAt = time.Now()
 	trainer.UpdatedAt = time.Now()
 
-	studiosCollection := r.Db().Collection(studios)
-	trainersCollection := r.Db().Collection(trainers)
+	studiosCollection := r.DB().Collection(studios)
+	trainersCollection := r.DB().Collection(trainers)
 
 	filter := bson.M{"phone": trainer.Person.Phone}
 	update := bson.M{"$setOnInsert": trainer}
@@ -47,7 +47,7 @@ func (r MongoRepository) InsertTrainer(
 }
 
 func (r MongoRepository) GetTrainers(ctx context.Context) ([]Trainer, error) {
-	collection := r.Db().Collection(trainers)
+	collection := r.DB().Collection(trainers)
 
 	trainersCursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -69,7 +69,7 @@ func (r MongoRepository) GetTrainers(ctx context.Context) ([]Trainer, error) {
 }
 
 func (r MongoRepository) GetTrainer(ctx context.Context, id bson.ObjectID) (Trainer, error) {
-	collection := r.Db().Collection(trainers)
+	collection := r.DB().Collection(trainers)
 
 	var trainer Trainer
 	if err := collection.FindOne(ctx, bson.M{"_id": id}).
@@ -84,8 +84,8 @@ func (r MongoRepository) GetTrainer(ctx context.Context, id bson.ObjectID) (Trai
 }
 
 func (r MongoRepository) DeleteTrainer(ctx context.Context, id bson.ObjectID) error {
-	trainersCollection := r.Db().Collection(trainers)
-	studiosCollection := r.Db().Collection(studios)
+	trainersCollection := r.DB().Collection(trainers)
+	studiosCollection := r.DB().Collection(studios)
 
 	var trainer Trainer
 	if err := trainersCollection.FindOne(ctx, bson.M{"_id": id}).

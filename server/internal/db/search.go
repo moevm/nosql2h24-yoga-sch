@@ -66,11 +66,11 @@ type ClientsFilter struct {
 func (r MongoRepository) SearchClients(
 	ctx context.Context, req ClientsFilter,
 ) (res []Person, err error) {
-	col := r.Db().Collection(clients)
+	col := r.DB().Collection(clients)
 
 	var classIDs []bson.ObjectID
 	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
-		ctx, r.Db().Collection(classes), "name", req.ClassNameSubstrings); {
+		ctx, r.DB().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredClasses == nil:
@@ -151,11 +151,11 @@ type TrainersFilter struct {
 func (r MongoRepository) SearchTrainers(
 	ctx context.Context, req TrainersFilter,
 ) (res []Trainer, err error) {
-	col := r.Db().Collection(trainers)
+	col := r.DB().Collection(trainers)
 
 	var classIDs []bson.ObjectID
 	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
-		ctx, r.Db().Collection(classes), "name", req.ClassNameSubstrings); {
+		ctx, r.DB().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredClasses == nil:
@@ -170,7 +170,7 @@ func (r MongoRepository) SearchTrainers(
 
 	var studioIDs []bson.ObjectID
 	switch filteredStudios, err := SearchEntitiesByRegexName[Studio](
-		ctx, r.Db().Collection(studios), "address", req.StudioAddressSubstrings); {
+		ctx, r.DB().Collection(studios), "address", req.StudioAddressSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredStudios == nil:
@@ -248,11 +248,11 @@ type StudiosFilter struct {
 func (r MongoRepository) SearchStudios(
 	ctx context.Context, req StudiosFilter,
 ) (res []Studio, err error) {
-	col := r.Db().Collection(studios)
+	col := r.DB().Collection(studios)
 
 	var classIDs []bson.ObjectID
 	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
-		ctx, r.Db().Collection(classes), "name", req.ClassNameSubstrings); {
+		ctx, r.DB().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredClasses == nil:
@@ -267,7 +267,7 @@ func (r MongoRepository) SearchStudios(
 
 	var trainerIDs []bson.ObjectID
 	switch filteredTrainers, err := SearchEntitiesByRegexName[Trainer](
-		ctx, r.Db().Collection(trainers), "name", req.TrainerNameSubstrings); {
+		ctx, r.DB().Collection(trainers), "name", req.TrainerNameSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredTrainers == nil:
@@ -335,11 +335,11 @@ type ClassesFilter struct {
 func (r MongoRepository) SearchClasses(
 	ctx context.Context, req ClassesFilter,
 ) (res []Class, err error) {
-	col := r.Db().Collection(classes)
+	col := r.DB().Collection(classes)
 
 	var studioIDs []bson.ObjectID
 	switch filteredStudios, err := SearchEntitiesByRegexName[Studio](
-		ctx, r.Db().Collection(studios), "address", req.StudioAddressSubstrings); {
+		ctx, r.DB().Collection(studios), "address", req.StudioAddressSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredStudios == nil:
@@ -354,7 +354,7 @@ func (r MongoRepository) SearchClasses(
 
 	var trainerIDs []bson.ObjectID
 	switch filteredTrainers, err := SearchEntitiesByRegexName[Trainer](
-		ctx, r.Db().Collection(trainers), "name", req.TrainerNameSubstrings); {
+		ctx, r.DB().Collection(trainers), "name", req.TrainerNameSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredTrainers == nil:
@@ -369,7 +369,7 @@ func (r MongoRepository) SearchClasses(
 
 	var clientIDs []bson.ObjectID
 	switch filteredClients, err := SearchEntitiesByRegexName[Client](
-		ctx, r.Db().Collection(clients), "name", req.ClientNameSubstrings); {
+		ctx, r.DB().Collection(clients), "name", req.ClientNameSubstrings); {
 	case err != nil:
 		return nil, err
 	case filteredClients == nil:

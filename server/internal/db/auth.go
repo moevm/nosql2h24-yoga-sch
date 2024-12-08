@@ -16,7 +16,7 @@ func (c Client) IsPasswordValid(password string) bool {
 }
 
 func (r MongoRepository) GetIDByCreds(ctx context.Context, phone, password string) (bson.ObjectID, error) {
-	collection := r.Db().Collection(clients)
+	collection := r.DB().Collection(clients)
 
 	var client Client
 	if err := collection.FindOne(ctx, bson.M{"phone": phone}).Decode(&client); err != nil {

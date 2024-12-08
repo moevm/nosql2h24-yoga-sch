@@ -22,7 +22,7 @@
 import { ref } from 'vue';
 import router from '@/router';
 
-const URI = `${window.location.protocol}//${window.location.hostname}`;
+const URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
 const fileInput = ref<HTMLInputElement | null>(null);
 
 function viewDatabase() {
