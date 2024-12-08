@@ -119,3 +119,14 @@ db.studios.insertOne(
         "trainer_ids": []
     }
 );
+
+db.studios.insertOne(
+    {
+        "_id": ObjectId("507f1f77bcf86cd799439013"),
+        "address": "ul. Kosmonavtov 3",
+        "created_at": new Date("2024-10-28T23:58:18Z"),
+        "updated_at": new Date("2024-10-29T23:58:18Z"),
+        "class_ids": [],
+        "trainer_ids": []
+    }
+);
