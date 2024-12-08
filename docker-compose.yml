@@ -35,7 +35,6 @@ services:
     volumes:
       - db-data:/data/db
       - ./mongodb/mongod.conf:/etc/mongo/mongod.conf:ro
-      - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - db-net
     healthcheck:
