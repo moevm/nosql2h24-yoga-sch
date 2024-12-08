@@ -23,7 +23,7 @@ func (r MongoRepository) InsertClient(
 	client.CreatedAt = time.Now()
 	client.UpdatedAt = time.Now()
 
-	collection := r.Db().Collection(clients)
+	collection := r.DB().Collection(clients)
 
 	filter := bson.M{"phone": client.Person.Phone}
 	update := bson.M{"$setOnInsert": client}
@@ -41,7 +41,7 @@ func (r MongoRepository) InsertClient(
 }
 
 func (r MongoRepository) GetClients(ctx context.Context) ([]Client, error) {
-	collection := r.Db().Collection(clients)
+	collection := r.DB().Collection(clients)
 
 	clientsCursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -67,7 +67,7 @@ func (r MongoRepository) GetClients(ctx context.Context) ([]Client, error) {
 }
 
 func (r MongoRepository) GetClient(ctx context.Context, id bson.ObjectID) (Client, error) {
-	collection := r.Db().Collection(clients)
+	collection := r.DB().Collection(clients)
 
 	var client Client
 	if err := collection.FindOne(ctx, bson.M{"_id": id}).
@@ -82,7 +82,7 @@ func (r MongoRepository) GetClient(ctx context.Context, id bson.ObjectID) (Clien
 }
 
 func (r MongoRepository) DeleteClient(ctx context.Context, id bson.ObjectID) error {
-	collection := r.Db().Collection(clients)
+	collection := r.DB().Collection(clients)
 
 	switch res, err := collection.DeleteOne(ctx, bson.M{"_id": id}); {
 	case err != nil:

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -50,6 +51,15 @@ func timeFromRFC3339(val string) time.Time {
 
 func ImportDB(ctx context.Context, c *mongo.Client) {
 	repo := NewMongoRepository(c)
+
+	switch colNames, err := repo.GetCollectionNames(ctx); {
+	case err != nil:
+		panic(fmt.Sprintf("GetCollectionNames: %v", err))
+	case len(colNames) > 0:
+		slog.Info(fmt.Sprintf("Database contains %v", colNames))
+		break
+	}
+
 	if err := repo.ImportDB(ctx, map[string][]bson.M{
 		studios: {
 			{

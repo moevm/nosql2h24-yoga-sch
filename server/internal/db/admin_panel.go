@@ -7,22 +7,22 @@ import (
 )
 
 func (r MongoRepository) DropDB(ctx context.Context) error {
-	return r.Db().Drop(ctx)
+	return r.DB().Drop(ctx)
 }
 
 func (r MongoRepository) ImportDB(
 	ctx context.Context,
 	data map[string][]bson.M,
 ) error {
-	if err := r.Db().Drop(ctx); err != nil {
+	if err := r.DB().Drop(ctx); err != nil {
 		return err
 	}
 
 	for colName, docs := range data {
-	    if len(docs) == 0 {
-	        continue
-	    }
-		col := r.Db().Collection(colName)
+		if len(docs) == 0 {
+			continue
+		}
+		col := r.DB().Collection(colName)
 		if _, err := col.InsertMany(ctx, docs); err != nil {
 			return err
 		}
@@ -30,11 +30,22 @@ func (r MongoRepository) ImportDB(
 	return nil
 }
 
-func (r MongoRepository) ExportDB(
-	ctx context.Context) (map[string][]bson.M, error) {
-	db := r.Db()
+func (r MongoRepository) GetCollectionNames(
+	ctx context.Context) ([]string, error) {
+	db := r.DB()
 
 	colNames, err := db.ListCollectionNames(ctx, bson.D{})
+	if err != nil {
+		return nil, err
+	}
+	return colNames, nil
+}
+
+func (r MongoRepository) ExportDB(
+	ctx context.Context) (map[string][]bson.M, error) {
+	db := r.DB()
+
+	colNames, err := r.GetCollectionNames(ctx)
 	if err != nil {
 		return nil, err
 	}

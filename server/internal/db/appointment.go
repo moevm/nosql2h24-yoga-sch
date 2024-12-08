@@ -10,8 +10,8 @@ import (
 func (r MongoRepository) MakeAppointment(
 	ctx context.Context, classID, clientID bson.ObjectID,
 ) error {
-	classesCollection := r.Db().Collection(classes)
-	clientsCollection := r.Db().Collection(clients)
+	classesCollection := r.DB().Collection(classes)
+	clientsCollection := r.DB().Collection(clients)
 
 	if err := classesCollection.FindOneAndUpdate(ctx, bson.M{"_id": classID},
 		bson.M{"$addToSet": bson.M{"client_ids": clientID}}).Err(); err != nil {
@@ -29,8 +29,8 @@ func (r MongoRepository) MakeAppointment(
 func (r MongoRepository) CancelAppointment(
 	ctx context.Context, classID, clientID bson.ObjectID,
 ) error {
-	classesCollection := r.Db().Collection(classes)
-	clientsCollection := r.Db().Collection(clients)
+	classesCollection := r.DB().Collection(classes)
+	clientsCollection := r.DB().Collection(clients)
 
 	if _, err := classesCollection.UpdateOne(ctx, bson.M{"_id": classID},
 		bson.M{"$pull": bson.M{"client_ids": clientID}}); err != nil {

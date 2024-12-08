@@ -11,6 +11,7 @@ import (
 
 type Repository interface {
 	DropDB(ctx context.Context) error
+	GetCollectionNames(ctx context.Context) ([]string, error)
 	ImportDB(ctx context.Context, data map[string][]bson.M) error
 	ExportDB(ctx context.Context) (map[string][]bson.M, error)
 
@@ -64,7 +65,7 @@ func NewMongoRepository(mg *mongo.Client) Repository {
 	return MongoRepository{mg: mg}
 }
 
-func (r MongoRepository) Db() *mongo.Database {
+func (r MongoRepository) DB() *mongo.Database {
 	return r.mg.Database(dbName)
 }
 

@@ -29,9 +29,9 @@ func (r MongoRepository) InsertClass(
 	class.CreatedAt = time.Now()
 	class.UpdatedAt = time.Now()
 
-	studiosCollection := r.Db().Collection(studios)
-	trainersCollection := r.Db().Collection(trainers)
-	classesCollection := r.Db().Collection(classes)
+	studiosCollection := r.DB().Collection(studios)
+	trainersCollection := r.DB().Collection(trainers)
+	classesCollection := r.DB().Collection(classes)
 
 	filter := bson.M{"name": class.Name, "time": class.Time}
 	update := bson.M{"$setOnInsert": class}
@@ -61,7 +61,7 @@ func (r MongoRepository) InsertClass(
 func (r MongoRepository) GetClasses(
 	ctx context.Context,
 ) (res []Class, err error) {
-	collection := r.Db().Collection(classes)
+	collection := r.DB().Collection(classes)
 
 	cur, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -81,7 +81,7 @@ func (r MongoRepository) GetClasses(
 }
 
 func (r MongoRepository) GetClass(ctx context.Context, id bson.ObjectID) (Class, error) {
-	collection := r.Db().Collection(classes)
+	collection := r.DB().Collection(classes)
 
 	var class Class
 	if err := collection.FindOne(ctx, bson.M{"_id": id}).
@@ -96,10 +96,10 @@ func (r MongoRepository) GetClass(ctx context.Context, id bson.ObjectID) (Class,
 }
 
 func (r MongoRepository) DeleteClass(ctx context.Context, id bson.ObjectID) error {
-	classesCollection := r.Db().Collection(classes)
-	studiosCollection := r.Db().Collection(studios)
-	trainersCollection := r.Db().Collection(trainers)
-	clientsCollection := r.Db().Collection(clients)
+	classesCollection := r.DB().Collection(classes)
+	studiosCollection := r.DB().Collection(studios)
+	trainersCollection := r.DB().Collection(trainers)
+	clientsCollection := r.DB().Collection(clients)
 
 	var class Class
 	if err := classesCollection.FindOne(ctx, bson.M{"_id": id}).
