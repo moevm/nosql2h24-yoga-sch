@@ -9,7 +9,7 @@ RUN apk add make=4.4.1-r2 --no-cache
 ARG BUF_VERSION=1.41.0
 
 RUN BUF_TAR_NAME="buf-$(uname -s)-$(uname -m).tar.gz" &&\
-    wget --progress=dot:giga "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/${BUF_TAR_NAME}" &&\
+    wget "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/${BUF_TAR_NAME}" -q &&\
     tar -xvzf "${BUF_TAR_NAME}" -C "/usr/local" --strip-components 1 &&\
     rm -rf "${BUF_TAR_NAME}"
 
