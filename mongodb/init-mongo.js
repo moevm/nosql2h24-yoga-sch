@@ -67,3 +67,17 @@ db.trainers.insertOne(
         "studio_id": ObjectId("507f1f77bcf86cd799439012")
     }
 );
+
+db.trainers.insertOne(
+    {
+        "name": "Lilya Kio",
+        "phone": "+7(999)000-0000",
+        "gender": "FEMALE",
+        "birth_date": new Date("1998-11-12T23:52:14Z"),
+        "created_at": new Date("2022-04-22T23:58:18Z"),
+        "updated_at": new Date("2022-04-22T23:58:18Z"),
+        "picture_uri": "cdn.example.com",
+        "class_ids": [],
+        "studio_id": ObjectId("507f1f77bcf86cd799439013")
+    }
+);
