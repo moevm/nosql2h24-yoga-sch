@@ -8,7 +8,7 @@
           v-for="header in getColumnConfig(entityType)"
           :key="header.key"
           class="filter-group">
-      <label :for="'filter-' + header.key">
+        <label :for="'filter-' + header.key">
           {{ header.label }}
         </label>
 
@@ -19,14 +19,14 @@
         </select>
 
         <input v-else-if="header.isDate && header.isTime" type="datetime-local"
-               :id="'filter-' + header.key" v-model="filters[header.key]" />
+               :id="'filter-' + header.key" v-model="filters[header.key]"/>
         <input v-else-if="header.isDate && !header.isTime" type="date"
-               :id="'filter-' + header.key" v-model="filters[header.key]" />
+               :id="'filter-' + header.key" v-model="filters[header.key]"/>
 
         <input v-else type="text"
                :id="'filter-' + header.key"
                :placeholder="'Введите ' + header.label"
-               v-model="filters[header.key]" />
+               v-model="filters[header.key]"/>
       </div>
       <button class="apply-filters" @click="applyFilters">Apply</button>
     </div>
@@ -42,7 +42,9 @@
       <tbody>
       <tr v-for="item in items" :key="item['id']">
         <template v-for="column in getColumnConfig(entityType)" :key="column.key">
-          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">{{ item[column.key as keyof Entity] }}</td>
+          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">
+            {{ item[column.key as keyof Entity] }}
+          </td>
           <td v-else-if="column.isLink">
             <a v-if="item[column.key as keyof Entity]" :href="item[column.key as keyof Entity]" target="_blank">
               {{ item[column.key as keyof Entity] }}
@@ -84,6 +86,12 @@
               >
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
+              </select>
+              <select v-model="formData.studioId" v-else-if="header.label === 'Studio ID'" :id="header.key" required>
+                <option value="" disabled selected>Выберите студию</option>
+                <option v-for="studio in studios" :key="studio.id" :value="studio.id">
+                  {{ studio.address }}
+                </option>
               </select>
               <input v-model="formData.password"
                      v-else-if="header.label === 'Password'"
@@ -127,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, type Ref, onMounted, watch} from 'vue';
+import {onMounted, type Ref, ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import {type Class, type Client, type Studio, type Trainer} from "@/types/types";
 
@@ -145,6 +153,17 @@ const today = new Date().toISOString().split('T')[0];
 
 const URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`
 
+const studios: Ref<Studio[]> = ref([]);
+
+async function loadStudios() {
+  try {
+    const response = await fetch(`${URI}/api/v1/studio`);
+    const data = await response.json();
+    studios.value = data.studios || [];
+  } catch (error) {
+    console.error("Ошибка при загрузке студий:", error);
+  }
+}
 
 async function loadData() {
   try {
@@ -168,20 +187,35 @@ async function loadData() {
         break;
     }
 
-    // console.log(items.value);
+    console.log(items.value);
   } catch (error) {
     console.error("Ошибка при загрузке данных:", error);
   }
 }
 
-onMounted(loadData);
+onMounted(() => {
+  loadData();
+  loadStudios();
+});
 
 watch(() => route.params.entityType, (newType) => {
   entityType.value = newType as 'client' | 'trainer' | 'class' | 'studio';
   loadData();
 });
 
-function getColumnConfig(type: string) {
+type ColumnConfig = {
+  key: string;
+  label: string;
+  isNeeded?: boolean;
+  isDate?: boolean;
+  isTime?: boolean;
+  isPassword?: boolean;
+  isId?: boolean;
+  isLink?: boolean;
+  isList?: boolean;
+};
+
+function getColumnConfig(type: string): ColumnConfig[] {
   switch (type) {
     case 'client':
       return [
@@ -205,7 +239,7 @@ function getColumnConfig(type: string) {
         {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
         {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
         {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true, isId: true},
         {key: 'pictureUri', label: 'Picture', isLink: true},
         {key: 'classIds', label: 'Classes', isList: true}
       ];
@@ -214,16 +248,16 @@ function getColumnConfig(type: string) {
         {key: 'id', label: 'ID'},
         {key: 'name', label: 'Class Type', isNeeded: true},
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studioId', label: 'Studio ID', isNeeded: true},
+        {key: 'studioId', label: 'Studio ID', isNeeded: true, isId: true},
         {key: 'trainerId', label: 'Trainer ID', isNeeded: true},
-        {key: 'clients', label: 'Clients', isList: true}
+        {key: 'clientIds', label: 'Clients', isList: true}
       ];
     case 'studio':
       return [
         {key: 'id', label: 'ID'},
         {key: 'address', label: 'Address', isNeeded: true},
-        {key: 'classes', label: 'Classes', isList: true},
-        {key: 'trainers', label: 'Trainers', isList: true}
+        {key: 'classIds', label: 'Classes', isList: true},
+        {key: 'trainerIds', label: 'Trainers', isList: true}
       ];
     default:
       return [];
