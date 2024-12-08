@@ -14,7 +14,7 @@ import (
 
 func main() {
 	grpcOpt := grpc.WithTransportCredentials(insecure.NewCredentials())
-	grpcC, err := grpc.NewClient(":8000", grpcOpt)
+	grpcC, err := grpc.NewClient(":80", grpcOpt)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Failed to create grpc client: %v", err))
 	}
