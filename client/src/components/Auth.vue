@@ -100,7 +100,7 @@ const formattedPhone = computed({
 });
 
 function formatPhone(value: string): string {
-  let input = value.replace(/\D/g, ''); // Удаляем всё, кроме цифр
+  let input = value.replace(/\D/g, '');
   const size = input.length;
 
   if (size === 0) {
@@ -115,7 +115,7 @@ function formatPhone(value: string): string {
     return `+7(${input}`;
   } else if (size < 7) {
     return `+7(${input.substring(0, 3)})${input.substring(3)}`;
-  } else if (size <= 10) {
+  } else if (size < 11) {
     return `+7(${input.substring(0, 3)})${input.substring(3, 6)}-${input.substring(6)}`;
   } else {
     return `+7(${input.substring(0, 3)})${input.substring(3, 6)}-${input.substring(6, 10)}`;

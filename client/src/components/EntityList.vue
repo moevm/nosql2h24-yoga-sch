@@ -66,7 +66,7 @@
     <div v-if="showModal" class="modal">
       <div class="modal-content">
         <h3>Добавить новый элемент</h3>
-        <form @submit.prevent="addNewItem">
+        <form>
           <div v-for="header in getColumnConfig(entityType)" :key="header.label">
             <div v-if="header.isNeeded" class="form-group">
               <label :for="header.key">{{ header.label }}</label>

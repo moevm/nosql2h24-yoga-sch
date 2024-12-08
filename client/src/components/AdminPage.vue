@@ -5,8 +5,15 @@
     </div>
     <div class="button-container">
       <button class="admin-button" @click="viewDatabase">View Database</button>
-      <button class="admin-button" @click="importDatabase">Import Database</button>
+      <button class="admin-button" @click="triggerFileInput">Import Database</button>
       <button class="admin-button" @click="exportDatabase">Export Database</button>
+      <input
+          type="file"
+          ref="fileInput"
+          accept="application/json"
+          style="display: none"
+          @change="importDatabase"
+      />
     </div>
   </div>
 </template>
@@ -15,16 +22,81 @@
 import { ref } from 'vue';
 import router from '@/router';
 
+const URI = `${window.location.protocol}//${window.location.hostname}`;
+const fileInput = ref<HTMLInputElement | null>(null);
+
 function viewDatabase() {
   router.push('/admin/data');
 }
 
-function importDatabase() {
-  alert('Import database functionality here');
+function triggerFileInput() {
+  fileInput.value?.click();
 }
 
-function exportDatabase() {
-  alert('Export database functionality here');
+async function importDatabase(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+
+  if (!file) {
+    alert('No file selected.');
+    return;
+  }
+
+  try {
+    const fileContent = await file.text();
+    const jsonData = JSON.parse(fileContent);
+
+    console.log('Importing database:', jsonData);
+
+    const response = await fetch(`${URI}/api/admin/v1/db/import`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jsonData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to import database: ${response.statusText}`);
+    }
+
+    alert('Database imported successfully!');
+  } catch (error) {
+    console.error(error);
+    alert('An error occurred while importing the database. Please check the file format.');
+  } finally {
+    input.value = '';
+  }
+}
+
+async function exportDatabase() {
+  try {
+    const response = await fetch(`${URI}/api/admin/v1/db/export`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to export database: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'database_export.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error(error);
+    alert('An error occurred while exporting the database.');
+  }
 }
 </script>
 
