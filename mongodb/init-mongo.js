@@ -202,3 +202,17 @@ db.clients.insertOne(
         "class_ids": []
     }
 );
+
+db.clients.insertOne(
+    {
+        "name": "Vova Shustiy",
+        "phone": "+7(998)888-8888",
+        "gender": "MALE",
+        "birth_date": new Date("2011-01-11T23:52:14Z"),
+        "created_at": new Date("2022-04-22T23:58:18Z"),
+        "updated_at": new Date("2022-04-22T23:58:18Z"),
+        "password": "1",
+        "picture_uri": "cdn.example.com",
+        "class_ids": []
+    }
+);
