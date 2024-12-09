@@ -111,10 +111,23 @@
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
               </select>
-              <select v-model="formData.studioId" v-else-if="header.label === 'Studio ID'" :id="header.key" required>
+              <select v-model="formData.studioId" v-else-if="header.label === 'Studio'" :id="header.key" required>
                 <option value="" disabled selected>Выберите студию</option>
                 <option v-for="studio in studios" :key="studio.id" :value="studio.id">
                   {{ studio.address }}
+                </option>
+              </select>
+              <select v-model="formData.trainerId" v-else-if="header.label === 'Trainer'" :id="'trainerId'" required>
+                <option value="" disabled selected>Выберите тренера</option>
+                <option v-for="trainer in trainers" :key="trainer.id" :value="trainer.id">
+                  {{ trainer.name }}
+                </option>
+              </select>
+
+              <select v-model="formData.classIds" v-else-if="header.label === 'Classes'" multiple :id="'classIds'" required>
+                <option value="" disabled>Выберите занятия</option>
+                <option v-for="classItem in classes" :key="classItem.id" :value="classItem.id">
+                  {{ classItem.name }}
                 </option>
               </select>
               <input v-model="formData.password"
@@ -179,6 +192,28 @@ const today = new Date().toISOString().split('T')[0];
 const URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`
 
 const studios: Ref<Studio[]> = ref([]);
+const trainers: Ref<Trainer[]> = ref([]);
+const classes: Ref<Class[]> = ref([]);
+
+async function loadTrainers() {
+  try {
+    const response = await fetch(`${URI}/api/v1/trainer`);
+    const data = await response.json();
+    trainers.value = data.trainers || [];
+  } catch (error) {
+    console.error("Error while loading trainers:", error);
+  }
+}
+
+async function loadClasses() {
+  try {
+    const response = await fetch(`${URI}/api/v1/class`);
+    const data = await response.json();
+    classes.value = data.classes || [];
+  } catch (error) {
+    console.error("Error while loading classes:", error);
+  }
+}
 
 async function loadStudios() {
   try {
@@ -221,6 +256,8 @@ async function loadData() {
 onMounted(() => {
   loadData();
   loadStudios();
+  loadTrainers();
+  loadClasses();
 });
 
 watch(() => route.params.entityType, (newType) => {
@@ -264,7 +301,7 @@ function getColumnConfig(type: string): ColumnConfig[] {
         {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
         {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
         {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'studioId', label: 'Studio ID', isNeeded: true, isId: true},
+        {key: 'studioId', label: 'Studio', isNeeded: true, isId: true},
         {key: 'pictureUri', label: 'Picture', isLink: true},
         {key: 'classIds', label: 'Classes', isList: true}
       ];
@@ -273,8 +310,8 @@ function getColumnConfig(type: string): ColumnConfig[] {
         {key: 'id', label: 'ID'},
         {key: 'name', label: 'Class Type', isNeeded: true},
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studioId', label: 'Studio ID', isNeeded: true, isId: true},
-        {key: 'trainerId', label: 'Trainer ID', isNeeded: true},
+        {key: 'studioId', label: 'Studio', isNeeded: true, isId: true},
+        {key: 'trainerId', label: 'Trainer', isNeeded: true},
         {key: 'clientIds', label: 'Clients', isList: true}
       ];
     case 'studio':
