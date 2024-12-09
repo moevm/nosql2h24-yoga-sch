@@ -126,8 +126,17 @@ function toggleAuthMode() {
   isLogin.value = !isLogin.value;
 }
 
+function clearCookies() {
+  const cookies = document.cookie.split("; ");
+  for (const cookie of cookies) {
+    const [name] = cookie.split("=");
+    document.cookie = `${name}=; path=/; max-age=0;`;
+  }
+}
+
 async function loginUser() {
   console.log('Logging in with phone:', formData.value.phone);
+  clearCookies();
   try {
     const response = await fetch(`${URI}/api/v1/auth`, {
       method: 'POST',
@@ -146,6 +155,7 @@ async function loginUser() {
 
     const result = await response.json();
     console.log('Login response:', result);
+
 
     document.cookie = `Authorization=admin; path=/; max-age=86400;`;
     await router.push('/admin');
