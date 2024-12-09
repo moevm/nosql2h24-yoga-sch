@@ -47,7 +47,11 @@ func (e *SearchEngine) SearchClients(
 		return nil, status.Errorf(codes.Internal, "searching clients error: %w", err)
 	}
 
-	return &gen.SearchClientsResponse{Clients: convertDbPersons(persons)}, nil
+	result, err := convertDbPersons(ctx, persons, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db persons error: %w", err)
+	}
+	return &gen.SearchClientsResponse{Clients: result}, nil
 }
 
 func (e *SearchEngine) SearchTrainers(
@@ -82,7 +86,11 @@ func (e *SearchEngine) SearchTrainers(
 		return nil, status.Errorf(codes.Internal, "searching trainers error: %w", err)
 	}
 
-	return &gen.SearchTrainersResponse{Trainers: convertDbTrainers(trainers)}, nil
+	result, err := convertDbTrainers(ctx, trainers, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db trainers error: %w", err)
+	}
+	return &gen.SearchTrainersResponse{Trainers: result}, nil
 }
 
 func (e *SearchEngine) SearchStudios(
@@ -107,7 +115,11 @@ func (e *SearchEngine) SearchStudios(
 		return nil, status.Errorf(codes.Internal, "searching studios error: %w", err)
 	}
 
-	return &gen.SearchStudiosResponse{Studios: convertDbStudios(studios)}, nil
+	result, err := convertDbStudios(ctx, studios, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db studios error: %w", err)
+	}
+	return &gen.SearchStudiosResponse{Studios: result}, nil
 }
 
 func (e *SearchEngine) SearchClasses(
@@ -135,5 +147,9 @@ func (e *SearchEngine) SearchClasses(
 		return nil, status.Errorf(codes.Internal, "searching classes error: %w", err)
 	}
 
-	return &gen.SearchClassesResponse{Classes: convertDbClasses(classes)}, nil
+	result, err := convertDbClasses(ctx, classes, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db classes error: %w", err)
+	}
+	return &gen.SearchClassesResponse{Classes: result}, nil
 }

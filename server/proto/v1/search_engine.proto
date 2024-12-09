@@ -15,7 +15,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/clients",
+      get: "/api/v1/search/client",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
@@ -33,7 +33,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/trainers",
+      get: "/api/v1/search/trainer",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
@@ -51,7 +51,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/studios",
+      get: "/api/v1/search/studio",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
@@ -69,7 +69,7 @@ service SearchEngine {
     option idempotency_level = IDEMPOTENCY_UNKNOWN;
 
     option (google.api.http) = {
-      get: "/api/v1/search/classes",
+      get: "/api/v1/search/class",
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {

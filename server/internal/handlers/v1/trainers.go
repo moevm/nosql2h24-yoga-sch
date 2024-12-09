@@ -24,7 +24,7 @@ func (s *FitnessAggregator) CreateTrainer(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	studioID, err := bson.ObjectIDFromHex(req.Trainer.StudioId)
+	studioID, err := bson.ObjectIDFromHex(req.Trainer.StudioInfo.Id)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -43,7 +43,7 @@ func (s *FitnessAggregator) CreateTrainer(
 	})
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
-			return nil, status.Errorf(codes.InvalidArgument, "studio with id %s not found", req.Trainer.StudioId)
+			return nil, status.Errorf(codes.InvalidArgument, "studio with id %s not found", req.Trainer.StudioInfo.Id)
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -59,12 +59,11 @@ func (s *FitnessAggregator) GetTrainers(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var trainersResp []*gen.Trainer
-	for _, t := range trainers {
-		trainersResp = append(trainersResp, convertDbTrainer(t))
+	result, err := convertDbTrainers(ctx, trainers, s.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "could not convert db trainers: %s", err.Error())
 	}
-
-	return &gen.GetTrainersResponse{Trainers: trainersResp}, nil
+	return &gen.GetTrainersResponse{Trainers: result}, nil
 }
 
 func (s *FitnessAggregator) GetTrainer(
@@ -84,9 +83,11 @@ func (s *FitnessAggregator) GetTrainer(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &gen.GetTrainerResponse{
-		Trainer: convertDbTrainer(trainer),
-	}, nil
+	result, err := convertDbTrainer(ctx, trainer, s.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "could not convert db trainer: %s", err.Error())
+	}
+	return &gen.GetTrainerResponse{Trainer: result}, nil
 }
 
 func (s *FitnessAggregator) DeleteTrainer(
