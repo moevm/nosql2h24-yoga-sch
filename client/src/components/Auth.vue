@@ -147,7 +147,7 @@ async function loginUser() {
     const result = await response.json();
     console.log('Login response:', result);
 
-    document.cookie = `Authorization=admin; path=/; max-age=86400; secure; SameSite=Strict`;
+    document.cookie = `Authorization=admin; path=/; max-age=86400;`;
     await router.push('/admin');
   } catch (error) {
     alert('Login failed. Please try again.');
