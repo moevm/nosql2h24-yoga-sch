@@ -303,7 +303,6 @@ function getFilterConfig(type: string) {
         {key: 'created_at_interval_end', label: 'Created at end', isDate: true, isTime: true},
         {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
         {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
-        {key: 'picture_uri_substring', label: 'Picture', isLink: true},
         {key: 'class_id_substrings', label: 'Classes', isList: true}
       ];
     case 'trainer':
@@ -317,7 +316,6 @@ function getFilterConfig(type: string) {
         {key: 'created_at_interval_end', label: 'Created at end', isDate: true, isTime: true},
         {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
         {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
-        {key: 'picture_uri_substring', label: 'Picture', isLink: true},
         {key: 'class_id_substrings', label: 'Classes', isList: true},
         {key: 'studio_id_substrings', label: 'Studio'}
       ];
