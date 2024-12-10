@@ -30,7 +30,7 @@
             Female
           </label>
         </div>
-        
+
         <input
             v-else-if="filter.isDate && filter.isTime"
             type="datetime-local"
@@ -66,7 +66,7 @@
       <tbody>
       <tr v-for="item in items" :key="item['id']">
         <template v-for="column in getColumnConfig(entityType)" :key="column.key">
-          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword">
+          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword && !column.isInfo">
             {{ item[column.key as keyof Entity] }}
           </td>
           <td v-else-if="column.isLink">
@@ -74,6 +74,12 @@
               {{ item[column.key as keyof Entity] }}
             </a>
           </td>
+          <td v-else-if="column.isInfo && column.isList">
+            <ul>
+              <li v-for="elem in item[column.key as keyof Entity]" :key="elem">{{ elem.name }}</li>
+            </ul>
+          </td>
+          <td v-else-if="column.isInfo">{{ item[column.key as keyof Entity].name || '' }}</td>
           <td v-else-if="column.isDate && column.isTime">{{ getDateTime(item[column.key as keyof Entity]) }}</td>
           <td v-else-if="column.isDate && !column.isTime">{{ getDate(item[column.key as keyof Entity]) }}</td>
           <td v-else-if="column.isList">
@@ -124,7 +130,8 @@
                 </option>
               </select>
 
-              <select v-model="formData.classIds" v-else-if="header.label === 'Classes'" multiple :id="'classIds'" required>
+              <select v-model="formData.classIds" v-else-if="header.label === 'Classes'" multiple :id="'classIds'"
+                      required>
                 <option value="" disabled>Выберите занятия</option>
                 <option v-for="classItem in classes" :key="classItem.id" :value="classItem.id">
                   {{ classItem.name }}
@@ -176,7 +183,7 @@ import {onMounted, type Ref, ref, watch} from 'vue';
 import {useRoute} from 'vue-router';
 import {type Class, type Client, type Studio, type Trainer} from "@/types/types";
 
-type Entity = Client | Class | Studio | Trainer
+type Entity = Client | Class | Studio | Trainer | Record<string, any>;
 const route = useRoute();
 const entityType = ref(route.params.entityType as 'client' | 'trainer' | 'class' | 'studio');
 const filters: Ref<Record<string, string[] | string>> = ref({
@@ -275,6 +282,7 @@ type ColumnConfig = {
   isId?: boolean;
   isLink?: boolean;
   isList?: boolean;
+  isInfo?: boolean;
 };
 
 function getColumnConfig(type: string): ColumnConfig[] {
@@ -290,7 +298,7 @@ function getColumnConfig(type: string): ColumnConfig[] {
         {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
         {key: 'password', label: 'Password', isNeeded: true, isPassword: true},
         {key: 'pictureUri', label: 'Picture', isLink: true},
-        {key: 'classIds', label: 'Classes', isList: true}
+        {key: 'classesInfo', label: 'Classes', isList: true, isInfo: true}
       ];
     case 'trainer':
       return [
@@ -301,25 +309,25 @@ function getColumnConfig(type: string): ColumnConfig[] {
         {key: 'birthDate', label: 'Birth Date', isDate: true, isTime: false, isNeeded: true},
         {key: 'createdAt', label: 'Created At', isDate: true, isTime: true},
         {key: 'updatedAt', label: 'Updated At', isDate: true, isTime: true},
-        {key: 'studioId', label: 'Studio', isNeeded: true, isId: true},
+        {key: 'studioInfo', label: 'Studio', isNeeded: true, isInfo: true},
         {key: 'pictureUri', label: 'Picture', isLink: true},
-        {key: 'classIds', label: 'Classes', isList: true}
+        {key: 'classesInfo', label: 'Classes', isList: true, isInfo: true}
       ];
     case 'class':
       return [
         {key: 'id', label: 'ID'},
         {key: 'name', label: 'Class Type', isNeeded: true},
         {key: 'time', label: 'Time', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studioId', label: 'Studio', isNeeded: true, isId: true},
-        {key: 'trainerId', label: 'Trainer', isNeeded: true},
-        {key: 'clientIds', label: 'Clients', isList: true}
+        {key: 'studioInfo', label: 'Studio', isNeeded: true, isId: true, isInfo: true},
+        {key: 'trainerInfo', label: 'Trainer', isNeeded: true, isInfo: true},
+        {key: 'clientsInfo', label: 'Clients', isList: true, isInfo: true}
       ];
     case 'studio':
       return [
         {key: 'id', label: 'ID'},
         {key: 'address', label: 'Address', isNeeded: true},
-        {key: 'classIds', label: 'Classes', isList: true},
-        {key: 'trainerIds', label: 'Trainers', isList: true}
+        {key: 'classesInfo', label: 'Classes', isList: true, isInfo: true},
+        {key: 'trainersInfo', label: 'Trainers', isList: true, isInfo: true}
       ];
     default:
       return [];
@@ -340,7 +348,7 @@ function getFilterConfig(type: string) {
         {key: 'created_at_interval_end', label: 'Created at end', isDate: true, isTime: true},
         {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
         {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
-        {key: 'class_id_substrings', label: 'Classes', isList: true}
+        {key: 'class_name_substrings', label: 'Classes', isList: true}
       ];
     case 'trainer':
       return [
@@ -353,8 +361,8 @@ function getFilterConfig(type: string) {
         {key: 'created_at_interval_end', label: 'Created at end', isDate: true, isTime: true},
         {key: 'updated_at_interval_begin', label: 'Updated at begin', isDate: true, isTime: true},
         {key: 'updated_at_interval_end', label: 'Updated at end', isDate: true, isTime: true},
-        {key: 'class_id_substrings', label: 'Classes', isList: true},
-        {key: 'studio_id_substrings', label: 'Studio'}
+        {key: 'class_name_substrings', label: 'Classes', isList: true},
+        {key: 'studio_address_substrings', label: 'Studio'}
       ];
     case 'class':
       return [
@@ -362,16 +370,16 @@ function getFilterConfig(type: string) {
         {key: 'name_substring', label: 'Name'},
         {key: 'time_interval_begin', label: 'Time begin', isDate: true, isTime: true, isNeeded: true},
         {key: 'time_interval_end', label: 'Time end', isDate: true, isTime: true, isNeeded: true},
-        {key: 'studio_id_substrings', label: 'Studio ID', isNeeded: true},
-        {key: 'trainer_id_substrings', label: 'Trainer ID', isNeeded: true},
-        {key: 'client_id_substrings', label: 'Clients', isList: true}
+        {key: 'studio_address_substrings', label: 'Studio Address', isNeeded: true},
+        {key: 'trainer_name_substrings', label: 'Trainer', isNeeded: true},
+        {key: 'client_name_substrings', label: 'Clients', isList: true}
       ];
     case 'studio':
       return [
         {key: 'id_substring', label: 'ID'},
         {key: 'address_substring', label: 'Address', isNeeded: true},
-        {key: 'class_id_substrings', label: 'Classes', isList: true},
-        {key: 'trainer_id_substrings', label: 'Trainers', isList: true}
+        {key: 'class_name_substrings', label: 'Classes', isList: true},
+        {key: 'trainer_name_substrings', label: 'Trainers', isList: true}
       ];
     default:
       return [];
@@ -444,8 +452,7 @@ const applyFilters = async () => {
               .split(' ')
               .map(v => encodeURIComponent(v))
               .join(',')}`;
-        }
-        else {
+        } else {
           return `${key}=${encodeURIComponent(value)}`;
         }
       })

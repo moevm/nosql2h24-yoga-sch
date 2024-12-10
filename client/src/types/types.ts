@@ -9,14 +9,14 @@ export interface Client {
     updatedAt: string,
     password: string,
     pictureUri: string,
-    classIds: string[]
+    classesInfo: any
 }
 
 export interface Trainer {
     id: string,
     name: string,
     phone: string,
-    studioId: string,
+    studioInfo: any,
     gender: string,
     birthDate: string,
     createdAt: string,
@@ -28,15 +28,15 @@ export interface Trainer {
 export interface Studio {
     id: string,
     address: string,
-    classes: string[]
-    trainers: string[]
+    classesInfo: any,
+    trainersInfo: any
 }
 
 export interface Class {
     id: string,
     name: string,
     time: string,
-    studioId: string,
-    trainerId: string,
-    clients: string[]
+    studioInfo: any,
+    trainerInfo: any,
+    clientsInfo: any
 }
