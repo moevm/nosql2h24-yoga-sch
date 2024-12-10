@@ -11,6 +11,11 @@ enum Gender {
   MALE = 2;
 }
 
+message NameIDPair {
+  string id = 1;
+  string name = 2;
+}
+
 message Person {
   string id = 1;
   string phone = 2;
@@ -21,7 +26,7 @@ message Person {
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 
-  repeated string class_ids = 9;
+  repeated NameIDPair classes_info = 9;
 }
 
 message Client {
@@ -34,7 +39,7 @@ message Client {
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 
-  repeated string class_ids = 9;
+  repeated NameIDPair classes_info = 9;
 
   string password = 10;
 }
@@ -49,9 +54,8 @@ message Trainer {
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 
-  repeated string class_ids = 9;
-
-  string studio_id = 10;
+  repeated NameIDPair classes_info = 9;
+  NameIDPair studio_info = 10;
 }
 
 message Studio {
@@ -60,8 +64,8 @@ message Studio {
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
 
-  repeated string class_ids = 5;
-  repeated string trainer_ids = 6;
+  repeated NameIDPair classes_info = 5;
+  repeated NameIDPair trainers_info = 6;
 }
 
 message Class {
@@ -71,7 +75,7 @@ message Class {
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
 
-  string studio_id = 6;
-  string trainer_id = 7;
-  repeated string client_ids = 8;
+  NameIDPair studio_info = 6;
+  NameIDPair trainer_info = 7;
+  repeated NameIDPair clients_info = 8;
 }

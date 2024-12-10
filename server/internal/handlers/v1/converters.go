@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -57,10 +58,80 @@ func convertDbGender(gender db.Gender) gen.Gender {
 	}
 }
 
-func convertDbPerson(p db.Person) *gen.Person {
-	var classIDs []string
-	for _, id := range p.ClassIDs {
-		classIDs = append(classIDs, id.Hex())
+func collectClassesInfo(
+	ctx context.Context, ids []bson.ObjectID, repo db.Repository,
+) ([]*gen.NameIDPair, error) {
+	var classesInfo []*gen.NameIDPair
+	for _, id := range ids {
+		class, err := repo.GetClass(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		classesInfo = append(classesInfo, &gen.NameIDPair{
+			Name: class.Name,
+			Id:   id.Hex(),
+		})
+	}
+	return classesInfo, nil
+}
+
+func collectStudiosInfo(
+	ctx context.Context, ids []bson.ObjectID, repo db.Repository,
+) ([]*gen.NameIDPair, error) {
+	var studiosInfo []*gen.NameIDPair
+	for _, id := range ids {
+		studio, err := repo.GetStudio(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		studiosInfo = append(studiosInfo, &gen.NameIDPair{
+			Name: studio.Address,
+			Id:   id.Hex(),
+		})
+	}
+	return studiosInfo, nil
+}
+
+func collectTrainersInfo(
+	ctx context.Context, ids []bson.ObjectID, repo db.Repository,
+) ([]*gen.NameIDPair, error) {
+	var trainersInfo []*gen.NameIDPair
+	for _, id := range ids {
+		trainer, err := repo.GetTrainer(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		trainersInfo = append(trainersInfo, &gen.NameIDPair{
+			Name: trainer.Name,
+			Id:   id.Hex(),
+		})
+	}
+	return trainersInfo, nil
+}
+
+func collectClientsInfo(
+	ctx context.Context, ids []bson.ObjectID, repo db.Repository,
+) ([]*gen.NameIDPair, error) {
+	var clientsInfo []*gen.NameIDPair
+	for _, id := range ids {
+		client, err := repo.GetClient(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		clientsInfo = append(clientsInfo, &gen.NameIDPair{
+			Name: client.Name,
+			Id:   id.Hex(),
+		})
+	}
+	return clientsInfo, nil
+}
+
+func convertDbPerson(
+	ctx context.Context, p db.Person, repo db.Repository,
+) (*gen.Person, error) {
+	classesInfo, err := collectClassesInfo(ctx, p.ClassIDs, repo)
+	if err != nil {
+		return nil, err
 	}
 
 	return &gen.Person{
@@ -73,21 +144,34 @@ func convertDbPerson(p db.Person) *gen.Person {
 		CreatedAt:  timestamppb.New(p.CreatedAt),
 		UpdatedAt:  timestamppb.New(p.UpdatedAt),
 
-		ClassIds: classIDs,
-	}
+		ClassesInfo: classesInfo,
+	}, nil
 }
 
-func convertDbPersons(ps []db.Person) (res []*gen.Person) {
+func convertDbPersons(
+	ctx context.Context, ps []db.Person, repo db.Repository,
+) (res []*gen.Person, err error) {
 	for _, p := range ps {
-		res = append(res, convertDbPerson(p))
+		r, err := convertDbPerson(ctx, p, repo)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
 	}
-	return res
+	return res, nil
 }
 
-func convertDbTrainer(t db.Trainer) *gen.Trainer {
-	var classIDs []string
-	for _, id := range t.ClassIDs {
-		classIDs = append(classIDs, id.Hex())
+func convertDbTrainer(
+	ctx context.Context, t db.Trainer, repo db.Repository,
+) (*gen.Trainer, error) {
+	classesInfo, err := collectClassesInfo(ctx, t.ClassIDs, repo)
+	if err != nil {
+		return nil, err
+	}
+
+	studio, err := repo.GetStudio(ctx, t.StudioID)
+	if err != nil {
+		return nil, err
 	}
 
 	return &gen.Trainer{
@@ -100,28 +184,38 @@ func convertDbTrainer(t db.Trainer) *gen.Trainer {
 		CreatedAt:  timestamppb.New(t.CreatedAt),
 		UpdatedAt:  timestamppb.New(t.UpdatedAt),
 
-		ClassIds: classIDs,
-
-		StudioId: t.StudioID.Hex(),
-	}
+		ClassesInfo: classesInfo,
+		StudioInfo: &gen.NameIDPair{
+			Name: studio.Address,
+			Id:   t.StudioID.Hex(),
+		},
+	}, nil
 }
 
-func convertDbTrainers(ts []db.Trainer) (res []*gen.Trainer) {
+func convertDbTrainers(
+	ctx context.Context, ts []db.Trainer, repo db.Repository,
+) (res []*gen.Trainer, err error) {
 	for _, t := range ts {
-		res = append(res, convertDbTrainer(t))
+		r, err := convertDbTrainer(ctx, t, repo)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
 	}
-	return res
+	return res, nil
 }
 
-func convertDbStudio(s db.Studio) *gen.Studio {
-	var classIDs []string
-	for _, id := range s.ClassIDs {
-		classIDs = append(classIDs, id.Hex())
+func convertDbStudio(
+	ctx context.Context, s db.Studio, repo db.Repository,
+) (*gen.Studio, error) {
+	classesInfo, err := collectClassesInfo(ctx, s.ClassIDs, repo)
+	if err != nil {
+		return nil, err
 	}
 
-	var trainerIDs []string
-	for _, id := range s.TrainerIDs {
-		trainerIDs = append(trainerIDs, id.Hex())
+	trainersInfo, err := collectTrainersInfo(ctx, s.TrainerIDs, repo)
+	if err != nil {
+		return nil, err
 	}
 
 	return &gen.Studio{
@@ -130,22 +224,40 @@ func convertDbStudio(s db.Studio) *gen.Studio {
 		CreatedAt: timestamppb.New(s.CreatedAt),
 		UpdatedAt: timestamppb.New(s.UpdatedAt),
 
-		ClassIds:   classIDs,
-		TrainerIds: trainerIDs,
-	}
+		ClassesInfo:  classesInfo,
+		TrainersInfo: trainersInfo,
+	}, nil
 }
 
-func convertDbStudios(ss []db.Studio) (res []*gen.Studio) {
+func convertDbStudios(
+	ctx context.Context, ss []db.Studio, repo db.Repository,
+) (res []*gen.Studio, err error) {
 	for _, s := range ss {
-		res = append(res, convertDbStudio(s))
+		r, err := convertDbStudio(ctx, s, repo)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
 	}
-	return res
+	return res, nil
 }
 
-func convertDbClass(c db.Class) *gen.Class {
-	var clientIDs []string
-	for _, id := range c.ClientIDs {
-		clientIDs = append(clientIDs, id.Hex())
+func convertDbClass(
+	ctx context.Context, c db.Class, repo db.Repository,
+) (*gen.Class, error) {
+	clientsInfo, err := collectClientsInfo(ctx, c.ClientIDs, repo)
+	if err != nil {
+		return nil, err
+	}
+
+	studio, err := repo.GetStudio(ctx, c.StudioID)
+	if err != nil {
+		return nil, err
+	}
+
+	trainer, err := repo.GetTrainer(ctx, c.TrainerID)
+	if err != nil {
+		return nil, err
 	}
 
 	return &gen.Class{
@@ -155,15 +267,27 @@ func convertDbClass(c db.Class) *gen.Class {
 		CreatedAt: timestamppb.New(c.CreatedAt),
 		UpdatedAt: timestamppb.New(c.UpdatedAt),
 
-		StudioId:  c.StudioID.Hex(),
-		TrainerId: c.TrainerID.Hex(),
-		ClientIds: clientIDs,
-	}
+		StudioInfo: &gen.NameIDPair{
+			Name: studio.Address,
+			Id:   c.StudioID.Hex(),
+		},
+		TrainerInfo: &gen.NameIDPair{
+			Name: trainer.Name,
+			Id:   c.TrainerID.Hex(),
+		},
+		ClientsInfo: clientsInfo,
+	}, nil
 }
 
-func convertDbClasses(cs []db.Class) (res []*gen.Class) {
+func convertDbClasses(
+	ctx context.Context, cs []db.Class, repo db.Repository,
+) (res []*gen.Class, err error) {
 	for _, c := range cs {
-		res = append(res, convertDbClass(c))
+		r, err := convertDbClass(ctx, c, repo)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
 	}
-	return res
+	return res, nil
 }

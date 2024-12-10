@@ -15,7 +15,7 @@ import (
 
 func Run(httpPort, grpcPort int, jwtSecret, adminToken string) {
 	dbC := db.New()
-	db.ImportDB(context.Background(), dbC)
+	//db.ImportDB(context.Background(), dbC)
 
 	l, grpcS := newGRPC(grpcPort, jwtSecret, adminToken, dbC)
 	httpS := newHTTP(httpPort, grpcPort)

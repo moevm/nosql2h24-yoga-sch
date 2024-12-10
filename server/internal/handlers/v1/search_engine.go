@@ -16,16 +16,6 @@ type SearchEngine struct {
 	Repo db.Repository
 }
 
-func filterEmptyStrings(arr []string) []string {
-	var result []string
-	for _, str := range arr {
-		if str != "" {
-			result = append(result, str)
-		}
-	}
-	return result
-}
-
 func (e *SearchEngine) SearchClients(
 	ctx context.Context, req *gen.ClientsFilter,
 ) (*gen.SearchClientsResponse, error) {
@@ -51,13 +41,17 @@ func (e *SearchEngine) SearchClients(
 		Genders:             genders,
 		CreatedAtInterval:   createdAtInterval,
 		UpdatedAtInterval:   updatedAtInterval,
-		ClassIDSubstrings:   filterEmptyStrings(req.ClassIdSubstrings),
+		ClassNameSubstrings: req.ClassNameSubstrings,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching clients error: %w", err)
 	}
 
-	return &gen.SearchClientsResponse{Clients: convertDbPersons(persons)}, nil
+	result, err := convertDbPersons(ctx, persons, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db persons error: %w", err)
+	}
+	return &gen.SearchClientsResponse{Clients: result}, nil
 }
 
 func (e *SearchEngine) SearchTrainers(
@@ -77,22 +71,26 @@ func (e *SearchEngine) SearchTrainers(
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
 	trainers, err := e.Repo.SearchTrainers(ctx, db.TrainersFilter{
-		IDSubstring:         req.IdSubstring,
-		NameSubstring:       req.NameSubstring,
-		PhoneSubstring:      req.PhoneSubstring,
-		PictureURISubstring: req.PictureUriSubstring,
-		BirthDateInterval:   birthDateInterval,
-		Genders:             genders,
-		CreatedAtInterval:   createdAtInterval,
-		UpdatedAtInterval:   updatedAtInterval,
-		ClassIDSubstrings:   filterEmptyStrings(req.ClassIdSubstrings),
-		StudioIDSubstrings:  filterEmptyStrings(req.StudioIdSubstrings),
+		IDSubstring:             req.IdSubstring,
+		NameSubstring:           req.NameSubstring,
+		PhoneSubstring:          req.PhoneSubstring,
+		PictureURISubstring:     req.PictureUriSubstring,
+		BirthDateInterval:       birthDateInterval,
+		Genders:                 genders,
+		CreatedAtInterval:       createdAtInterval,
+		UpdatedAtInterval:       updatedAtInterval,
+		ClassNameSubstrings:     req.ClassNameSubstrings,
+		StudioAddressSubstrings: req.StudioAddressSubstrings,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching trainers error: %w", err)
 	}
 
-	return &gen.SearchTrainersResponse{Trainers: convertDbTrainers(trainers)}, nil
+	result, err := convertDbTrainers(ctx, trainers, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db trainers error: %w", err)
+	}
+	return &gen.SearchTrainersResponse{Trainers: result}, nil
 }
 
 func (e *SearchEngine) SearchStudios(
@@ -106,18 +104,22 @@ func (e *SearchEngine) SearchStudios(
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
 	studios, err := e.Repo.SearchStudios(ctx, db.StudiosFilter{
-		IDSubstring:         req.IdSubstring,
-		AddressSubstring:    req.AddressSubstring,
-		CreatedAtInterval:   createdAtInterval,
-		UpdatedAtInterval:   updatedAtInterval,
-		ClassIDSubstrings:   filterEmptyStrings(req.ClassIdSubstrings),
-		TrainerIDSubstrings: filterEmptyStrings(req.TrainerIdSubstrings),
+		IDSubstring:           req.IdSubstring,
+		AddressSubstring:      req.AddressSubstring,
+		CreatedAtInterval:     createdAtInterval,
+		UpdatedAtInterval:     updatedAtInterval,
+		ClassNameSubstrings:   req.ClassNameSubstrings,
+		TrainerNameSubstrings: req.TrainerNameSubstrings,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching studios error: %w", err)
 	}
 
-	return &gen.SearchStudiosResponse{Studios: convertDbStudios(studios)}, nil
+	result, err := convertDbStudios(ctx, studios, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db studios error: %w", err)
+	}
+	return &gen.SearchStudiosResponse{Studios: result}, nil
 }
 
 func (e *SearchEngine) SearchClasses(
@@ -132,18 +134,22 @@ func (e *SearchEngine) SearchClasses(
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
 	classes, err := e.Repo.SearchClasses(ctx, db.ClassesFilter{
-		IDSubstring:         req.IdSubstring,
-		NameSubstring:       req.NameSubstring,
-		TimeInterval:        timeInterval,
-		CreatedAtInterval:   createdAtInterval,
-		UpdatedAtInterval:   updatedAtInterval,
-		StudioIDSubstrings:  filterEmptyStrings(req.StudioIdSubstrings),
-		TrainerIDSubstrings: filterEmptyStrings(req.TrainerIdSubstrings),
-		ClientIDSubstrings:  filterEmptyStrings(req.ClientIdSubstrings),
+		IDSubstring:             req.IdSubstring,
+		NameSubstring:           req.NameSubstring,
+		TimeInterval:            timeInterval,
+		CreatedAtInterval:       createdAtInterval,
+		UpdatedAtInterval:       updatedAtInterval,
+		StudioAddressSubstrings: req.StudioAddressSubstrings,
+		TrainerNameSubstrings:   req.TrainerNameSubstrings,
+		ClientNameSubstrings:    req.ClientNameSubstrings,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching classes error: %w", err)
 	}
 
-	return &gen.SearchClassesResponse{Classes: convertDbClasses(classes)}, nil
+	result, err := convertDbClasses(ctx, classes, e.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db classes error: %w", err)
+	}
+	return &gen.SearchClassesResponse{Classes: result}, nil
 }

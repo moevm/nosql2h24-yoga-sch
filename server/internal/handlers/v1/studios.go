@@ -40,12 +40,11 @@ func (s *FitnessAggregator) GetStudios(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var studiosResp []*gen.Studio
-	for _, s := range studios {
-		studiosResp = append(studiosResp, convertDbStudio(s))
+	result, err := convertDbStudios(ctx, studios, s.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error converting db studios: %v", err)
 	}
-
-	return &gen.GetStudiosResponse{Studios: studiosResp}, nil
+	return &gen.GetStudiosResponse{Studios: result}, nil
 }
 
 func (s *FitnessAggregator) GetStudio(
@@ -68,7 +67,11 @@ func (s *FitnessAggregator) GetStudio(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &gen.GetStudioResponse{Studio: convertDbStudio(studio)}, nil
+	result, err := convertDbStudio(ctx, studio, s.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error converting db studio: %v", err)
+	}
+	return &gen.GetStudioResponse{Studio: result}, nil
 }
 
 func (s *FitnessAggregator) DeleteStudio(

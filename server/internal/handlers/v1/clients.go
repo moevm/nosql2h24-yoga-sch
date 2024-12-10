@@ -54,7 +54,11 @@ func (s *FitnessAggregator) GetClients(
 
 	var persons []*gen.Person
 	for _, c := range clients {
-		persons = append(persons, convertDbPerson(c.Person))
+		p, err := convertDbPerson(ctx, c.Person, s.Repo)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "converting db persons error: %v", err)
+		}
+		persons = append(persons, p)
 	}
 
 	return &gen.GetClientsResponse{Clients: persons}, nil
@@ -84,7 +88,11 @@ func (s *FitnessAggregator) GetClient(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &gen.GetClientResponse{Client: convertDbPerson(client.Person)}, nil
+	result, err := convertDbPerson(ctx, client.Person, s.Repo)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "converting db person error: %v", err)
+	}
+	return &gen.GetClientResponse{Client: result}, nil
 }
 
 func (s *FitnessAggregator) DeleteClient(
