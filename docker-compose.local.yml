@@ -31,7 +31,6 @@ services:
     container_name: mongodb
     image: mongo:8.0
     restart: always
-    command: --config /etc/mongo/mongod.conf
     volumes:
       - db-data:/data/db
     networks:
