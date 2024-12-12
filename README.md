@@ -17,6 +17,11 @@
 
 <a href=" ./../../../actions/workflows/7_app_is_ready.yml" >![7. App is ready]( ./../../actions/workflows/7_app_is_ready.yml/badge.svg)</a>
 
+## Запуск приложения (локально)
+
+Развернуть docker с указанием файла docker-compose.local.yml
+
 ## Данные пользователя для входа
+
 Phone number: +7(999)999-9999
 Password: 1
