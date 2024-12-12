@@ -29,6 +29,19 @@ message Person {
   repeated NameIDPair classes_info = 9;
 }
 
+message PersonRef {
+  string id = 1;
+  string phone = 2;
+  string name = 3;
+  string picture_uri = 4;
+  google.protobuf.Timestamp birth_date = 5;
+  Gender gender = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+
+  repeated string class_ids = 9;
+}
+
 message Client {
   string id = 1;
   string phone = 2;
@@ -40,6 +53,21 @@ message Client {
   google.protobuf.Timestamp updated_at = 8;
 
   repeated NameIDPair classes_info = 9;
+
+  string password = 10;
+}
+
+message ClientRef {
+  string id = 1;
+  string phone = 2;
+  string name = 3;
+  string picture_uri = 4;
+  google.protobuf.Timestamp birth_date = 5;
+  Gender gender = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+
+  repeated string class_ids = 9;
 
   string password = 10;
 }
@@ -58,6 +86,20 @@ message Trainer {
   NameIDPair studio_info = 10;
 }
 
+message TrainerRef {
+  string id = 1;
+  string phone = 2;
+  string name = 3;
+  string picture_uri = 4;
+  google.protobuf.Timestamp birth_date = 5;
+  Gender gender = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+
+  repeated string class_ids = 9;
+  string studio_id = 10;
+}
+
 message Studio {
   string id = 1;
   string address = 2;
@@ -66,6 +108,16 @@ message Studio {
 
   repeated NameIDPair classes_info = 5;
   repeated NameIDPair trainers_info = 6;
+}
+
+message StudioRef {
+  string id = 1;
+  string address = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+
+  repeated string class_ids = 5;
+  repeated string trainer_ids = 6;
 }
 
 message Class {
@@ -78,4 +130,16 @@ message Class {
   NameIDPair studio_info = 6;
   NameIDPair trainer_info = 7;
   repeated NameIDPair clients_info = 8;
+}
+
+message ClassRef {
+  string id = 1;
+  string name = 2;
+  google.protobuf.Timestamp time = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+
+  string studio_id = 6;
+  string trainer_id = 7;
+  repeated string client_ids = 8;
 }
