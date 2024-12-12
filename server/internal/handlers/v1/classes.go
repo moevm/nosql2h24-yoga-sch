@@ -20,12 +20,12 @@ func (s *FitnessAggregator) CreateClass(
 		return nil, status.Error(codes.InvalidArgument, "no request provided")
 	}
 
-	trainerID, err := bson.ObjectIDFromHex(req.Class.TrainerInfo.Id)
+	trainerID, err := bson.ObjectIDFromHex(req.Class.TrainerId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	studioID, err := bson.ObjectIDFromHex(req.Class.StudioInfo.Id)
+	studioID, err := bson.ObjectIDFromHex(req.Class.StudioId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -40,7 +40,7 @@ func (s *FitnessAggregator) CreateClass(
 	})
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
-			return nil, status.Errorf(codes.InvalidArgument, "trainer or studio with id %s not found", req.Class.TrainerInfo.Id)
+			return nil, status.Errorf(codes.InvalidArgument, "trainer or studio with id %s not found", req.Class.TrainerId)
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}

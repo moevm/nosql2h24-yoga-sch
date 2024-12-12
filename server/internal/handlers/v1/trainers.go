@@ -24,7 +24,7 @@ func (s *FitnessAggregator) CreateTrainer(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	studioID, err := bson.ObjectIDFromHex(req.Trainer.StudioInfo.Id)
+	studioID, err := bson.ObjectIDFromHex(req.Trainer.StudioId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -43,7 +43,7 @@ func (s *FitnessAggregator) CreateTrainer(
 	})
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
-			return nil, status.Errorf(codes.InvalidArgument, "studio with id %s not found", req.Trainer.StudioInfo.Id)
+			return nil, status.Errorf(codes.InvalidArgument, "studio with id %s not found", req.Trainer.StudioId)
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}

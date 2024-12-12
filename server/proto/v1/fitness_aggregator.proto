@@ -340,7 +340,7 @@ service FitnessAggregator {
 }
 
 message CreateClientRequest {
-  Client client = 1;
+  ClientRef client = 1;
 }
 
 message CreateClientResponse {
@@ -368,7 +368,7 @@ message DeleteClientRequest {
 message DeleteClientResponse {}
 
 message CreateTrainerRequest {
-  Trainer trainer = 1;
+  TrainerRef trainer = 1;
 }
 
 message CreateTrainerResponse {
@@ -396,7 +396,7 @@ message DeleteTrainerRequest {
 message DeleteTrainerResponse {}
 
 message CreateStudioRequest {
-  Studio studio = 1;
+  StudioRef studio = 1;
 }
 
 message CreateStudioResponse {
@@ -424,7 +424,7 @@ message DeleteStudioRequest {
 message DeleteStudioResponse {}
 
 message CreateClassRequest {
-  Class class = 1;
+  ClassRef class = 1;
 }
 
 message CreateClassResponse {
