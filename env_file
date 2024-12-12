@@ -1,2 +1,0 @@
-CI_REGISTRY_IMAGE=gitlab.com/purposeless-lab/monorepo/fitness-aggregator
-IMAGE_TAG=latest
