@@ -4,6 +4,8 @@ import DataView from '@/views/DataView.vue';
 import EntityList from "@/components/EntityList.vue";
 import Auth from "@/components/Auth.vue";
 import AdminPage from "@/components/AdminPage.vue";
+import Home from "@/components/Home.vue";
+import EntityCard from "@/components/EntityCard.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -23,6 +25,21 @@ const routes: Array<RouteRecordRaw> = [
         name: 'DataView',
         component: DataView,
         meta: { title: 'Data View - Admin - Youga Places' },
+    },
+    {
+        path: '/:entityType/:id',
+        name: 'EntityCard',
+        component: EntityCard,
+        props: true,
+        meta: {
+            title: (route: any) => `${route.params.entityType} - Admin - Youga Places`,
+        },
+    },
+    {
+        path: '/home',
+        name: 'Home',
+        component: Home,
+        meta: { title: 'Home - Youga Places' },
     },
     {
         path: '/admin/data/:entityType',

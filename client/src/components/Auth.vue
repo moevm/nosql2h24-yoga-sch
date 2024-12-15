@@ -153,12 +153,14 @@ async function loginUser() {
       throw new Error('Login failed. Please check your credentials.');
     }
 
-    const result = await response.json();
-    console.log('Login response:', result);
-
-
-    document.cookie = `Authorization=admin; path=/; max-age=86400;`;
-    await router.push('/admin');
+    if (formData.value.phone === '+7(999)999-9999') {
+      document.cookie = `Authorization=admin; path=/; max-age=86400;`;
+      await router.push('/admin');
+    }
+    else {
+      document.cookie = `Authorization=user; path=/; max-age=86400;`;
+      await router.push('/home');
+    }
   } catch (error) {
     alert('Login failed. Please try again.');
   }
@@ -342,5 +344,9 @@ form {
   font-size: 16px;
   color: #6a5862;
   pointer-events: none;
+}
+
+h1 {
+  text-align:center;
 }
 </style>
