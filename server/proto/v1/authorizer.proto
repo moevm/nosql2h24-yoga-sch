@@ -54,4 +54,5 @@ message AuthRequest {
 
 message AuthResponse {
   string token = 1;
+  string id = 2;
 }
