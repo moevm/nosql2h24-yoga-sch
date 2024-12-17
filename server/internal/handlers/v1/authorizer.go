@@ -158,7 +158,7 @@ func (a *Authorizer) Auth(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &gen.AuthResponse{Token: tokenString}, nil
+	return &gen.AuthResponse{Token: tokenString, Id: id.Hex()}, nil
 }
 
 func (a *Authorizer) IsAdmin(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
