@@ -158,7 +158,8 @@ async function loginUser() {
       await router.push('/admin');
     }
     else {
-      document.cookie = `Authorization=user; path=/; max-age=86400;`;
+      const data = await response.json();
+      document.cookie = `Authorization=${data.id}; path=/; max-age=86400;`;
       await router.push('/home');
     }
   } catch (error) {

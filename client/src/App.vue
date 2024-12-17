@@ -48,8 +48,9 @@ function getCookie(name: string): string | null {
 }
 
 function checkAuthorization() {
-  isAdminLoggedIn.value = getCookie('Authorization') === 'admin';
-  isUserLoggedIn.value = getCookie('Authorization') === 'user';
+  const cookie = getCookie('Authorization');
+  isAdminLoggedIn.value = cookie === 'admin';
+  isUserLoggedIn.value = cookie !== null && cookie.length > 20;
 }
 
 let intervalId: number | null = null;
