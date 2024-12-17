@@ -159,7 +159,8 @@ async function loginUser() {
     }
     else {
       const data = await response.json();
-      document.cookie = `Authorization=${data.id}; path=/; max-age=86400;`;
+      document.cookie = `Authorization=${data.token}; path=/; max-age=86400;`;
+      document.cookie = `User=${data.id}; path=/; max-age=86400;`;
       await router.push('/home');
     }
   } catch (error) {
