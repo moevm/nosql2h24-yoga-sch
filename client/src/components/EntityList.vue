@@ -66,8 +66,13 @@
       <tbody>
       <tr v-for="item in items" :key="item['id']">
         <template v-for="column in getColumnConfig(entityType)" :key="column.key">
-          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword && !column.isInfo">
+          <td v-if="!column.isLink && !column.isList && !column.isDate && !column.isPassword && !column.isInfo && column.key !== 'id'">
             {{ item[column.key as keyof Entity] }}
+          </td>
+          <td v-else-if="column.key === 'id'">
+            <a :href="`/${entityType}/${item[column.key as keyof Entity]}`">
+              {{ item[column.key as keyof Entity] }}
+            </a>
           </td>
           <td v-else-if="column.isLink">
             <a v-if="item[column.key as keyof Entity]" :href="item[column.key as keyof Entity]" target="_blank">

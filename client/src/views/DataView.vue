@@ -73,10 +73,16 @@ ul.entity-list {
   list-style-type: none;
   padding: 0;
   margin: 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 li.entity-item {
-  margin: 1rem 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .entity-link {
