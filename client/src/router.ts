@@ -6,6 +6,7 @@ import Auth from "@/components/Auth.vue";
 import AdminPage from "@/components/AdminPage.vue";
 import Home from "@/components/Home.vue";
 import EntityCard from "@/components/EntityCard.vue";
+import Profile from "@/components/Profile.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -48,6 +49,15 @@ const routes: Array<RouteRecordRaw> = [
         props: true,
         meta: {
             title: (route: any) => `${route.params.entityType} List - Admin - Youga Places`,
+        },
+    },
+    {
+        path: '/profile/:id',
+        name: 'Profile',
+        component: Profile,
+        props: true,
+        meta: {
+            title: (route: any) => `Profile - Youga Places`,
         },
     },
 ];

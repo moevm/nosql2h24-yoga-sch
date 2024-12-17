@@ -23,9 +23,9 @@
           </router-link>
         </div>
       </div>
-      <div class="nav-icons-right" v-if="isUserLoggedIn">
+      <div class="nav-icons-right" v-if="isUserLoggedIn && userId">
         <!-- Значок профиля -->
-        <router-link to="/profile" class="nav-link">
+        <router-link :to="`/profile/${userId}`" class="nav-link">
           <img src="https://img.icons8.com/?size=100&id=7823&format=png&color=ffffff" alt="Профиль" class="nav-icon" />
         </router-link>
       </div>
@@ -39,18 +39,24 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 
+// Состояния для авторизации и ID пользователя
 const isAdminLoggedIn = ref(false);
 const isUserLoggedIn = ref(false);
+const userId = ref<string | null>(null);
 
+// Функция для получения значения куки
 function getCookie(name: string): string | null {
   const matches = document.cookie.match(new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1')}=([^;]*)`));
   return matches ? decodeURIComponent(matches[1]) : null;
 }
 
+// Проверка авторизации
 function checkAuthorization() {
-  const cookie = getCookie('Authorization');
-  isAdminLoggedIn.value = cookie === 'admin';
+  const cookie = getCookie('User');
+  isAdminLoggedIn.value = getCookie('Authorization') === 'admin';
   isUserLoggedIn.value = cookie !== null && cookie.length > 20;
+
+  userId.value = isUserLoggedIn.value ? cookie : null;
 }
 
 let intervalId: number | null = null;
@@ -69,10 +75,13 @@ onUnmounted(() => {
   }
 });
 
+// Логаут
 function logout() {
   document.cookie = "Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+  document.cookie = "User=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
   isAdminLoggedIn.value = false;
   isUserLoggedIn.value = false;
+  userId.value = null;
 }
 </script>
 
