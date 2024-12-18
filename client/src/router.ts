@@ -7,6 +7,7 @@ import AdminPage from "@/components/AdminPage.vue";
 import Home from "@/components/Home.vue";
 import EntityCard from "@/components/EntityCard.vue";
 import Profile from "@/components/Profile.vue";
+import Appointment from "@/components/Appointment.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -41,6 +42,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'Home',
         component: Home,
         meta: { title: 'Home - Youga Places' },
+    },
+    {
+        path: '/appointment',
+        name: 'Appointment',
+        component: Appointment,
+        meta: { title: 'Appointment - Youga Places' },
     },
     {
         path: '/admin/data/:entityType',
