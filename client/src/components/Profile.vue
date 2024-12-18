@@ -25,7 +25,8 @@
             </div>
             <div class="class-center">
               <h3>{{ classInfo.name }}</h3>
-              <p v-if="classInfo.studioName">Studio: {{ classInfo.studioName }}</p> <!-- Информация о студии -->
+              <p v-if="classInfo.studioName">Студия: {{ classInfo.studioName }}</p>
+              <p v-if="classInfo.studioName">Тренер: {{ classInfo.trainer }}</p>
             </div>
           </div>
           <div v-if="client.classesInfo.length === 0">
@@ -34,7 +35,6 @@
         </div>
       </div>
 
-      <!-- Правая колонка: Информация о пользователе -->
       <div class="profile">
         <div class="profile-content">
           <img
@@ -43,16 +43,16 @@
               class="profile-picture"
           />
           <h1 class="profile-name">{{ client.name }}</h1>
-          <p class="profile-phone">Phone: {{ client.phone }}</p>
+          <p class="profile-phone">Телефон: {{ client.phone }}</p>
           <p class="profile-birthdate">
-            Birth Date: {{ new Date(client.birthDate).toLocaleDateString() }}
+            Дата рождения: {{ new Date(client.birthDate).toLocaleDateString() }}
           </p>
-          <p class="profile-gender">Gender: {{ client.gender }}</p>
+          <p class="profile-gender">Пол: {{ client.gender }}</p>
           <p class="profile-created-at">
-            Member since: {{ new Date(client.createdAt).toLocaleDateString() }}
+            Участник с: {{ new Date(client.createdAt).toLocaleDateString() }}
           </p>
           <p class="profile-updated-at">
-            Last updated: {{ new Date(client.updatedAt).toLocaleDateString() }}
+            Последнее обновление: {{ new Date(client.updatedAt).toLocaleDateString() }}
           </p>
         </div>
       </div>
@@ -77,6 +77,7 @@ interface ClassInfo {
   time: string;
   studioId: string;
   studioName?: string;
+  trainer: string;
 }
 
 interface Client {
@@ -126,6 +127,7 @@ const loadClient = async () => {
           time: classData.class.time,
           studioId: classData.class.studioId,
           studioName: classData.class.studioInfo.name,
+          trainer: classData.class.trainerInfo.name,
         });
       } else {
         console.error(`Failed to fetch class data for classId ${classId.id}`);

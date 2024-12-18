@@ -21,6 +21,9 @@
               </li>
             </ul>
           </span>
+          <span v-else-if="field.isInfo">
+            {{ item[field.key as keyof Entity].name }}
+          </span>
           <span v-else-if="field.isDate && field.isTime">
             {{ getDateTime(item[field.key as keyof Entity]) }}
           </span>

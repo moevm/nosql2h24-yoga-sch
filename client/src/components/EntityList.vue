@@ -504,6 +504,7 @@ const applyFilters = async () => {
 
 h2 {
   margin-top: 1rem;
+  text-align: center;
 }
 
 table {
