@@ -61,6 +61,10 @@ var endpointPermissionValidators = []struct {
 		onlyAdmin: false,
 	},
 	{
+		regex:     `\/fitness_aggregator\.v1\.SearchEngine\/*`,
+		onlyAdmin: false,
+	},
+	{
 		regex:     `\/fitness_aggregator\.v1\.FitnessAggregator\/CreateClient`,
 		onlyAdmin: false,
 	},
@@ -75,10 +79,6 @@ var endpointPermissionValidators = []struct {
 	{
 		regex:     `\/fitness_aggregator\.v1\.ExampleService\/*`,
 		onlyAdmin: false,
-	},
-	{
-		regex:     `\/fitness_aggregator\.v1\.SearchEngine\/*`,
-		onlyAdmin: true,
 	},
 	{
 		regex:     `\/fitness_aggregator\.v1\.FitnessAggregator\/*`,

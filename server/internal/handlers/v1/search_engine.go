@@ -32,7 +32,7 @@ func (e *SearchEngine) SearchClients(
 	createdAtInterval := convertGenTimeInterval(req.CreatedAtIntervalBegin, req.CreatedAtIntervalEnd)
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
-	persons, err := e.Repo.SearchClients(ctx, db.ClientsFilter{
+	persons, dbPageInfo, err := e.Repo.SearchClients(ctx, db.ClientsFilter{
 		IDSubstring:         req.IdSubstring,
 		NameSubstring:       req.NameSubstring,
 		PhoneSubstring:      req.PhoneSubstring,
@@ -42,6 +42,11 @@ func (e *SearchEngine) SearchClients(
 		CreatedAtInterval:   createdAtInterval,
 		UpdatedAtInterval:   updatedAtInterval,
 		ClassNameSubstrings: req.ClassNameSubstrings,
+		PageSettings: db.PageSettings{
+			Limit:   int(req.Limit),
+			FirstID: req.FirstId,
+			LastID:  req.LastId,
+		},
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching clients error: %w", err)
@@ -51,7 +56,17 @@ func (e *SearchEngine) SearchClients(
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "converting db persons error: %w", err)
 	}
-	return &gen.SearchClientsResponse{Clients: result}, nil
+
+	var pageInfo *gen.PageInfo
+	if dbPageInfo != (db.PageInfo{}) {
+		pageInfo = &gen.PageInfo{
+			FirstId: dbPageInfo.FirstID,
+			LastId:  dbPageInfo.LastID,
+			HasMore: dbPageInfo.HasMore,
+		}
+	}
+
+	return &gen.SearchClientsResponse{Clients: result, PageInfo: pageInfo}, nil
 }
 
 func (e *SearchEngine) SearchTrainers(
@@ -70,7 +85,7 @@ func (e *SearchEngine) SearchTrainers(
 	createdAtInterval := convertGenTimeInterval(req.CreatedAtIntervalBegin, req.CreatedAtIntervalEnd)
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
-	trainers, err := e.Repo.SearchTrainers(ctx, db.TrainersFilter{
+	trainers, dbPageInfo, err := e.Repo.SearchTrainers(ctx, db.TrainersFilter{
 		IDSubstring:             req.IdSubstring,
 		NameSubstring:           req.NameSubstring,
 		PhoneSubstring:          req.PhoneSubstring,
@@ -81,6 +96,11 @@ func (e *SearchEngine) SearchTrainers(
 		UpdatedAtInterval:       updatedAtInterval,
 		ClassNameSubstrings:     req.ClassNameSubstrings,
 		StudioAddressSubstrings: req.StudioAddressSubstrings,
+		PageSettings: db.PageSettings{
+			Limit:   int(req.Limit),
+			FirstID: req.FirstId,
+			LastID:  req.LastId,
+		},
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching trainers error: %w", err)
@@ -90,7 +110,17 @@ func (e *SearchEngine) SearchTrainers(
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "converting db trainers error: %w", err)
 	}
-	return &gen.SearchTrainersResponse{Trainers: result}, nil
+
+	var pageInfo *gen.PageInfo
+	if dbPageInfo != (db.PageInfo{}) {
+		pageInfo = &gen.PageInfo{
+			FirstId: dbPageInfo.FirstID,
+			LastId:  dbPageInfo.LastID,
+			HasMore: dbPageInfo.HasMore,
+		}
+	}
+
+	return &gen.SearchTrainersResponse{Trainers: result, PageInfo: pageInfo}, nil
 }
 
 func (e *SearchEngine) SearchStudios(
@@ -103,13 +133,18 @@ func (e *SearchEngine) SearchStudios(
 	createdAtInterval := convertGenTimeInterval(req.CreatedAtIntervalBegin, req.CreatedAtIntervalEnd)
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
-	studios, err := e.Repo.SearchStudios(ctx, db.StudiosFilter{
+	studios, dbPageInfo, err := e.Repo.SearchStudios(ctx, db.StudiosFilter{
 		IDSubstring:           req.IdSubstring,
 		AddressSubstring:      req.AddressSubstring,
 		CreatedAtInterval:     createdAtInterval,
 		UpdatedAtInterval:     updatedAtInterval,
 		ClassNameSubstrings:   req.ClassNameSubstrings,
 		TrainerNameSubstrings: req.TrainerNameSubstrings,
+		PageSettings: db.PageSettings{
+			Limit:   int(req.Limit),
+			FirstID: req.FirstId,
+			LastID:  req.LastId,
+		},
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching studios error: %w", err)
@@ -119,7 +154,17 @@ func (e *SearchEngine) SearchStudios(
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "converting db studios error: %w", err)
 	}
-	return &gen.SearchStudiosResponse{Studios: result}, nil
+
+	var pageInfo *gen.PageInfo
+	if dbPageInfo != (db.PageInfo{}) {
+		pageInfo = &gen.PageInfo{
+			FirstId: dbPageInfo.FirstID,
+			LastId:  dbPageInfo.LastID,
+			HasMore: dbPageInfo.HasMore,
+		}
+	}
+
+	return &gen.SearchStudiosResponse{Studios: result, PageInfo: pageInfo}, nil
 }
 
 func (e *SearchEngine) SearchClasses(
@@ -133,7 +178,7 @@ func (e *SearchEngine) SearchClasses(
 	createdAtInterval := convertGenTimeInterval(req.CreatedAtIntervalBegin, req.CreatedAtIntervalEnd)
 	updatedAtInterval := convertGenTimeInterval(req.UpdatedAtIntervalBegin, req.UpdatedAtIntervalEnd)
 
-	classes, err := e.Repo.SearchClasses(ctx, db.ClassesFilter{
+	classes, dbPageInfo, err := e.Repo.SearchClasses(ctx, db.ClassesFilter{
 		IDSubstring:             req.IdSubstring,
 		NameSubstring:           req.NameSubstring,
 		TimeInterval:            timeInterval,
@@ -143,6 +188,11 @@ func (e *SearchEngine) SearchClasses(
 		StudioAddressSubstrings: req.StudioAddressSubstrings,
 		TrainerNameSubstrings:   req.TrainerNameSubstrings,
 		ClientNameSubstrings:    req.ClientNameSubstrings,
+		PageSettings: db.PageSettings{
+			Limit:   int(req.Limit),
+			FirstID: req.FirstId,
+			LastID:  req.LastId,
+		},
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "searching classes error: %w", err)
@@ -152,5 +202,15 @@ func (e *SearchEngine) SearchClasses(
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "converting db classes error: %w", err)
 	}
-	return &gen.SearchClassesResponse{Classes: result}, nil
+
+	var pageInfo *gen.PageInfo
+	if dbPageInfo != (db.PageInfo{}) {
+		pageInfo = &gen.PageInfo{
+			FirstId: dbPageInfo.FirstID,
+			LastId:  dbPageInfo.LastID,
+			HasMore: dbPageInfo.HasMore,
+		}
+	}
+
+	return &gen.SearchClassesResponse{Classes: result, PageInfo: pageInfo}, nil
 }

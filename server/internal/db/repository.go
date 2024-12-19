@@ -15,10 +15,10 @@ type Repository interface {
 	ImportDB(ctx context.Context, data map[string][]bson.M) error
 	ExportDB(ctx context.Context) (map[string][]bson.M, error)
 
-	SearchClients(ctx context.Context, req ClientsFilter) (res []Person, err error)
-	SearchTrainers(ctx context.Context, req TrainersFilter) (res []Trainer, err error)
-	SearchStudios(ctx context.Context, req StudiosFilter) (res []Studio, err error)
-	SearchClasses(ctx context.Context, req ClassesFilter) (res []Class, err error)
+	SearchClients(ctx context.Context, req ClientsFilter) (res []Person, pageInfo PageInfo, err error)
+	SearchTrainers(ctx context.Context, req TrainersFilter) (res []Trainer, pageInfo PageInfo, err error)
+	SearchStudios(ctx context.Context, req StudiosFilter) (res []Studio, pageInfo PageInfo, err error)
+	SearchClasses(ctx context.Context, req ClassesFilter) (res []Class, pageInfo PageInfo, err error)
 
 	GetIDByCreds(ctx context.Context, phone, password string) (bson.ObjectID, error)
 

@@ -98,10 +98,15 @@ message ClientsFilter {
   google.protobuf.Timestamp updated_at_interval_end = 11;
 
   repeated string class_name_substrings = 12;
+
+  int32 limit = 13;
+  string first_id = 14;
+  string last_id = 15;
 }
 
 message SearchClientsResponse {
   repeated Person clients = 1;
+  PageInfo page_info = 2;
 }
 
 message TrainersFilter {
@@ -119,10 +124,15 @@ message TrainersFilter {
 
   repeated string class_name_substrings = 12;
   repeated string studio_address_substrings = 13;
+
+  int32 limit = 14;
+  string first_id = 15;
+  string last_id = 16;
 }
 
 message SearchTrainersResponse {
   repeated Trainer trainers = 1;
+  PageInfo page_info = 2;
 }
 
 message StudiosFilter {
@@ -135,10 +145,15 @@ message StudiosFilter {
 
   repeated string class_name_substrings = 7;
   repeated string trainer_name_substrings = 8;
+
+  int32 limit = 9;
+  string first_id = 10;
+  string last_id = 11;
 }
 
 message SearchStudiosResponse {
   repeated Studio studios = 1;
+  PageInfo page_info = 2;
 }
 
 message ClassesFilter {
@@ -155,8 +170,13 @@ message ClassesFilter {
   repeated string studio_address_substrings = 10;
   repeated string trainer_name_substrings = 11;
   repeated string client_name_substrings = 12;
+
+  int32 limit = 13;
+  string first_id = 14;
+  string last_id = 15;
 }
 
 message SearchClassesResponse {
   repeated Class classes = 1;
+  PageInfo page_info = 2;
 }

@@ -6,6 +6,19 @@ import (
 
 type SearchFilter bson.M
 
+func (f SearchFilter) AddPaginationSettings(firstID, lastID string) (sortOrder int) {
+	switch {
+	case lastID != "":
+		f["_id"] = bson.M{"$gt": objectIDFromHex(lastID)}
+		return 1
+	case firstID != "":
+		f["_id"] = bson.M{"$lt": objectIDFromHex(firstID)}
+		return -1
+	default:
+		return 0
+	}
+}
+
 func (f SearchFilter) AddRegex(name, value string) {
 	if value != "" {
 		f[name] = bson.M{"$regex": value, "$options": "i"}

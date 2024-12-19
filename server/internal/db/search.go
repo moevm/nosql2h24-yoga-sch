@@ -8,10 +8,24 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-type TimeInterval struct {
-	Begin *bson.DateTime
-	End   *bson.DateTime
-}
+type (
+	TimeInterval struct {
+		Begin *bson.DateTime
+		End   *bson.DateTime
+	}
+
+	PageSettings struct {
+		Limit   int
+		FirstID string
+		LastID  string
+	}
+
+	PageInfo struct {
+		FirstID string
+		LastID  string
+		HasMore bool
+	}
+)
 
 func SearchEntitiesByRegexName[T any](
 	ctx context.Context, col *mongo.Collection, field string, regexes []string,
@@ -61,22 +75,24 @@ type ClientsFilter struct {
 	UpdatedAtInterval   TimeInterval
 
 	ClassNameSubstrings []string
+
+	PageSettings PageSettings
 }
 
 func (r MongoRepository) SearchClients(
 	ctx context.Context, req ClientsFilter,
-) (res []Person, err error) {
+) (res []Person, pageInfo PageInfo, err error) {
 	col := r.DB().Collection(clients)
 
 	var classIDs []bson.ObjectID
 	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
 		ctx, r.DB().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredClasses == nil:
 		break
 	case len(filteredClasses) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredClasses {
 			classIDs = append(classIDs, e.ID)
@@ -100,6 +116,8 @@ func (r MongoRepository) SearchClients(
 	}
 
 	filter := SearchFilter{}
+	sortOrder := filter.AddPaginationSettings(
+		req.PageSettings.FirstID, req.PageSettings.LastID)
 	filter.AddRegex("phone", req.PhoneSubstring)
 	filter.AddRegex("name", req.NameSubstring)
 	filter.AddRegex("picture_uri", req.PictureURISubstring)
@@ -119,19 +137,44 @@ func (r MongoRepository) SearchClients(
 
 	pipeline = append(pipeline, bson.D{{"$match", filter}})
 
+	if sortOrder != 0 {
+		pipeline = append(pipeline, bson.D{{"$sort", bson.D{{"_id", sortOrder}}}})
+	}
+	if req.PageSettings.Limit > 0 {
+		pipeline = append(pipeline, bson.D{{"$limit", req.PageSettings.Limit + 1}})
+	}
+
 	cur, err := col.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 	defer func(cur *mongo.Cursor, ctx context.Context) {
 		err = cur.Close(ctx)
 	}(cur, ctx)
 
 	if err = cur.All(ctx, &res); err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 
-	return res, nil
+	if len(res) > 0 {
+		hasMore := false
+		if req.PageSettings.Limit > 0 && len(res) > req.PageSettings.Limit {
+			hasMore = true
+			res = res[:req.PageSettings.Limit]
+		}
+		if sortOrder == -1 {
+			for left, right := 0, len(res)-1; left < right; left, right = left+1, right-1 {
+				res[left], res[right] = res[right], res[left]
+			}
+		}
+		pageInfo = PageInfo{
+			FirstID: res[0].ID.Hex(),
+			LastID:  res[len(res)-1].ID.Hex(),
+			HasMore: hasMore,
+		}
+	}
+
+	return res, pageInfo, nil
 }
 
 type TrainersFilter struct {
@@ -146,22 +189,24 @@ type TrainersFilter struct {
 
 	ClassNameSubstrings     []string
 	StudioAddressSubstrings []string
+
+	PageSettings PageSettings
 }
 
 func (r MongoRepository) SearchTrainers(
 	ctx context.Context, req TrainersFilter,
-) (res []Trainer, err error) {
+) (res []Trainer, pageInfo PageInfo, err error) {
 	col := r.DB().Collection(trainers)
 
 	var classIDs []bson.ObjectID
 	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
 		ctx, r.DB().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredClasses == nil:
 		break
 	case len(filteredClasses) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredClasses {
 			classIDs = append(classIDs, e.ID)
@@ -172,11 +217,11 @@ func (r MongoRepository) SearchTrainers(
 	switch filteredStudios, err := SearchEntitiesByRegexName[Studio](
 		ctx, r.DB().Collection(studios), "address", req.StudioAddressSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredStudios == nil:
 		break
 	case len(filteredStudios) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredStudios {
 			studioIDs = append(studioIDs, e.ID)
@@ -200,6 +245,8 @@ func (r MongoRepository) SearchTrainers(
 	}
 
 	filter := SearchFilter{}
+	sortOrder := filter.AddPaginationSettings(
+		req.PageSettings.FirstID, req.PageSettings.LastID)
 	filter.AddRegex("phone", req.PhoneSubstring)
 	filter.AddRegex("name", req.NameSubstring)
 	filter.AddRegex("picture_uri", req.PictureURISubstring)
@@ -220,19 +267,44 @@ func (r MongoRepository) SearchTrainers(
 
 	pipeline = append(pipeline, bson.D{{"$match", filter}})
 
+	if sortOrder != 0 {
+		pipeline = append(pipeline, bson.D{{"$sort", bson.D{{"_id", sortOrder}}}})
+	}
+	if req.PageSettings.Limit > 0 {
+		pipeline = append(pipeline, bson.D{{"$limit", req.PageSettings.Limit + 1}})
+	}
+
 	cur, err := col.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 	defer func(cur *mongo.Cursor, ctx context.Context) {
 		err = cur.Close(ctx)
 	}(cur, ctx)
 
 	if err = cur.All(ctx, &res); err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 
-	return res, nil
+	if len(res) > 0 {
+		hasMore := false
+		if req.PageSettings.Limit > 0 && len(res) > req.PageSettings.Limit {
+			hasMore = true
+			res = res[:req.PageSettings.Limit]
+		}
+		if sortOrder == -1 {
+			for left, right := 0, len(res)-1; left < right; left, right = left+1, right-1 {
+				res[left], res[right] = res[right], res[left]
+			}
+		}
+		pageInfo = PageInfo{
+			FirstID: res[0].ID.Hex(),
+			LastID:  res[len(res)-1].ID.Hex(),
+			HasMore: hasMore,
+		}
+	}
+
+	return res, pageInfo, nil
 }
 
 type StudiosFilter struct {
@@ -243,22 +315,24 @@ type StudiosFilter struct {
 
 	ClassNameSubstrings   []string
 	TrainerNameSubstrings []string
+
+	PageSettings PageSettings
 }
 
 func (r MongoRepository) SearchStudios(
 	ctx context.Context, req StudiosFilter,
-) (res []Studio, err error) {
+) (res []Studio, pageInfo PageInfo, err error) {
 	col := r.DB().Collection(studios)
 
 	var classIDs []bson.ObjectID
 	switch filteredClasses, err := SearchEntitiesByRegexName[Class](
 		ctx, r.DB().Collection(classes), "name", req.ClassNameSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredClasses == nil:
 		break
 	case len(filteredClasses) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredClasses {
 			classIDs = append(classIDs, e.ID)
@@ -269,11 +343,11 @@ func (r MongoRepository) SearchStudios(
 	switch filteredTrainers, err := SearchEntitiesByRegexName[Trainer](
 		ctx, r.DB().Collection(trainers), "name", req.TrainerNameSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredTrainers == nil:
 		break
 	case len(filteredTrainers) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredTrainers {
 			trainerIDs = append(trainerIDs, e.ID)
@@ -297,6 +371,8 @@ func (r MongoRepository) SearchStudios(
 	}
 
 	filter := SearchFilter{}
+	sortOrder := filter.AddPaginationSettings(
+		req.PageSettings.FirstID, req.PageSettings.LastID)
 	filter.AddRegex("address", req.AddressSubstring)
 	filter.AddTimeInterval("created_at", req.CreatedAtInterval)
 	filter.AddTimeInterval("updated_at", req.UpdatedAtInterval)
@@ -305,19 +381,44 @@ func (r MongoRepository) SearchStudios(
 
 	pipeline = append(pipeline, bson.D{{"$match", filter}})
 
+	if sortOrder != 0 {
+		pipeline = append(pipeline, bson.D{{"$sort", bson.D{{"_id", sortOrder}}}})
+	}
+	if req.PageSettings.Limit > 0 {
+		pipeline = append(pipeline, bson.D{{"$limit", req.PageSettings.Limit + 1}})
+	}
+
 	cur, err := col.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 	defer func(cur *mongo.Cursor, ctx context.Context) {
 		err = cur.Close(ctx)
 	}(cur, ctx)
 
 	if err = cur.All(ctx, &res); err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 
-	return res, nil
+	if len(res) > 0 {
+		hasMore := false
+		if req.PageSettings.Limit > 0 && len(res) > req.PageSettings.Limit {
+			hasMore = true
+			res = res[:req.PageSettings.Limit]
+		}
+		if sortOrder == -1 {
+			for left, right := 0, len(res)-1; left < right; left, right = left+1, right-1 {
+				res[left], res[right] = res[right], res[left]
+			}
+		}
+		pageInfo = PageInfo{
+			FirstID: res[0].ID.Hex(),
+			LastID:  res[len(res)-1].ID.Hex(),
+			HasMore: hasMore,
+		}
+	}
+
+	return res, pageInfo, nil
 }
 
 type ClassesFilter struct {
@@ -331,22 +432,24 @@ type ClassesFilter struct {
 	StudioAddressSubstrings []string
 	TrainerNameSubstrings   []string
 	ClientNameSubstrings    []string
+
+	PageSettings PageSettings
 }
 
 func (r MongoRepository) SearchClasses(
 	ctx context.Context, req ClassesFilter,
-) (res []Class, err error) {
+) (res []Class, pageInfo PageInfo, err error) {
 	col := r.DB().Collection(classes)
 
 	var studioIDs []bson.ObjectID
 	switch filteredStudios, err := SearchEntitiesByRegexName[Studio](
 		ctx, r.DB().Collection(studios), "address", req.StudioAddressSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredStudios == nil:
 		break
 	case len(filteredStudios) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredStudios {
 			studioIDs = append(studioIDs, e.ID)
@@ -357,11 +460,11 @@ func (r MongoRepository) SearchClasses(
 	switch filteredTrainers, err := SearchEntitiesByRegexName[Trainer](
 		ctx, r.DB().Collection(trainers), "name", req.TrainerNameSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredTrainers == nil:
 		break
 	case len(filteredTrainers) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredTrainers {
 			trainerIDs = append(trainerIDs, e.ID)
@@ -372,11 +475,11 @@ func (r MongoRepository) SearchClasses(
 	switch filteredClients, err := SearchEntitiesByRegexName[Client](
 		ctx, r.DB().Collection(clients), "name", req.ClientNameSubstrings); {
 	case err != nil:
-		return nil, err
+		return nil, PageInfo{}, err
 	case filteredClients == nil:
 		break
 	case len(filteredClients) == 0:
-		return res, nil
+		return res, PageInfo{}, nil
 	default:
 		for _, e := range filteredClients {
 			clientIDs = append(clientIDs, e.ID)
@@ -415,6 +518,8 @@ func (r MongoRepository) SearchClasses(
 	}
 
 	filter := SearchFilter{}
+	sortOrder := filter.AddPaginationSettings(
+		req.PageSettings.FirstID, req.PageSettings.LastID)
 	filter.AddRegex("name", req.NameSubstring)
 	filter.AddTimeInterval("time", req.TimeInterval)
 	filter.AddTimeInterval("created_at", req.CreatedAtInterval)
@@ -425,17 +530,43 @@ func (r MongoRepository) SearchClasses(
 
 	pipeline = append(pipeline, bson.D{{"$match", filter}})
 
+	if sortOrder != 0 {
+		pipeline = append(pipeline, bson.D{{"$sort", bson.D{{"_id", sortOrder}}}})
+	}
+	if req.PageSettings.Limit > 0 {
+		pipeline = append(pipeline, bson.D{{"$limit", req.PageSettings.Limit + 1}})
+	}
+
 	cur, err := col.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 	defer func(cur *mongo.Cursor, ctx context.Context) {
 		err = cur.Close(ctx)
 	}(cur, ctx)
 
 	if err = cur.All(ctx, &res); err != nil {
-		return nil, err
+		return nil, PageInfo{}, err
 	}
 
-	return res, nil
+	if len(res) > 0 {
+		hasMore := false
+		if req.PageSettings.Limit > 0 && len(res) > req.PageSettings.Limit {
+			hasMore = true
+			res = res[:req.PageSettings.Limit]
+		}
+		if sortOrder == -1 {
+			for left, right := 0, len(res)-1; left < right; left, right = left+1, right-1 {
+				res[left], res[right] = res[right], res[left]
+			}
+		}
+		pageInfo = PageInfo{
+			FirstID: res[0].ID.Hex(),
+			LastID:  res[len(res)-1].ID.Hex(),
+			HasMore: hasMore,
+		}
+
+	}
+
+	return res, pageInfo, nil
 }
