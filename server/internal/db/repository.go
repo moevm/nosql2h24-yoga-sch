@@ -59,7 +59,9 @@ const (
 	classes  = "classes"
 )
 
-var ErrNotFound = errors.New("not found")
+var (
+	ErrNotFound = errors.New("not found")
+)
 
 func NewMongoRepository(mg *mongo.Client) Repository {
 	return MongoRepository{mg: mg}

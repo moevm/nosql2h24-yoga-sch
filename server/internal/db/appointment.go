@@ -2,9 +2,11 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func (r MongoRepository) MakeAppointment(
@@ -13,8 +15,18 @@ func (r MongoRepository) MakeAppointment(
 	classesCollection := r.DB().Collection(classes)
 	clientsCollection := r.DB().Collection(clients)
 
-	if err := classesCollection.FindOneAndUpdate(ctx, bson.M{"_id": classID},
-		bson.M{"$addToSet": bson.M{"client_ids": clientID}}).Err(); err != nil {
+	if err := classesCollection.FindOneAndUpdate(ctx,
+		bson.M{
+			"_id": classID,
+			"$expr": bson.M{
+				"$lt": bson.A{bson.M{"$size": "$client_ids"}, MaxClientCount},
+			},
+		},
+		bson.M{"$addToSet": bson.M{"client_ids": clientID}},
+	).Err(); err != nil {
+		if errors.As(err, &mongo.ErrNoDocuments) {
+			return ErrNotFound
+		}
 		return fmt.Errorf("error updating class %s: %v", classID, err)
 	}
 

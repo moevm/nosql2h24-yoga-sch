@@ -150,10 +150,11 @@ message ClassesFilter {
   google.protobuf.Timestamp created_at_interval_end = 6;
   google.protobuf.Timestamp updated_at_interval_begin = 7;
   google.protobuf.Timestamp updated_at_interval_end = 8;
+  bool only_available = 9;
 
-  repeated string studio_address_substrings = 9;
-  repeated string trainer_name_substrings = 10;
-  repeated string client_name_substrings = 11;
+  repeated string studio_address_substrings = 10;
+  repeated string trainer_name_substrings = 11;
+  repeated string client_name_substrings = 12;
 }
 
 message SearchClassesResponse {

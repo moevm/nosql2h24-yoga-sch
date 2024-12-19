@@ -139,6 +139,7 @@ func (e *SearchEngine) SearchClasses(
 		TimeInterval:            timeInterval,
 		CreatedAtInterval:       createdAtInterval,
 		UpdatedAtInterval:       updatedAtInterval,
+		OnlyAvailable:           req.OnlyAvailable,
 		StudioAddressSubstrings: req.StudioAddressSubstrings,
 		TrainerNameSubstrings:   req.TrainerNameSubstrings,
 		ClientNameSubstrings:    req.ClientNameSubstrings,
