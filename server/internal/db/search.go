@@ -326,6 +326,7 @@ type ClassesFilter struct {
 	TimeInterval      TimeInterval
 	CreatedAtInterval TimeInterval
 	UpdatedAtInterval TimeInterval
+	OnlyAvailable     bool
 
 	StudioAddressSubstrings []string
 	TrainerNameSubstrings   []string
@@ -395,6 +396,21 @@ func (r MongoRepository) SearchClasses(
 					"$regex":   req.IDSubstring,
 					"$options": "i",
 				}}},
+		}})
+	}
+
+	if req.OnlyAvailable {
+		pipeline = append(pipeline, bson.D{{
+			"$addFields", bson.D{{
+				"client_ids_count", bson.D{{
+					"$size", bson.D{{
+						"$ifNull", bson.A{"$client_ids", bson.A{}},
+					}}}}}},
+		}})
+		pipeline = append(pipeline, bson.D{{
+			"$match", bson.D{{
+				"client_ids_count", bson.D{{
+					"$lt", MaxClientCount}}}},
 		}})
 	}
 

@@ -2,11 +2,13 @@ package v1
 
 import (
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/db"
 	gen "gitlab.com/purposeless-lab/monorepo/fitness-aggregator/internal/gen/proto/v1"
 )
 
@@ -32,6 +34,9 @@ func (s *FitnessAggregator) CreateAppointment(
 	}
 
 	if err := s.Repo.MakeAppointment(ctx, classBsonID, clientBsonID); err != nil {
+		if errors.As(err, &db.ErrNotFound) {
+			return nil, status.Error(codes.FailedPrecondition, "the class is full")
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

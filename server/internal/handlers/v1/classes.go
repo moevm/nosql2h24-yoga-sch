@@ -30,6 +30,11 @@ func (s *FitnessAggregator) CreateClass(
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	if len(req.Class.ClientIds) > db.MaxClientCount {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"client count exceeds maximum %d", db.MaxClientCount)
+	}
+
 	bsonID, err := s.Repo.InsertClass(ctx, db.Class{
 		Name: req.Class.Name,
 		Time: req.Class.Time.AsTime(),
