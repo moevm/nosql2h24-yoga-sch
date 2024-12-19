@@ -130,70 +130,50 @@ const fetchStudios = async (): Promise<void> => {
   }
 };
 
-const fetchClassDetails = async (classId: number): Promise<ClassItem | null> => {
+const fetchClasses = async (address: string, date: string): Promise<void> => {
   try {
-    const response = await fetch(`${URI}/api/v1/class/${classId}`);
+    const selectedDate = new Date(date);
+
+    const timeIntervalBegin = new Date(selectedDate);
+    timeIntervalBegin.setHours(0, 0, 0, 0);
+
+    const timeIntervalEnd = new Date(selectedDate);
+    timeIntervalEnd.setHours(23, 59, 59, 999);
+
+    const url = `${URI}/api/v1/search/class?studio_address_substrings=${encodeURIComponent(address)}&time_interval_begin=${encodeURIComponent(timeIntervalBegin.toISOString())}&time_interval_end=${encodeURIComponent(timeIntervalEnd.toISOString())}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
     if (!response.ok) {
-      throw new Error('Ошибка сети');
+      throw new Error("Ошибка сети");
     }
+
     const data = await response.json();
-
-    const time = new Date(data.class.time);
-    const hours = time.getHours().toString().padStart(2, '0');
-    const minutes = time.getMinutes().toString().padStart(2, '0');
-    const formattedTime = `${hours}:${minutes}`;
-
-    return {
-      id: data.class.id,
-      time: new Date(data.class.time).toString(),
-      name: data.class.name,
-      trainer: data.class.trainerInfo.name
-    };
-  } catch (error) {
-    console.error('Ошибка при получении информации о занятии:', error);
-    return null;
-  }
-};
-
-const fetchClasses = async (studioId: number, date: string): Promise<void> => {
-  try {
-    const response = await fetch(`${URI}/api/v1/studio/${studioId}`);
-    if (!response.ok) {
-      throw new Error('Ошибка сети');
-    }
-
-    const studioData = await response.json();
-    const classesInfo = studioData.studio.classesInfo;
-
-    const selectedClasses = [];
-    for (let classInfo of classesInfo) {
-      const classDetails = await fetchClassDetails(classInfo.id);
-      if (classDetails) {
-        const classDate = new Date(classDetails.time);
-        console.log(classDate)
-        const classDateString = `${classDate.getFullYear()}-${(classDate.getMonth() + 1).toString().padStart(2, '0')}-${classDate.getDate().toString().padStart(2, '0')}`;
-
-        console.log(classDateString, date);
-        if (classDateString === date) {
-          classDetails.time = classDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-          selectedClasses.push(classDetails);
-        }
-      }
-    }
+    console.log(data);
+    const selectedClasses = data.classes.map((classData: any) => ({
+      id: classData.id,
+      time: new Date(classData.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      name: classData.name,
+      trainer: classData.trainerInfo.name,
+    }));
 
     classes.value = selectedClasses.length === 0 ? [] : selectedClasses;
   } catch (error) {
-    console.error('Ошибка при получении занятий для студии:', error);
-    classes.value = [];  // Если ошибка, очищаем список
+    console.error("Ошибка при получении занятий:", error);
+    classes.value = [];
   }
 };
 
-// Функция для выбора студии
 const selectStudio = (studio: Studio): void => {
   selectedStudio.value = studio;
   classes.value = [];
   if (selectedDate.value) {
-    fetchClasses(studio.id, selectedDate.value.dateString);
+    fetchClasses(studio.address, selectedDate.value.dateString);
   }
 };
 
@@ -246,7 +226,7 @@ const selectDate = (date: any): void => {
     };
     classes.value = [];
     if (selectedStudio.value) {
-      fetchClasses(selectedStudio.value.id, selectedDate.value.dateString);
+      fetchClasses(selectedStudio.value.address, selectedDate.value.dateString);
     }
   }
 };
@@ -263,7 +243,7 @@ onMounted(() => {
 watch([selectedStudio, selectedDate], () => {
   if (selectedStudio.value && selectedDate.value) {
     classes.value = [];
-    fetchClasses(selectedStudio.value.id, selectedDate.value.dateString);
+    fetchClasses(selectedStudio.value.address, selectedDate.value.dateString);
   }
 });
 
