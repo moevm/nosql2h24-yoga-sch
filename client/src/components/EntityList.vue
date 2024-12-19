@@ -98,7 +98,14 @@
     </table>
     <p v-else>No data to show.</p>
 
-    <button @click="showModal = true" class="add-button">Add new element</button>
+    <div class="settings">
+      <div class="pagination">
+        <button @click="load_prev_data" class="arrow-button" :disabled="prevDis">&#9664; Prev</button>
+        <button @click="load_next_data" class="arrow-button" :disabled="nextDis">Next &#9654;</button>
+      </div>
+
+      <button @click="showModal = true" class="add-button">Add new element</button>
+    </div>
 
     <div v-if="showModal" class="modal">
       <div class="modal-content">
@@ -207,69 +214,15 @@ const studios: Ref<Studio[]> = ref([]);
 const trainers: Ref<Trainer[]> = ref([]);
 const classes: Ref<Class[]> = ref([]);
 
-async function loadTrainers() {
-  try {
-    const response = await fetch(`${URI}/api/v1/trainer`);
-    const data = await response.json();
-    trainers.value = data.trainers || [];
-  } catch (error) {
-    console.error("Error while loading trainers:", error);
-  }
-}
+const first_id: Ref<String> = ref("");
+const last_id: Ref<String> = ref("");
+const has_more: Ref<Boolean> = ref(true);
 
-async function loadClasses() {
-  try {
-    const response = await fetch(`${URI}/api/v1/class`);
-    const data = await response.json();
-    classes.value = data.classes || [];
-  } catch (error) {
-    console.error("Error while loading classes:", error);
-  }
-}
-
-async function loadStudios() {
-  try {
-    const response = await fetch(`${URI}/api/v1/studio`);
-    const data = await response.json();
-    studios.value = data.studios || [];
-  } catch (error) {
-    console.error("Error while loading studios:", error);
-  }
-}
-
-async function loadData() {
-  try {
-    const response = await fetch(`${URI}/api/v1/${entityType.value}`, {
-      method: 'GET'
-    });
-    const data = await response.json();
-
-    switch (entityType.value) {
-      case 'client':
-        items.value = data.clients || [];
-        break;
-      case 'trainer':
-        items.value = data.trainers || [];
-        break;
-      case 'class':
-        items.value = data.classes || [];
-        break;
-      case 'studio':
-        items.value = data.studios || [];
-        break;
-    }
-
-    console.log(items.value);
-  } catch (error) {
-    console.error("Error while loading data:", error);
-  }
-}
+const nextDis = ref(false);
+const prevDis = ref(true);
 
 onMounted(() => {
-  loadData();
-  loadStudios();
-  loadTrainers();
-  loadClasses();
+  loadData(true);
 });
 
 watch(() => route.params.entityType, (newType) => {
@@ -442,8 +395,32 @@ const addNewItem = async () => {
   }
 }
 
-const applyFilters = async () => {
-  const queryParams = Object.entries(filters.value)
+async function load_next_data() {
+  first_id.value = ""
+  await loadData();
+  nextDis.value = !has_more.value
+  prevDis.value = false
+};
+
+async function load_prev_data() {
+  last_id.value = ""
+  await loadData();
+  prevDis.value = !has_more.value
+  nextDis.value = false
+};
+
+
+async function applyFilters() {
+  last_id.value = ""
+  first_id.value = ""
+  prevDis.value = true
+  await loadData();
+  nextDis.value = !has_more.value
+}
+
+
+const loadData = async (first_load: boolean = false) => {
+  let queryParams = Object.entries(filters.value)
       .filter(([_, value]) => value && (Array.isArray(value) ? value.length > 0 : value))
       .map(([key, value]) => {
         console.log(key, value);
@@ -462,6 +439,14 @@ const applyFilters = async () => {
         }
       })
       .join('&');
+
+  queryParams += "&limit=4";
+  if (first_id.value) {
+    queryParams += `&first_id=${first_id.value}`
+  }
+  if (last_id.value) {
+    queryParams += `&last_id=${last_id.value}`
+  }
 
   try {
     const response = await fetch(`${URI}/api/v1/search/${entityType.value.toLowerCase()}?${queryParams}`, {
@@ -483,8 +468,15 @@ const applyFilters = async () => {
         items.value = data.studios || [];
         break;
     }
+    first_id.value = data.pageInfo.firstId;
+    last_id.value = data.pageInfo.lastId;
+    has_more.value = data.pageInfo.hasMore;
   } catch (error) {
-    console.error('Error while applying filters:', error);
+    console.error('Error while loading data:', error);
+  }
+
+  if (first_load) {
+    nextDis.value = !has_more.value;
   }
 };
 
@@ -542,25 +534,62 @@ li {
   padding-bottom: 60px;
 }
 
-.add-button {
+.settings {
   position: fixed;
   bottom: 20px;
   right: 20px;
   padding: 12px 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-button {
   background-color: #f44336;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
+  padding: 10px 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, transform 0.2s ease;
-  z-index: 100;
+  flex-shrink: 0;
 }
 
 .add-button:hover {
   background-color: #d32f2f;
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.arrow-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.arrow-button:disabled {
+  background-color: #b0bec5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.arrow-button:hover:enabled {
+  background-color: #1976d2;
+  transform: translateY(-2px);
 }
 
 .add-button:active {
