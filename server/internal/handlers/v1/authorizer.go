@@ -78,7 +78,7 @@ var endpointPermissionValidators = []struct {
 	},
 	{
 		regex:     `\/fitness_aggregator\.v1\.SearchEngine\/*`,
-		onlyAdmin: true,
+		onlyAdmin: false,
 	},
 	{
 		regex:     `\/fitness_aggregator\.v1\.FitnessAggregator\/*`,
