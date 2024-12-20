@@ -19,7 +19,9 @@ func (r MongoRepository) MakeAppointment(
 		bson.M{
 			"_id": classID,
 			"$expr": bson.M{
-				"$lt": bson.A{bson.M{"$size": "$client_ids"}, MaxClientCount},
+				"$lt": bson.A{bson.M{"$size": bson.D{{
+					"$ifNull", bson.A{"$client_ids", bson.A{}},
+				}}}, MaxClientCount},
 			},
 		},
 		bson.M{"$addToSet": bson.M{"client_ids": clientID}},
